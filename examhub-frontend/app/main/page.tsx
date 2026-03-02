@@ -785,65 +785,41 @@ function PromoPage() {
         </div>
       </section>
 
-      {/* AI 데이터 활용 안내 */}
+      {/* AI 데이터 활용 안내 - 거북쌤 말풍선 */}
       <section className="py-16 md:py-20 bg-gradient-to-b from-white to-gray-50">
-        <div className="max-w-3xl mx-auto px-4 flex flex-col items-center text-center">
-          <img
-            src="/images/mascot.png"
-            alt="ExamHub 마스코트"
-            className="w-32 h-32 md:w-40 md:h-40 mb-8 drop-shadow-lg"
-          />
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8 md:p-10">
-            <p className="text-gray-700 text-base md:text-lg leading-relaxed font-medium">
-              현재는 비록 위의 기능들만 제공하지만
-            </p>
-            <ul className="mt-4 space-y-2 text-left inline-block">
-              <li className="flex items-start gap-2 text-gray-600 text-base md:text-lg">
-                <span className="text-[#7b1e7a] font-bold mt-0.5">-</span>
-                <span>점수보다, <strong className="text-gray-900">정답을 입력해 놓으면,</strong></span>
-              </li>
-              <li className="flex items-start gap-2 text-gray-600 text-base md:text-lg">
-                <span className="text-[#7b1e7a] font-bold mt-0.5">-</span>
-                <span><strong className="text-gray-900">AI가 이 데이터들을 이용해서,</strong> 곧 생각지도 못한 도움을 주게 될 것입니다</span>
-              </li>
-            </ul>
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="flex items-center gap-6 md:gap-10">
+            {/* 거북쌤 로고 (좌측) */}
+            <div className="flex-shrink-0">
+              <img
+                src="/images/mascot.png"
+                alt="거북쌤 마스코트"
+                className="w-28 h-28 md:w-40 md:h-40 drop-shadow-xl"
+              />
+            </div>
+            {/* 말풍선 (우측) */}
+            <div className="relative flex-1">
+              <div className="absolute left-[-12px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-[12px] border-t-transparent border-b-[12px] border-b-transparent border-r-[14px] border-r-white hidden md:block" style={{ filter: 'drop-shadow(-2px 0 1px rgba(0,0,0,0.05))' }} />
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-6 md:p-8">
+                <p className="text-gray-700 text-base md:text-lg leading-relaxed font-medium mb-4">
+                  현재는 비록 위의 기능들만 제공하지만
+                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-gray-600 text-base md:text-lg">
+                    <span className="text-[#7b1e7a] font-bold mt-0.5">-</span>
+                    <span>점수보다, <strong className="text-gray-900">정답을 입력해 놓으면,</strong></span>
+                  </li>
+                  <li className="flex items-start gap-2 text-gray-600 text-base md:text-lg">
+                    <span className="text-[#7b1e7a] font-bold mt-0.5">-</span>
+                    <span><strong className="text-gray-900">AI가 이 데이터들을 이용해서,</strong> 곧 생각지도 못한 도움을 주게 될 것입니다</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 왜 ExamHub인가 */}
-      <section className="py-16 md:py-20 bg-gray-50">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
-              왜 <span className="text-[#7b1e7a]">ExamHub</span>인가요?
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm hover:shadow-md transition-shadow text-center">
-              <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-7 h-7 text-blue-600" />
-              </div>
-              <h4 className="font-bold text-gray-900 mb-2">정확한 데이터</h4>
-              <p className="text-sm text-gray-500">교육청/평가원 공식 정답과<br />변환표를 기반으로 분석합니다</p>
-            </div>
-            <div className="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm hover:shadow-md transition-shadow text-center">
-              <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Zap className="w-7 h-7 text-green-600" />
-              </div>
-              <h4 className="font-bold text-gray-900 mb-2">빠르고 간편</h4>
-              <p className="text-sm text-gray-500">정답만 입력하면 끝!<br />복잡한 수작업이 필요 없습니다</p>
-            </div>
-            <div className="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm hover:shadow-md transition-shadow text-center">
-              <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <PieChart className="w-7 h-7 text-purple-600" />
-              </div>
-              <h4 className="font-bold text-gray-900 mb-2">통합 분석</h4>
-              <p className="text-sm text-gray-500">채점부터 대학예측까지<br />한 곳에서 모두 해결합니다</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* CTA 섹션 */}
       <section className="py-16 md:py-20 bg-gradient-to-br from-[#7b1e7a] via-[#9c3d9a] to-[#5a1559] relative overflow-hidden">
