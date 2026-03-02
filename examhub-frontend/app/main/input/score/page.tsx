@@ -1328,7 +1328,7 @@ function ScoreInputPageContent() {
       "한문I",
     ]
 
-    const handleStandardScoreChange = (subject: string, field: string, value: string) => {
+    const handleStandardScoreChange = async (subject: string, field: string, value: string) => {
       setStandardScores((prev) => ({
         ...prev,
         [subject]: {
@@ -1336,6 +1336,41 @@ function ScoreInputPageContent() {
           [field]: value,
         },
       }))
+
+      // 표준점수 입력 시 → 백분위/등급 자동 조회
+      if (field === "standard" && value && mockExamId) {
+        const stdScore = parseInt(value)
+        if (isNaN(stdScore) || stdScore <= 0) return
+
+        // 과목명 매핑 (state key → DB subject name)
+        let subjectName = ""
+        if (subject === "korean") subjectName = "국어"
+        else if (subject === "math") subjectName = "수학"
+        else if (subject === "inquiry1") subjectName = standardScores.inquiry1.subject
+        else if (subject === "inquiry2") subjectName = standardScores.inquiry2.subject
+        if (!subjectName) return
+
+        try {
+          const res = await api.get<any>(`/api/scores/conversion/standard/${mockExamId}?subject=${encodeURIComponent(subjectName)}`)
+          if (res?.data) {
+            // 변환표에서 해당 표준점수 찾기
+            const match = res.data.find((r: any) => r.standardScore === stdScore)
+            if (match) {
+              setStandardScores((prev) => ({
+                ...prev,
+                [subject]: {
+                  ...prev[subject as keyof typeof prev],
+                  standard: value,
+                  grade: match.grade?.toString() || "",
+                  percentile: match.percentile?.toString() || "",
+                },
+              }))
+            }
+          }
+        } catch (e) {
+          // 변환표 조회 실패 시 무시 (수동 입력 가능)
+        }
+      }
     }
 
     return (
