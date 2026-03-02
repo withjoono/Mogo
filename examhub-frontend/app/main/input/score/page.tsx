@@ -1263,6 +1263,8 @@ function ScoreInputPageContent() {
   ]
 
   const Grade3StandardScoreInput = () => {
+    const [koreanSelection, setKoreanSelection] = useState("화법과작문")
+    const [mathSelection, setMathSelection] = useState("확률과통계")
     const [standardScores, setStandardScores] = useState({
       korean: { standard: "", grade: "", percentile: "" },
       math: { standard: "", grade: "", percentile: "" },
@@ -1342,10 +1344,10 @@ function ScoreInputPageContent() {
         const stdScore = parseInt(value)
         if (isNaN(stdScore) || stdScore <= 0) return
 
-        // 과목명 매핑 (state key → DB subject name)
+        // 과목명 매핑 (state key → DB subject name / 선택과목명)
         let subjectName = ""
-        if (subject === "korean") subjectName = "국어"
-        else if (subject === "math") subjectName = "수학"
+        if (subject === "korean") subjectName = koreanSelection || "국어"
+        else if (subject === "math") subjectName = mathSelection || "수학"
         else if (subject === "inquiry1") subjectName = standardScores.inquiry1.subject
         else if (subject === "inquiry2") subjectName = standardScores.inquiry2.subject
         if (!subjectName) return
@@ -1383,11 +1385,17 @@ function ScoreInputPageContent() {
             </CardTitle>
             <div className="text-sm text-gray-500">선택과목</div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="bg-blue-500 text-white border-blue-500">
-                화법과 작문
+              <Button size="sm" variant="outline"
+                className={koreanSelection === "화법과작문" ? "bg-blue-500 text-white border-blue-500" : ""}
+                onClick={() => setKoreanSelection("화법과작문")}
+              >
+                화법과작문
               </Button>
-              <Button size="sm" variant="outline">
-                언어
+              <Button size="sm" variant="outline"
+                className={koreanSelection === "언어와매체" ? "bg-blue-500 text-white border-blue-500" : ""}
+                onClick={() => setKoreanSelection("언어와매체")}
+              >
+                언어와매체
               </Button>
             </div>
           </CardHeader>
@@ -1436,13 +1444,22 @@ function ScoreInputPageContent() {
             </CardTitle>
             <div className="text-sm text-gray-500">선택과목</div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="bg-blue-500 text-white border-blue-500">
-                확률과 통계
+              <Button size="sm" variant="outline"
+                className={mathSelection === "확률과통계" ? "bg-blue-500 text-white border-blue-500" : ""}
+                onClick={() => setMathSelection("확률과통계")}
+              >
+                확률과통계
               </Button>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline"
+                className={mathSelection === "기하" ? "bg-blue-500 text-white border-blue-500" : ""}
+                onClick={() => setMathSelection("기하")}
+              >
                 기하
               </Button>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline"
+                className={mathSelection === "미적분" ? "bg-blue-500 text-white border-blue-500" : ""}
+                onClick={() => setMathSelection("미적분")}
+              >
                 미적분
               </Button>
             </div>
@@ -1714,9 +1731,11 @@ function ScoreInputPageContent() {
           <Button
             onClick={() => {
               submitScore({
+                koreanSelection: koreanSelection || undefined,
                 koreanStandard: Number(standardScores.korean.standard) || 0,
                 koreanGrade: Number(standardScores.korean.grade) || 0,
                 koreanPercentile: Number(standardScores.korean.percentile) || 0,
+                mathSelection: mathSelection || undefined,
                 mathStandard: Number(standardScores.math.standard) || 0,
                 mathGrade: Number(standardScores.math.grade) || 0,
                 mathPercentile: Number(standardScores.math.percentile) || 0,
