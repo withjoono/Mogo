@@ -47,6 +47,8 @@ model MockExam {
   scoreConversionRaw2015  ScoreConversionRaw2015[]  @relation("conversionRaw2015")
   scoreConversionRaw2022  ScoreConversionRaw2022[]  @relation("conversionRaw2022")
   cumulativeTopPct2015    CumulativeTopPct2015[]    @relation("cumulativeTopPct2015")
+  questionCategories2015  QuestionCategory2015[]    @relation("questionCategory2015")
+  questionCategories2022  QuestionCategory2022[]    @relation("questionCategory2022")
   studentAnswers          StudentAnswer[]
   studentScores           StudentScore[]
 
@@ -477,4 +479,44 @@ model MockAnswer {
   @@index([grade, examName])
   @@index([subject, subjectDetail])
   @@map("eh_mock_answer")
+}
+
+// === 문제 분류 테이블 (교육과정별) ===
+
+model QuestionCategory2015 {
+  id             Int      @id @default(autoincrement())
+  mockExamId     Int      @map("mock_exam_id")
+  subject        String   @db.VarChar(20)
+  questionNumber Int      @map("question_number")
+  subSubject     String?  @map("sub_subject") @db.VarChar(50)
+  questionType   String?  @map("question_type") @db.VarChar(50)
+  questionForm   String?  @map("question_form") @db.VarChar(20)
+  majorChapter   String?  @map("major_chapter") @db.VarChar(100)
+  minorChapter   String?  @map("minor_chapter") @db.VarChar(100)
+  score          Int?
+  mockExam       MockExam @relation("questionCategory2015", fields: [mockExamId], references: [id])
+
+  @@unique([mockExamId, subject, questionNumber])
+  @@index([mockExamId])
+  @@index([subject, questionType])
+  @@map("eh_2015_question_category")
+}
+
+model QuestionCategory2022 {
+  id             Int      @id @default(autoincrement())
+  mockExamId     Int      @map("mock_exam_id")
+  subject        String   @db.VarChar(20)
+  questionNumber Int      @map("question_number")
+  subSubject     String?  @map("sub_subject") @db.VarChar(50)
+  questionType   String?  @map("question_type") @db.VarChar(50)
+  questionForm   String?  @map("question_form") @db.VarChar(20)
+  majorChapter   String?  @map("major_chapter") @db.VarChar(100)
+  minorChapter   String?  @map("minor_chapter") @db.VarChar(100)
+  score          Int?
+  mockExam       MockExam @relation("questionCategory2022", fields: [mockExamId], references: [id])
+
+  @@unique([mockExamId, subject, questionNumber])
+  @@index([mockExamId])
+  @@index([subject, questionType])
+  @@map("eh_2022_question_category")
 }

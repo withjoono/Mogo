@@ -581,6 +581,32 @@ function PromoPage() {
         </div>
       </section>
 
+      {/* AI 데이터 활용 안내 */}
+      <section className="py-16 md:py-20 bg-gradient-to-b from-white to-gray-50">
+        <div className="max-w-3xl mx-auto px-4 flex flex-col items-center text-center">
+          <img
+            src="/images/mascot.png"
+            alt="ExamHub 마스코트"
+            className="w-32 h-32 md:w-40 md:h-40 mb-8 drop-shadow-lg"
+          />
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8 md:p-10">
+            <p className="text-gray-700 text-base md:text-lg leading-relaxed font-medium">
+              현재는 비록 위의 기능들만 제공하지만
+            </p>
+            <ul className="mt-4 space-y-2 text-left inline-block">
+              <li className="flex items-start gap-2 text-gray-600 text-base md:text-lg">
+                <span className="text-[#7b1e7a] font-bold mt-0.5">-</span>
+                <span>점수보다, <strong className="text-gray-900">정답을 입력해 놓으면,</strong></span>
+              </li>
+              <li className="flex items-start gap-2 text-gray-600 text-base md:text-lg">
+                <span className="text-[#7b1e7a] font-bold mt-0.5">-</span>
+                <span><strong className="text-gray-900">AI가 이 데이터들을 이용해서,</strong> 곧 생각지도 못한 도움을 주게 될 것입니다</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* 왜 ExamHub인가 */}
       <section className="py-16 md:py-20 bg-gray-50">
         <div className="max-w-5xl mx-auto px-4">

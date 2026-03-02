@@ -1,6 +1,6 @@
 /**
  * @geobuk/common-utils
- * G Skool 공통 유틸리티
+ * T Skool 공통 유틸리티
  */
 
 // JWT 유틸리티

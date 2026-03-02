@@ -1,6 +1,6 @@
 /**
  * @geobuk/shared-entities
- * G Skool 공유 TypeORM 엔티티
+ * T Skool 공유 TypeORM 엔티티
  *
  * ⚠️ 중요: 이 패키지의 엔티티들은 주로 **읽기 전용**으로 사용됩니다.
  * 회원(Member) 엔티티는 메인 백엔드에서만 관리되며,

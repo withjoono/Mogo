@@ -13,6 +13,7 @@ import { StatisticsModule } from './statistics/statistics.module';
 import { TargetModule } from './target/target.module';
 import { AdminModule } from './admin/admin.module';
 import { WrongAnswerModule } from './wrong-answer/wrong-answer.module';
+import { WeaknessAnalysisModule } from './weakness-analysis/weakness-analysis.module';
 
 @Module({
   imports: [
@@ -30,8 +31,9 @@ import { WrongAnswerModule } from './wrong-answer/wrong-answer.module';
     TargetModule,
     AdminModule,
     WrongAnswerModule,
+    WeaknessAnalysisModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

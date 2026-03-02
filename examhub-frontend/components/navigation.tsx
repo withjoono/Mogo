@@ -77,7 +77,7 @@ export function Navigation() {
       ],
     },
     { name: "누적분석", href: "/main/statistics" },
-    { name: "분석과 오답", href: "/main/management" },
+    { name: "취약분석", href: "/main/weakness-analysis" },
     { name: "오답노트", href: "/main/wrong-answers" },
   ]
 
