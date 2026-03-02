@@ -530,56 +530,83 @@ function PromoPage() {
             </h2>
             <p className="text-gray-500 text-lg">ExamHub 하나면 모의고사 관리 끝!</p>
           </div>
-          <div className="space-y-16">
-            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-              <div className="w-full md:w-1/2">
-                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl p-8 text-white shadow-xl shadow-blue-200/50">
-                  <Zap className="w-12 h-12 mb-4 opacity-90" />
-                  <h3 className="text-2xl font-bold mb-3">⚡ 자동 채점</h3>
-                  <p className="text-blue-100 leading-relaxed">OMR 답안을 입력하면 즉시 자동 채점!<br />과목별 점수, 등급, 백분위까지 한눈에 확인.</p>
-                  <div className="mt-6 space-y-2">
-                    <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-blue-200" />실시간 자동 채점</div>
-                    <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-blue-200" />표준점수 · 백분위 · 등급 자동 변환</div>
-                    <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-blue-200" />전 과목 한 번에 처리</div>
-                  </div>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* 자동 채점 */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6">
+                <Zap className="w-10 h-10 text-white/90 mb-3" />
+                <h3 className="text-xl font-bold text-white">⚡ 자동 채점</h3>
+                <p className="text-blue-100 text-sm mt-1">정답 입력만으로 즉시 채점 완료</p>
               </div>
-              <div className="w-full md:w-1/2">
-                <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-8 text-white shadow-xl shadow-emerald-200/50">
-                  <BarChart3 className="w-12 h-12 mb-4 opacity-90" />
-                  <h3 className="text-2xl font-bold mb-3">📊 성적 분석</h3>
-                  <p className="text-emerald-100 leading-relaxed">과목별 성취수준, 평균 등급, 백분위 그래프,<br />조합별 분석까지 데이터 기반 정밀 분석.</p>
-                  <div className="mt-6 space-y-2">
-                    <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-emerald-200" />과목별 등급 · 백분위 시각화</div>
-                    <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-emerald-200" />조합별 분석 (국수탐, 국영탐 등)</div>
-                    <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-emerald-200" />성취수준 평가 및 학습 추천</div>
-                  </div>
+              <div className="p-6">
+                <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                  OMR 답안을 입력하면 즉시 자동 채점!<br />
+                  과목별 점수, 등급, 백분위까지 한눈에 확인.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-blue-400" />실시간 자동 채점</div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-blue-400" />표준점수 · 백분위 · 등급 자동 변환</div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-blue-400" />전 과목 한 번에 처리</div>
                 </div>
               </div>
             </div>
-            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-              <div className="w-full md:w-1/2">
-                <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-3xl p-8 text-white shadow-xl shadow-orange-200/50">
-                  <BookX className="w-12 h-12 mb-4 opacity-90" />
-                  <h3 className="text-2xl font-bold mb-3">📝 오답 저장</h3>
-                  <p className="text-orange-100 leading-relaxed">티린 문제를 자동으로 저장하고<br />과목별 · 단원별로 정리하여 효율적인 복습.</p>
-                  <div className="mt-6 space-y-2">
-                    <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-orange-200" />틀린 문제 자동 저장</div>
-                    <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-orange-200" />과목별 · 단원별 분류</div>
-                    <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-orange-200" />복습 체크리스트</div>
-                  </div>
+
+            {/* 성적 분석 */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+              <div className="bg-gradient-to-r from-emerald-500 to-teal-600 p-6">
+                <BarChart3 className="w-10 h-10 text-white/90 mb-3" />
+                <h3 className="text-xl font-bold text-white">📊 성적 분석</h3>
+                <p className="text-emerald-100 text-sm mt-1">데이터 기반 정밀 분석</p>
+              </div>
+              <div className="p-6">
+                <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                  과목별 성취수준, 평균 등급, 백분위 그래프,<br />
+                  조합별 분석까지 데이터 기반 정밀 분석.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-emerald-400" />과목별 등급 · 백분위 시각화</div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-emerald-400" />조합별 분석 (국수탐, 국영탐 등)</div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-emerald-400" />성취수준 평가 및 학습 추천</div>
                 </div>
               </div>
-              <div className="w-full md:w-1/2">
-                <div className="bg-gradient-to-br from-[#7b1e7a] to-[#5a1559] rounded-3xl p-8 text-white shadow-xl shadow-purple-200/50">
-                  <GraduationCap className="w-12 h-12 mb-4 opacity-90" />
-                  <h3 className="text-2xl font-bold mb-3">🎓 대학 예측</h3>
-                  <p className="text-purple-200 leading-relaxed">내 성적으로 갈 수 있는 대학은?<br />합격 가능 대학 예측 및 목표 대학 비교.</p>
-                  <div className="mt-6 space-y-2">
-                    <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-purple-300" />성적 기반 대학 합격 예측</div>
-                    <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-purple-300" />목표 대학 등급컷 비교</div>
-                    <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-purple-300" />수시 · 정시 분석</div>
-                  </div>
+            </div>
+
+            {/* 오답 저장 */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+              <div className="bg-gradient-to-r from-orange-500 to-amber-600 p-6">
+                <BookX className="w-10 h-10 text-white/90 mb-3" />
+                <h3 className="text-xl font-bold text-white">📝 오답 저장</h3>
+                <p className="text-orange-100 text-sm mt-1">틀린 문제를 자동으로 정리</p>
+              </div>
+              <div className="p-6">
+                <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                  틀린 문제를 자동으로 저장하고<br />
+                  과목별 · 단원별로 정리하여 효율적인 복습.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-orange-400" />틀린 문제 자동 저장</div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-orange-400" />과목별 · 단원별 분류</div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-orange-400" />복습 체크리스트</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 대학 예측 */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+              <div className="bg-gradient-to-r from-[#7b1e7a] to-[#5a1559] p-6">
+                <GraduationCap className="w-10 h-10 text-white/90 mb-3" />
+                <h3 className="text-xl font-bold text-white">🎓 대학 예측</h3>
+                <p className="text-purple-200 text-sm mt-1">합격 가능 대학 예측 및 비교</p>
+              </div>
+              <div className="p-6">
+                <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                  내 성적으로 갈 수 있는 대학은?<br />
+                  합격 가능 대학 예측 및 목표 대학 비교.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-purple-400" />성적 기반 대학 합격 예측</div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-purple-400" />목표 대학 등급컷 비교</div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-purple-400" />수시 · 정시 분석</div>
                 </div>
               </div>
             </div>
