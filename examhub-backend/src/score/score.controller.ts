@@ -79,6 +79,31 @@ export class ScoreController {
     return { success: true, data };
   }
 
+  @Get('cumulative-top-pct/:mockExamId')
+  @ApiOperation({ summary: '상위누적백분위 조회' })
+  @ApiQuery({ name: 'standardSum', required: true, description: '국수탐 표점합' })
+  @ApiQuery({ name: 'englishGrade', required: true, description: '영어등급 (1~9)' })
+  async getCumulativeTopPct(
+    @Param('mockExamId', ParseIntPipe) mockExamId: number,
+    @Query('standardSum', ParseIntPipe) standardSum: number,
+    @Query('englishGrade', ParseIntPipe) englishGrade: number,
+  ) {
+    const data = await this.scoreService.getCumulativeTopPct(mockExamId, standardSum, englishGrade);
+    return { success: true, data };
+  }
+
+  @Post('convert/:studentId/:mockExamId')
+  @ApiOperation({ summary: '성적 자동 변환 (표점→백분위/등급→상위누백)' })
+  async convertScores(
+    @Param('studentId') studentId: string,
+    @Param('mockExamId', ParseIntPipe) mockExamId: number,
+  ) {
+    // studentId → numeric memberId 변환
+    const member = await this.scoreService.findOne(studentId, mockExamId);
+    const data = await this.scoreService.calculateConvertedScores(member.memberId, mockExamId);
+    return { success: true, data };
+  }
+
   @Get(':id')
   @ApiOperation({ summary: '점수 ID로 조회' })
   @ApiResponse({ status: 200, description: '점수 상세', type: ScoreResponseDto })

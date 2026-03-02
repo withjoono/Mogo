@@ -45,8 +45,11 @@ export class PrismaService
     await this.studentScore.deleteMany();
     await this.examQuestion.deleteMany();
     await this.admissionCutoff.deleteMany();
-    await this.scoreConversionStandard.deleteMany();
-    await this.scoreConversionRaw.deleteMany();
+    await this.scoreConversion2015.deleteMany();
+    await this.scoreConversionRaw2015.deleteMany();
+    await this.scoreConversion2022.deleteMany();
+    await this.scoreConversionRaw2022.deleteMany();
+    await this.cumulativeTopPct2015.deleteMany();
     await this.department.deleteMany();
     await this.university.deleteMany();
     await this.subjectChapter.deleteMany();

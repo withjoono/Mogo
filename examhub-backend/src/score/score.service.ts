@@ -207,7 +207,7 @@ export class ScoreService {
    * 점수 변환표 조회 (표준점수 → 백분위/등급)
    */
   async getScoreConversion(mockExamId: number, subject: string) {
-    return this.prisma.scoreConversionStandard.findMany({
+    return this.prisma.scoreConversion2015.findMany({
       where: { mockExamId, subject },
       orderBy: { standardScore: 'desc' },
     });
@@ -220,10 +220,161 @@ export class ScoreService {
     const where: any = { mockExamId, subject };
     if (subjectType) where.subjectType = subjectType;
 
-    return this.prisma.scoreConversionRaw.findMany({
+    return this.prisma.scoreConversionRaw2015.findMany({
       where,
       orderBy: { standardScore: 'desc' },
     });
+  }
+
+  /**
+   * 상위누적백분위 조회
+   */
+  async getCumulativeTopPct(mockExamId: number, standardSum: number, englishGrade: number) {
+    const row = await this.prisma.cumulativeTopPct2015.findUnique({
+      where: { mockExamId_standardSum: { mockExamId, standardSum } },
+    });
+
+    if (!row) return null;
+
+    // 영어등급 컬럼 매핑
+    const engColumns: Record<number, any> = {
+      1: row.topPctEnglish1,
+      2: row.topPctEnglish2,
+      3: row.topPctEnglish3,
+      4: row.topPctEnglish4,
+      5: row.topPctEnglish5,
+      6: row.topPctEnglish6,
+      7: row.topPctEnglish7,
+      8: row.topPctEnglish8,
+      9: row.topPctEnglish9,
+    };
+
+    return {
+      standardSum,
+      topPctBase: Number(row.topPctBase),
+      topPctWithEnglish: engColumns[englishGrade] != null ? Number(engColumns[englishGrade]) : null,
+      englishGrade,
+    };
+  }
+
+  /**
+   * 학생 성적 자동 변환 파이프라인
+   * 
+   * 두 가지 경로:
+   * A) 표준점수가 있으면 → 백분위/등급 조회 + 표점합 → 누백 (topCumulativeStd)
+   * B) 원점수만 있으면 → 표점 변환 → 표점합 → 누백 (topCumulativeRaw) / 백분위/등급 스킵
+   * 
+   * 우선순위: 표준점수 > 원점수 (둘 다 있으면 표준점수만 사용)
+   */
+  async calculateConvertedScores(memberId: number, mockExamId: number) {
+    const score = await this.prisma.studentScore.findUnique({
+      where: { memberId_mockExamId: { memberId, mockExamId } },
+    });
+    if (!score) return null;
+
+    const updateData: any = {};
+
+    // === 과목별 매핑 정의 ===
+    const subjectDefs = [
+      { stdField: 'koreanStandard', rawField: 'koreanRaw', pctField: 'koreanPercentile', gradeField: 'koreanGrade', subject: '국어', selectionField: 'koreanSelection', areaName: '국어' },
+      { stdField: 'mathStandard', rawField: 'mathRaw', pctField: 'mathPercentile', gradeField: 'mathGrade', subject: '수학', selectionField: 'mathSelection', areaName: '수학' },
+      { stdField: 'inquiry1Standard', rawField: 'inquiry1Raw', pctField: 'inquiry1Percentile', gradeField: 'inquiry1Grade', subject: null, selectionField: 'inquiry1Selection', areaName: null },
+      { stdField: 'inquiry2Standard', rawField: 'inquiry2Raw', pctField: 'inquiry2Percentile', gradeField: 'inquiry2Grade', subject: null, selectionField: 'inquiry2Selection', areaName: null },
+    ];
+
+    // 표준점수 합산용 (경로별 분리)
+    const stdScoresForStd: number[] = []; // 경로A: 실제 표준점수
+    const stdScoresForRaw: number[] = []; // 경로B: 원점수→변환 표점
+    let hasAnyStandard = false;
+    let hasAnyRaw = false;
+
+    for (const def of subjectDefs) {
+      const standardScore = (score as any)[def.stdField];
+      const rawScore = (score as any)[def.rawField];
+      const subjectName = def.subject || (score as any)[def.selectionField];
+
+      if (standardScore != null) {
+        // === 경로 A: 표준점수 존재 → 백분위/등급 조회 ===
+        hasAnyStandard = true;
+        stdScoresForStd.push(standardScore);
+
+        if (subjectName) {
+          const conversion = await this.prisma.scoreConversion2015.findFirst({
+            where: { mockExamId, subject: subjectName, standardScore },
+          });
+          if (conversion) {
+            if (conversion.percentile != null) updateData[def.pctField] = Number(conversion.percentile);
+            if (conversion.grade != null) updateData[def.gradeField] = conversion.grade;
+          }
+        }
+      } else if (rawScore != null && subjectName) {
+        // === 경로 B: 원점수만 존재 → 표점 변환 (백분위/등급 스킵) ===
+        hasAnyRaw = true;
+        const areaName = def.areaName || (score as any)[def.selectionField];
+
+        // 원점수 → 표점 변환 조회
+        const rawConversion = await this.prisma.scoreConversionRaw2015.findFirst({
+          where: { mockExamId, subject: areaName, commonScore: rawScore },
+        });
+
+        if (rawConversion?.standardScore != null) {
+          stdScoresForRaw.push(rawConversion.standardScore);
+          updateData[def.stdField] = rawConversion.standardScore;
+        }
+      }
+    }
+
+    // === 합계 계산 ===
+    const englishGrade = (score as any).englishGrade;
+
+    if (hasAnyStandard && stdScoresForStd.length > 0) {
+      // 경로 A: 표준점수 기반
+      const totalStdSum = stdScoresForStd.reduce((sum, s) => sum + s, 0);
+      updateData.totalStandardSum = totalStdSum;
+
+      // 백분위 합계
+      const pctFields = ['koreanPercentile', 'mathPercentile', 'inquiry1Percentile', 'inquiry2Percentile'];
+      const pcts = pctFields
+        .map(f => updateData[f] ?? (score as any)[f])
+        .filter(p => p != null)
+        .map(Number);
+      if (pcts.length > 0) {
+        updateData.totalPercentileSum = pcts.reduce((sum, p) => sum + p, 0);
+      }
+
+      // 상위누백 (topCumulativeStd)
+      if (englishGrade != null) {
+        const cumResult = await this.getCumulativeTopPct(mockExamId, totalStdSum, englishGrade);
+        if (cumResult?.topPctWithEnglish != null) {
+          updateData.topCumulativeStd = cumResult.topPctWithEnglish;
+        }
+      }
+    }
+
+    if (hasAnyRaw && !hasAnyStandard && stdScoresForRaw.length > 0) {
+      // 경로 B: 원점수→변환표점 기반 (표준점수가 없을 때만)
+      const totalRawStdSum = stdScoresForRaw.reduce((sum, s) => sum + s, 0);
+      updateData.totalStandardSum = totalRawStdSum;
+
+      // 상위누백 (topCumulativeRaw) — 임시 성격
+      if (englishGrade != null) {
+        const cumResult = await this.getCumulativeTopPct(mockExamId, totalRawStdSum, englishGrade);
+        if (cumResult?.topPctWithEnglish != null) {
+          updateData.topCumulativeRaw = cumResult.topPctWithEnglish;
+        }
+      }
+    }
+
+    // === 저장 ===
+    if (Object.keys(updateData).length > 0) {
+      return this.prisma.studentScore.update({
+        where: { memberId_mockExamId: { memberId, mockExamId } },
+        data: updateData,
+        include: { member: true, mockExam: true },
+      });
+    }
+
+    return score;
   }
 }
 

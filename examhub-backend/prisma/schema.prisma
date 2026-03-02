@@ -42,8 +42,11 @@ model MockExam {
   createdAt               DateTime                  @default(now()) @map("created_at")
   admissionCutoffs        AdmissionCutoff[]
   questions               ExamQuestion[]
-  scoreConversionRaw      ScoreConversionRaw[]
-  scoreConversionStandard ScoreConversionStandard[]
+  scoreConversion2015     ScoreConversion2015[]     @relation("conversion2015")
+  scoreConversion2022     ScoreConversion2022[]     @relation("conversion2022")
+  scoreConversionRaw2015  ScoreConversionRaw2015[]  @relation("conversionRaw2015")
+  scoreConversionRaw2022  ScoreConversionRaw2022[]  @relation("conversionRaw2022")
+  cumulativeTopPct2015    CumulativeTopPct2015[]    @relation("cumulativeTopPct2015")
   studentAnswers          StudentAnswer[]
   studentScores           StudentScore[]
 
@@ -288,7 +291,9 @@ model AdmissionCutoff {
   @@map("eh_admission_cutoffs")
 }
 
-model ScoreConversionStandard {
+// === 2015 교육과정 (올해까지 고3, 내년 삭제 예정) ===
+
+model ScoreConversion2015 {
   id            Int      @id @default(autoincrement())
   mockExamId    Int      @map("mock_exam_id")
   subject       String   @db.VarChar(50)
@@ -296,14 +301,14 @@ model ScoreConversionStandard {
   percentile    Decimal? @db.Decimal(6, 2)
   grade         Int?
   cumulativePct Decimal? @map("cumulative_pct") @db.Decimal(10, 6)
-  mockExam      MockExam @relation(fields: [mockExamId], references: [id])
+  mockExam      MockExam @relation("conversion2015", fields: [mockExamId], references: [id])
 
   @@index([mockExamId])
   @@index([subject, standardScore])
-  @@map("eh_score_conversion_standard")
+  @@map("eh_2015_score_conversion_standard")
 }
 
-model ScoreConversionRaw {
+model ScoreConversionRaw2015 {
   id             Int      @id @default(autoincrement())
   mockExamId     Int      @map("mock_exam_id")
   subject        String   @db.VarChar(50)
@@ -311,11 +316,64 @@ model ScoreConversionRaw {
   commonScore    Int?     @map("common_score")
   selectionScore Int?     @map("selection_score")
   standardScore  Int?     @map("standard_score")
-  mockExam       MockExam @relation(fields: [mockExamId], references: [id])
+  mockExam       MockExam @relation("conversionRaw2015", fields: [mockExamId], references: [id])
 
   @@index([mockExamId])
   @@index([subject, subjectType])
-  @@map("eh_score_conversion_raw")
+  @@map("eh_2015_score_conversion_raw")
+}
+
+// === 2022 교육과정 (현재 고2 이하, 내년부터 고3) ===
+
+model ScoreConversion2022 {
+  id            Int      @id @default(autoincrement())
+  mockExamId    Int      @map("mock_exam_id")
+  subject       String   @db.VarChar(50)
+  standardScore Int      @map("standard_score")
+  percentile    Decimal? @db.Decimal(6, 2)
+  grade         Int?
+  cumulativePct Decimal? @map("cumulative_pct") @db.Decimal(10, 6)
+  mockExam      MockExam @relation("conversion2022", fields: [mockExamId], references: [id])
+
+  @@index([mockExamId])
+  @@index([subject, standardScore])
+  @@map("eh_2022_score_conversion_standard")
+}
+
+model ScoreConversionRaw2022 {
+  id             Int      @id @default(autoincrement())
+  mockExamId     Int      @map("mock_exam_id")
+  subject        String   @db.VarChar(50)
+  subjectType    String?  @map("subject_type") @db.VarChar(50)
+  commonScore    Int?     @map("common_score")
+  selectionScore Int?     @map("selection_score")
+  standardScore  Int?     @map("standard_score")
+  mockExam       MockExam @relation("conversionRaw2022", fields: [mockExamId], references: [id])
+
+  @@index([mockExamId])
+  @@index([subject, subjectType])
+  @@map("eh_2022_score_conversion_raw")
+}
+
+model CumulativeTopPct2015 {
+  id             Int      @id @default(autoincrement())
+  mockExamId     Int      @map("mock_exam_id")
+  standardSum    Int      @map("standard_sum")
+  topPctBase     Decimal  @map("top_pct_base") @db.Decimal(8, 4)
+  topPctEnglish1 Decimal? @map("top_pct_eng_1") @db.Decimal(8, 4)
+  topPctEnglish2 Decimal? @map("top_pct_eng_2") @db.Decimal(8, 4)
+  topPctEnglish3 Decimal? @map("top_pct_eng_3") @db.Decimal(8, 4)
+  topPctEnglish4 Decimal? @map("top_pct_eng_4") @db.Decimal(8, 4)
+  topPctEnglish5 Decimal? @map("top_pct_eng_5") @db.Decimal(8, 4)
+  topPctEnglish6 Decimal? @map("top_pct_eng_6") @db.Decimal(8, 4)
+  topPctEnglish7 Decimal? @map("top_pct_eng_7") @db.Decimal(8, 4)
+  topPctEnglish8 Decimal? @map("top_pct_eng_8") @db.Decimal(8, 4)
+  topPctEnglish9 Decimal? @map("top_pct_eng_9") @db.Decimal(8, 4)
+  mockExam       MockExam @relation("cumulativeTopPct2015", fields: [mockExamId], references: [id])
+
+  @@unique([mockExamId, standardSum])
+  @@index([mockExamId])
+  @@map("eh_2015_cumulative_top_pct")
 }
 
 model Mentoring {
