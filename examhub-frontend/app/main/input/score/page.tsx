@@ -1265,6 +1265,12 @@ function ScoreInputPageContent() {
   const Grade3StandardScoreInput = () => {
     const [koreanSelection, setKoreanSelection] = useState("화법과작문")
     const [mathSelection, setMathSelection] = useState("확률과통계")
+    const [inquiry1Category, setInquiry1Category] = useState<"사탐" | "과탐">("과탐")
+    const [inquiry2Category, setInquiry2Category] = useState<"사탐" | "과탐">("과탐")
+
+    const socialSubjects = ["생활과윤리", "윤리와사상", "한국지리", "세계지리", "동아시아사", "세계사", "경제", "정치와법", "사회·문화"]
+    const scienceSubjects = ["물리학I", "화학I", "생명과학I", "지구과학I", "물리학II", "화학II", "생명과학II", "지구과학II"]
+
     const [standardScores, setStandardScores] = useState({
       korean: { standard: "", grade: "", percentile: "" },
       math: { standard: "", grade: "", percentile: "" },
@@ -1554,30 +1560,35 @@ function ScoreInputPageContent() {
               <span className="text-green-500">🔬</span> 탐구 1
             </CardTitle>
             <div className="text-sm text-gray-500">과목선택</div>
-            <div className="flex gap-2">
-              <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white">
-                과목선택
+            <div className="flex gap-2 mb-2">
+              <Button size="sm" variant="outline"
+                className={inquiry1Category === "사탐" ? "bg-orange-500 text-white border-orange-500" : ""}
+                onClick={() => setInquiry1Category("사탐")}
+              >
+                사탐과목
               </Button>
+              <Button size="sm" variant="outline"
+                className={inquiry1Category === "과탐" ? "bg-teal-500 text-white border-teal-500" : ""}
+                onClick={() => setInquiry1Category("과탐")}
+              >
+                과탐과목
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {(inquiry1Category === "사탐" ? socialSubjects : scienceSubjects).map((subj) => (
+                <Button key={subj} size="sm" variant="outline"
+                  className={standardScores.inquiry1.subject === subj ? "bg-blue-500 text-white border-blue-500 text-xs" : "text-xs"}
+                  onClick={() => handleStandardScoreChange("inquiry1", "subject", subj)}
+                >
+                  {subj}
+                </Button>
+              ))}
             </div>
           </CardHeader>
           <CardContent>
-            <div className="mb-4">
-              <Select
-                value={standardScores.inquiry1.subject}
-                onValueChange={(value) => handleStandardScoreChange("inquiry1", "subject", value)}
-              >
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="과목을 선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  {inquirySubjects.map((subject) => (
-                    <SelectItem key={subject} value={subject}>
-                      {subject}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {standardScores.inquiry1.subject && (
+              <div className="text-sm font-medium text-green-700 mb-3">선택: {standardScores.inquiry1.subject}</div>
+            )}
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">표준점수 (0~200)</label>
@@ -1621,30 +1632,35 @@ function ScoreInputPageContent() {
               <span className="text-green-500">🔬</span> 탐구 2
             </CardTitle>
             <div className="text-sm text-gray-500">과목선택</div>
-            <div className="flex gap-2">
-              <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white">
-                과목선택
+            <div className="flex gap-2 mb-2">
+              <Button size="sm" variant="outline"
+                className={inquiry2Category === "사탐" ? "bg-orange-500 text-white border-orange-500" : ""}
+                onClick={() => setInquiry2Category("사탐")}
+              >
+                사탐과목
               </Button>
+              <Button size="sm" variant="outline"
+                className={inquiry2Category === "과탐" ? "bg-teal-500 text-white border-teal-500" : ""}
+                onClick={() => setInquiry2Category("과탐")}
+              >
+                과탐과목
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {(inquiry2Category === "사탐" ? socialSubjects : scienceSubjects).map((subj) => (
+                <Button key={subj} size="sm" variant="outline"
+                  className={standardScores.inquiry2.subject === subj ? "bg-blue-500 text-white border-blue-500 text-xs" : "text-xs"}
+                  onClick={() => handleStandardScoreChange("inquiry2", "subject", subj)}
+                >
+                  {subj}
+                </Button>
+              ))}
             </div>
           </CardHeader>
           <CardContent>
-            <div className="mb-4">
-              <Select
-                value={standardScores.inquiry2.subject}
-                onValueChange={(value) => handleStandardScoreChange("inquiry2", "subject", value)}
-              >
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="과목을 선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  {inquirySubjects.map((subject) => (
-                    <SelectItem key={subject} value={subject}>
-                      {subject}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {standardScores.inquiry2.subject && (
+              <div className="text-sm font-medium text-green-700 mb-3">선택: {standardScores.inquiry2.subject}</div>
+            )}
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">표준점수 (0~200)</label>
