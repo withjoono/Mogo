@@ -421,7 +421,7 @@ export default function MockExamScoreAnalysisPage() {
                           <div>
                             <span className="text-sm text-gray-600">전체 평균 등급</span>
                             <span className={`ml-3 text-2xl font-bold ${gradeColor(Math.round(achievement.overallGrade))}`}>
-                              {achievement.overallGrade.toFixed(1)}등급
+                              {(achievement.overallGrade ?? 0).toFixed(1)}등급
                             </span>
                           </div>
                         </div>
@@ -474,7 +474,7 @@ export default function MockExamScoreAnalysisPage() {
                               <tr key={i} className={`border-b ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                                 <td className="p-3 text-sm font-medium text-gray-900">{c.name}</td>
                                 <td className="p-3 text-sm text-center text-gray-900">{c.totalStandard}</td>
-                                <td className="p-3 text-sm text-center text-gray-900">{c.totalPercentile.toFixed(1)}</td>
+                                <td className="p-3 text-sm text-center text-gray-900">{(c.totalPercentile ?? 0).toFixed(1)}</td>
                                 <td className="p-3 text-sm text-center">
                                   <span className="px-2 py-1 rounded-full bg-[#f5e6f5] text-[#7b1e7a] font-bold">
                                     {c.estimatedGrade}

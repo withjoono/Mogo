@@ -143,7 +143,7 @@ export default function MockExamInputPage() {
 
         // 2. 답안 존재 확인 - 과목별로 체크
         try {
-          const answerRes = await api.get<any>(`/api/wrong-answers/student/${user.id}?mockExamId=${selectedExam.id}&wrongOnly=false&limit=1000`)
+          const answerRes = await api.get<any>(`/api/wrong-answers/student/${user.id}?mockExamId=${selectedExam.id}&wrongOnly=false&limit=100`)
           if (answerRes && answerRes.items && answerRes.items.length > 0) {
             const subjectSet = new Set<string>()
             answerRes.items.forEach((item: any) => {
