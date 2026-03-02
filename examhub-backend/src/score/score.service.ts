@@ -274,12 +274,19 @@ export class ScoreService {
 
     const updateData: any = {};
 
-    // === 과목별 매핑 정의 ===
+    // === 과목별 매핑 정의 (국수탐: 표점 변환 대상) ===
     const subjectDefs = [
       { stdField: 'koreanStandard', rawField: 'koreanRaw', pctField: 'koreanPercentile', gradeField: 'koreanGrade', subject: '국어', selectionField: 'koreanSelection', areaName: '국어' },
       { stdField: 'mathStandard', rawField: 'mathRaw', pctField: 'mathPercentile', gradeField: 'mathGrade', subject: '수학', selectionField: 'mathSelection', areaName: '수학' },
       { stdField: 'inquiry1Standard', rawField: 'inquiry1Raw', pctField: 'inquiry1Percentile', gradeField: 'inquiry1Grade', subject: null, selectionField: 'inquiry1Selection', areaName: null },
       { stdField: 'inquiry2Standard', rawField: 'inquiry2Raw', pctField: 'inquiry2Percentile', gradeField: 'inquiry2Grade', subject: null, selectionField: 'inquiry2Selection', areaName: null },
+    ];
+
+    // === 등급 변환 과목 (표점 없이 원점수→등급만) ===
+    const gradeDefs = [
+      { rawField: 'englishRaw', gradeField: 'englishGrade', subject: '영어', areaName: '영어' },
+      { rawField: 'historyRaw', gradeField: 'historyGrade', subject: '한국사', areaName: '사회탐구' },
+      { rawField: 'foreignRaw', gradeField: 'foreignGrade', subject: null, selectionField: 'foreignSelection', areaName: '제2외국어' },
     ];
 
     // 표준점수 합산용 (경로별 분리)
@@ -324,8 +331,31 @@ export class ScoreService {
       }
     }
 
+    // === 등급 과목 처리 (영어/한국사/외국어): 원점수→등급 변환 ===
+    for (const gDef of gradeDefs) {
+      const rawScore = (score as any)[gDef.rawField];
+      const existingGrade = (score as any)[gDef.gradeField];
+
+      // 이미 등급이 입력되어 있으면 스킵 (사용자 직접 입력 우선)
+      if (existingGrade != null) continue;
+      if (rawScore == null) continue;
+
+      const subjectName = gDef.subject || (score as any)[(gDef as any).selectionField];
+      if (!subjectName) continue;
+
+      // 원점수 → 등급 조회 (standard_score에 등급이 저장됨)
+      const gradeConversion = await this.prisma.scoreConversionRaw2015.findFirst({
+        where: { mockExamId, subject: gDef.areaName, subjectType: subjectName, commonScore: rawScore },
+      });
+
+      if (gradeConversion?.standardScore != null) {
+        updateData[gDef.gradeField] = gradeConversion.standardScore;
+      }
+    }
+
     // === 합계 계산 ===
-    const englishGrade = (score as any).englishGrade;
+    // 영어등급: 업데이트된 값 또는 기존 값
+    const englishGrade = updateData.englishGrade ?? (score as any).englishGrade;
 
     if (hasAnyStandard && stdScoresForStd.length > 0) {
       // 경로 A: 표준점수 기반
