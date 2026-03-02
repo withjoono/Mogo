@@ -1344,19 +1344,20 @@ function ScoreInputPageContent() {
         const stdScore = parseInt(value)
         if (isNaN(stdScore) || stdScore <= 0) return
 
-        // 과목명 매핑 (state key → DB subject name / 선택과목명)
+        // 과목명 매핑 (state key → DB subject name)
+        // 변환표는 대과목명(국어/수학)으로 저장됨
         let subjectName = ""
-        if (subject === "korean") subjectName = koreanSelection || "국어"
-        else if (subject === "math") subjectName = mathSelection || "수학"
+        if (subject === "korean") subjectName = "국어"
+        else if (subject === "math") subjectName = "수학"
         else if (subject === "inquiry1") subjectName = standardScores.inquiry1.subject
         else if (subject === "inquiry2") subjectName = standardScores.inquiry2.subject
         if (!subjectName) return
 
         try {
-          const res = await api.get<any>(`/api/scores/conversion/standard/${mockExamId}?subject=${encodeURIComponent(subjectName)}`)
-          if (res?.data) {
+          const conversionTable = await api.get<any[]>(`/api/scores/conversion/standard/${mockExamId}?subject=${encodeURIComponent(subjectName)}`)
+          if (Array.isArray(conversionTable) && conversionTable.length > 0) {
             // 변환표에서 해당 표준점수 찾기
-            const match = res.data.find((r: any) => r.standardScore === stdScore)
+            const match = conversionTable.find((r: any) => Number(r.standardScore) === stdScore)
             if (match) {
               setStandardScores((prev) => ({
                 ...prev,
@@ -1370,6 +1371,7 @@ function ScoreInputPageContent() {
             }
           }
         } catch (e) {
+          console.log("변환표 조회 실패:", e)
           // 변환표 조회 실패 시 무시 (수동 입력 가능)
         }
       }
