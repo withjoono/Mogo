@@ -65,17 +65,17 @@ function Dashboard({ user }: { user: User }) {
     load()
   }, [user.id])
 
-  // 평균 등급 계산
   const calcAvgGrade = (s: ScoreRecord) => {
-    const grades = [s.koreanGrade, s.mathGrade, s.englishGrade, s.inquiry1Grade, s.inquiry2Grade, s.historyGrade].filter(g => g != null) as number[]
+    const grades = [s.koreanGrade, s.mathGrade, s.englishGrade, s.inquiry1Grade, s.inquiry2Grade, s.historyGrade]
+      .map(g => Number(g) || 0).filter(g => g > 0)
     return grades.length > 0 ? grades.reduce((a, b) => a + b, 0) / grades.length : 0
   }
 
-  const gradeColor = (g: number) => {
-    if (g <= 2) return "text-green-600"
-    if (g <= 4) return "text-blue-600"
-    if (g <= 6) return "text-yellow-600"
-    return "text-red-600"
+  const gradeBarColor = (g: number) => {
+    if (g <= 2) return '#22c55e'
+    if (g <= 4) return '#3b82f6'
+    if (g <= 6) return '#f59e0b'
+    return '#ef4444'
   }
 
   const gradeBg = (g: number) => {
@@ -84,6 +84,10 @@ function Dashboard({ user }: { user: User }) {
     if (g <= 6) return "bg-yellow-100 text-yellow-700"
     return "bg-red-100 text-red-700"
   }
+
+  const latest = scores.length > 0 ? scores[0] : null
+  const latestAvg = latest ? calcAvgGrade(latest) : 0
+  const latestTotal = latest ? (Number(latest.totalStandardSum) || 0) : 0
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -125,7 +129,6 @@ function Dashboard({ user }: { user: User }) {
             <div className="text-gray-400">데이터 로딩 중...</div>
           </div>
         ) : scores.length === 0 ? (
-          /* 성적 없음 */
           <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center shadow-sm">
             <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
               <AlertCircle className="w-8 h-8 text-[#7b1e7a]" />
@@ -137,128 +140,130 @@ function Dashboard({ user }: { user: User }) {
             </Link>
           </div>
         ) : (
-          <div className="space-y-8">
-            {/* 최근 성적 요약 */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="p-6 border-b border-gray-100">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-gray-900">📝 모의고사 입력 현황</h2>
-                  <Link href="/main/score-analysis" className="text-sm text-[#7b1e7a] hover:underline flex items-center gap-1">
-                    상세 분석<ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
+          <div className="space-y-6">
+            {/* 요약 통계 카드 */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 text-center shadow-sm">
+                <div className="text-xs text-gray-400 mb-1">응시 모의고사</div>
+                <div className="text-3xl font-extrabold text-[#7b1e7a]">{scores.length}</div>
+                <div className="text-xs text-gray-400 mt-1">회</div>
               </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {scores.map((score) => {
-                    const avg = calcAvgGrade(score)
-                    const totalStd = Number(score.totalStandardSum) || 0
-                    return (
-                      <div key={score.id} className="border border-gray-100 rounded-xl p-5 hover:bg-gray-50 transition-colors">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-sm font-bold text-gray-900">
-                            {score.mockExam?.name || `모의고사 #${score.mockExamId}`}
-                          </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${gradeBg(avg)}`}>
-                            평균 {avg.toFixed(1)}등급
-                          </span>
-                        </div>
-                        <div className="text-xs text-gray-400 mb-3">
-                          {score.mockExam?.year}년 {score.mockExam?.month}월
-                        </div>
-                        <div className="grid grid-cols-3 gap-2 text-center">
-                          <div className="bg-gray-50 rounded-lg p-2">
-                            <div className="text-xs text-gray-400">국어</div>
-                            <div className={`text-sm font-bold ${gradeColor(score.koreanGrade || 0)}`}>{score.koreanGrade || '-'}등급</div>
-                          </div>
-                          <div className="bg-gray-50 rounded-lg p-2">
-                            <div className="text-xs text-gray-400">수학</div>
-                            <div className={`text-sm font-bold ${gradeColor(score.mathGrade || 0)}`}>{score.mathGrade || '-'}등급</div>
-                          </div>
-                          <div className="bg-gray-50 rounded-lg p-2">
-                            <div className="text-xs text-gray-400">영어</div>
-                            <div className={`text-sm font-bold ${gradeColor(score.englishGrade || 0)}`}>{score.englishGrade || '-'}등급</div>
-                          </div>
-                        </div>
-                        {totalStd > 0 && (
-                          <div className="mt-3 text-center text-xs text-gray-500">
-                            표준점수 합계: <strong className="text-gray-900">{totalStd}</strong>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 text-center shadow-sm">
+                <div className="text-xs text-gray-400 mb-1">최근 평균 등급</div>
+                <div className={`text-3xl font-extrabold`} style={{ color: gradeBarColor(latestAvg) }}>{latestAvg.toFixed(1)}</div>
+                <div className="text-xs text-gray-400 mt-1">등급</div>
+              </div>
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 text-center shadow-sm">
+                <div className="text-xs text-gray-400 mb-1">최근 표준점수 합</div>
+                <div className="text-3xl font-extrabold text-gray-900">{latestTotal || '-'}</div>
+                <div className="text-xs text-gray-400 mt-1">점</div>
               </div>
             </div>
+
+            {/* 최근 시험 과목별 등급 차트 */}
+            {latest && (
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-900">📊 최근 시험 과목별 등급</h2>
+                    <p className="text-xs text-gray-400 mt-0.5">{latest.mockExam?.name || `모의고사 #${latest.mockExamId}`} · {latest.mockExam?.year}년 {latest.mockExam?.month}월</p>
+                  </div>
+                  <Link href="/main/score-analysis" className="text-sm text-[#7b1e7a] hover:underline flex items-center gap-1 font-medium">
+                    상세보기<ChevronRight className="w-4 h-4" />
+                  </Link>
+                </div>
+                <div className="p-6">
+                  {(() => {
+                    const subjects = [
+                      { name: "국어", grade: Number(latest.koreanGrade) || 0 },
+                      { name: "수학", grade: Number(latest.mathGrade) || 0 },
+                      { name: "영어", grade: Number(latest.englishGrade) || 0 },
+                      { name: "탐구1", grade: Number(latest.inquiry1Grade) || 0 },
+                      { name: "탐구2", grade: Number(latest.inquiry2Grade) || 0 },
+                      { name: "한국사", grade: Number(latest.historyGrade) || 0 },
+                    ].filter(s => s.grade > 0)
+
+                    return (
+                      <div className="space-y-4">
+                        {subjects.map((s) => {
+                          // 등급이 낮을수록(좋을수록) 넓은 바: width = (10 - grade) / 9 * 100
+                          const barWidth = Math.max(((10 - s.grade) / 9) * 100, 8)
+                          return (
+                            <div key={s.name} className="flex items-center gap-4">
+                              <div className="w-14 text-sm font-medium text-gray-700 text-right">{s.name}</div>
+                              <div className="flex-1 bg-gray-100 rounded-full h-8 relative overflow-hidden">
+                                <div
+                                  className="h-full rounded-full flex items-center justify-end pr-3 transition-all duration-700"
+                                  style={{ width: `${barWidth}%`, backgroundColor: gradeBarColor(s.grade) }}
+                                >
+                                  <span className="text-xs font-bold text-white drop-shadow">{s.grade}등급</span>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )
+                  })()}
+                </div>
+              </div>
+            )}
 
             {/* 성적 추이 그래프 */}
             {scores.length >= 1 && (
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
+                <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                   <h2 className="text-lg font-bold text-gray-900">📈 성적 추이</h2>
+                  <Link href="/main/score-analysis" className="text-sm text-[#7b1e7a] hover:underline flex items-center gap-1 font-medium">
+                    상세보기<ChevronRight className="w-4 h-4" />
+                  </Link>
                 </div>
                 <div className="p-6">
-                  {/* 과목별 등급 추이 바 차트 */}
-                  <div className="space-y-6">
-                    {scores.slice().reverse().map((score, idx) => {
-                      const subjects = [
-                        { name: "국어", grade: Number(score.koreanGrade) || 0 },
-                        { name: "수학", grade: Number(score.mathGrade) || 0 },
-                        { name: "영어", grade: Number(score.englishGrade) || 0 },
-                        { name: "탐구1", grade: Number(score.inquiry1Grade) || 0 },
-                        { name: "탐구2", grade: Number(score.inquiry2Grade) || 0 },
-                      ].filter(s => s.grade > 0)
-                      const colors = ['#7b1e7a', '#3b82f6', '#10b981', '#f59e0b', '#ef4444']
-
-                      return (
-                        <div key={score.id}>
-                          <div className="text-sm font-medium text-gray-700 mb-3">
-                            {score.mockExam?.name || `모의고사 #${score.mockExamId}`}
-                            <span className="text-gray-400 ml-2">{score.mockExam?.year}년 {score.mockExam?.month}월</span>
+                  {/* 평균 등급 추이 */}
+                  <div className="mb-8">
+                    <h3 className="text-sm font-bold text-gray-600 mb-4">평균 등급 추이</h3>
+                    <div className="flex items-end gap-5 justify-center" style={{ height: '180px' }}>
+                      {scores.slice().reverse().map((score) => {
+                        const avg = calcAvgGrade(score)
+                        // 등급이 낮을수록(좋을수록) 높은 바
+                        const barHeight = avg > 0 ? Math.max(((10 - avg) / 9) * 100, 10) : 0
+                        return (
+                          <div key={score.id} className="flex flex-col items-center gap-1 flex-1 max-w-[80px]">
+                            <span className="text-xs font-bold" style={{ color: gradeBarColor(avg) }}>{avg.toFixed(1)}</span>
+                            <div
+                              className="w-10 rounded-t-lg transition-all duration-500"
+                              style={{
+                                height: `${barHeight}%`,
+                                backgroundColor: gradeBarColor(avg),
+                                opacity: 0.85,
+                              }}
+                            />
+                            <span className="text-[10px] text-gray-400 mt-1 text-center leading-tight">
+                              {score.mockExam?.month || '?'}월
+                            </span>
                           </div>
-                          <div className="flex items-end gap-4" style={{ height: '120px' }}>
-                            {subjects.map((s, i) => {
-                              // 등급이 낮을수록(좋을수록) 높은 바: height = (10 - grade) / 9 * 100%
-                              const barHeight = Math.max(((10 - s.grade) / 9) * 100, 10)
-                              return (
-                                <div key={s.name} className="flex flex-col items-center gap-1 flex-1">
-                                  <span className="text-xs font-bold text-gray-700">{s.grade}등급</span>
-                                  <div
-                                    className="w-full max-w-[40px] rounded-t-md transition-all"
-                                    style={{
-                                      height: `${barHeight}%`,
-                                      backgroundColor: colors[i % colors.length],
-                                      opacity: 0.85,
-                                    }}
-                                  />
-                                  <span className="text-[10px] text-gray-500 mt-1">{s.name}</span>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      )
-                    })}
+                        )
+                      })}
+                    </div>
                   </div>
 
                   {/* 표준점수 합계 추이 */}
                   {scores.some(s => Number(s.totalStandardSum) > 0) && (
-                    <div className="mt-8 pt-6 border-t border-gray-100">
-                      <h3 className="text-sm font-bold text-gray-700 mb-4">표준점수 합계 추이</h3>
-                      <div className="flex items-end gap-6 justify-center" style={{ height: '140px' }}>
+                    <div className="pt-6 border-t border-gray-100">
+                      <h3 className="text-sm font-bold text-gray-600 mb-4">표준점수 합계 추이</h3>
+                      <div className="flex items-end gap-5 justify-center" style={{ height: '160px' }}>
                         {scores.slice().reverse().map((score) => {
                           const total = Number(score.totalStandardSum) || 0
                           const maxTotal = Math.max(...scores.map(s => Number(s.totalStandardSum) || 0), 1)
-                          const barHeight = Math.max((total / maxTotal) * 100, 8)
+                          const barHeight = total > 0 ? Math.max((total / maxTotal) * 100, 8) : 0
                           return (
-                            <div key={score.id} className="flex flex-col items-center gap-1" style={{ width: '80px' }}>
-                              <span className="text-xs font-bold text-gray-900">{total}</span>
+                            <div key={score.id} className="flex flex-col items-center gap-1 flex-1 max-w-[80px]">
+                              <span className="text-xs font-bold text-gray-700">{total || '-'}</span>
                               <div
-                                className="w-10 rounded-t-md bg-gradient-to-t from-[#7b1e7a] to-[#b94ab8]"
+                                className="w-10 rounded-t-lg bg-gradient-to-t from-[#7b1e7a] to-[#c96ac7] transition-all duration-500"
                                 style={{ height: `${barHeight}%` }}
                               />
-                              <span className="text-[10px] text-gray-500 text-center mt-1 leading-tight">
+                              <span className="text-[10px] text-gray-400 mt-1 text-center leading-tight">
                                 {score.mockExam?.month || '?'}월
                               </span>
                             </div>
@@ -271,7 +276,7 @@ function Dashboard({ user }: { user: User }) {
               </div>
             )}
 
-            {/* 빠른 입력 CTA */}
+            {/* 새 모의고사 CTA */}
             <div className="bg-gradient-to-r from-[#7b1e7a] to-[#9c3d9a] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="text-white">
                 <h3 className="text-lg font-bold">새 모의고사를 풀었나요?</h3>
