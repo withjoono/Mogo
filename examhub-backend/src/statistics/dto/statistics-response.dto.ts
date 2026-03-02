@@ -27,6 +27,12 @@ export class ExamDataPointDto {
 
   @ApiPropertyOptional({ description: '원점수' })
   rawScore?: number;
+
+  @ApiPropertyOptional({ description: '상위누백 (표점 기준)' })
+  topCumulativeStd?: number;
+
+  @ApiPropertyOptional({ description: '상위누백 (원점수 기준)' })
+  topCumulativeRaw?: number;
 }
 
 /**

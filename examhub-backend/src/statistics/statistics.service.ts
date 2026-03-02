@@ -393,6 +393,8 @@ export class StatisticsService {
         month: score.mockExam.month,
         grade: avgGrade,
         standardScore: score.totalStandardSum || undefined,
+        topCumulativeStd: score.topCumulativeStd ? Number(score.topCumulativeStd) : undefined,
+        topCumulativeRaw: score.topCumulativeRaw ? Number(score.topCumulativeRaw) : undefined,
       };
     });
   }
