@@ -184,21 +184,23 @@ function Dashboard({ user }: { user: User }) {
                     ].filter(s => s.grade > 0)
 
                     return (
-                      <div className="space-y-4">
-                        {subjects.map((s) => {
-                          // 등급이 낮을수록(좋을수록) 넓은 바: width = (10 - grade) / 9 * 100
-                          const barWidth = Math.max(((10 - s.grade) / 9) * 100, 8)
+                      <div className="flex items-end justify-center gap-6" style={{ height: '220px' }}>
+                        {subjects.map((s, i) => {
+                          const colors = ['#7b1e7a', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1']
+                          // 등급이 낮을수록(좋을수록) 높은 바
+                          const barHeight = Math.max(((10 - s.grade) / 9) * 100, 10)
                           return (
-                            <div key={s.name} className="flex items-center gap-4">
-                              <div className="w-14 text-sm font-medium text-gray-700 text-right">{s.name}</div>
-                              <div className="flex-1 bg-gray-100 rounded-full h-8 relative overflow-hidden">
-                                <div
-                                  className="h-full rounded-full flex items-center justify-end pr-3 transition-all duration-700"
-                                  style={{ width: `${barWidth}%`, backgroundColor: gradeBarColor(s.grade) }}
-                                >
-                                  <span className="text-xs font-bold text-white drop-shadow">{s.grade}등급</span>
-                                </div>
-                              </div>
+                            <div key={s.name} className="flex flex-col items-center gap-1" style={{ width: '56px' }}>
+                              <span className="text-xs font-bold" style={{ color: colors[i % colors.length] }}>{s.grade}등급</span>
+                              <div
+                                className="w-10 rounded-t-lg transition-all duration-700"
+                                style={{
+                                  height: `${barHeight}%`,
+                                  backgroundColor: colors[i % colors.length],
+                                  opacity: 0.85,
+                                }}
+                              />
+                              <span className="text-xs text-gray-600 text-center mt-1 font-medium">{s.name}</span>
                             </div>
                           )
                         })}
