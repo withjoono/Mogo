@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -11,6 +11,7 @@ import { getUser, type User } from "@/lib/auth/user"
 
 function ScoreInputPageContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<"raw" | "standard">("raw")
   const [user, setUser] = useState<User | null>(null)
   const [mockExamId, setMockExamId] = useState<number | null>(null)
@@ -83,6 +84,13 @@ function ScoreInputPageContent() {
   const year = searchParams.get("year") || ""
   const grade = searchParams.get("grade") || ""
   const month = searchParams.get("month") || ""
+
+  // 쿼리 파라미터 없으면 모의고사 선택 페이지로 리다이렉트
+  useEffect(() => {
+    if (!year || !grade || !month) {
+      router.replace("/main/input")
+    }
+  }, [year, grade, month, router])
 
   // 초기 데이터 로드 (사용자 & 모의고사 ID 검사)
   useEffect(() => {
