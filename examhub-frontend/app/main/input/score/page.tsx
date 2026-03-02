@@ -1563,13 +1563,13 @@ function ScoreInputPageContent() {
             <div className="flex gap-2 mb-2">
               <Button size="sm" variant="outline"
                 className={inquiry1Category === "사탐" ? "bg-orange-500 text-white border-orange-500" : ""}
-                onClick={() => setInquiry1Category("사탐")}
+                onClick={() => { setInquiry1Category("사탐"); handleStandardScoreChange("inquiry1", "subject", socialSubjects[0]) }}
               >
                 사탐과목
               </Button>
               <Button size="sm" variant="outline"
                 className={inquiry1Category === "과탐" ? "bg-teal-500 text-white border-teal-500" : ""}
-                onClick={() => setInquiry1Category("과탐")}
+                onClick={() => { setInquiry1Category("과탐"); handleStandardScoreChange("inquiry1", "subject", scienceSubjects[0]) }}
               >
                 과탐과목
               </Button>
@@ -1635,13 +1635,13 @@ function ScoreInputPageContent() {
             <div className="flex gap-2 mb-2">
               <Button size="sm" variant="outline"
                 className={inquiry2Category === "사탐" ? "bg-orange-500 text-white border-orange-500" : ""}
-                onClick={() => setInquiry2Category("사탐")}
+                onClick={() => { setInquiry2Category("사탐"); handleStandardScoreChange("inquiry2", "subject", socialSubjects[0]) }}
               >
                 사탐과목
               </Button>
               <Button size="sm" variant="outline"
                 className={inquiry2Category === "과탐" ? "bg-teal-500 text-white border-teal-500" : ""}
-                onClick={() => setInquiry2Category("과탐")}
+                onClick={() => { setInquiry2Category("과탐"); handleStandardScoreChange("inquiry2", "subject", scienceSubjects[0]) }}
               >
                 과탐과목
               </Button>
