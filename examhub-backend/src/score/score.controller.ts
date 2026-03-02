@@ -99,8 +99,11 @@ export class ScoreController {
     @Param('mockExamId', ParseIntPipe) mockExamId: number,
   ) {
     // studentId → numeric memberId 변환
-    const member = await this.scoreService.findOne(studentId, mockExamId);
-    const data = await this.scoreService.calculateConvertedScores(member.memberId, mockExamId);
+    const score = await this.scoreService.findOne(studentId, mockExamId);
+    if (!score) {
+      return { success: false, message: '점수를 찾을 수 없습니다.' };
+    }
+    const data = await this.scoreService.calculateConvertedScores(score.memberId, mockExamId);
     return { success: true, data };
   }
 

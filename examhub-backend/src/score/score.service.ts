@@ -113,7 +113,7 @@ export class ScoreService {
   async findOne(studentId: string, mockExamId: number) {
     const member = await this.prisma.member.findUnique({ where: { memberId: toExamHubMemberId(studentId) } });
     if (!member) {
-      throw new NotFoundException(`학생 ${studentId}를 찾을 수 없습니다.`);
+      return null;
     }
     const score = await this.prisma.studentScore.findUnique({
       where: {
@@ -127,12 +127,6 @@ export class ScoreService {
         mockExam: true,
       },
     });
-
-    if (!score) {
-      throw new NotFoundException(
-        `학생 ${studentId}의 모의고사 ${mockExamId} 점수를 찾을 수 없습니다.`,
-      );
-    }
 
     return score;
   }
