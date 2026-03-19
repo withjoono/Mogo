@@ -22,6 +22,8 @@ async function bootstrap() {
     // Production domains
     'https://mogo.tskool.kr',
     'https://www.mogo.tskool.kr',
+    'https://mogomogo.kr',
+    'https://www.mogomogo.kr',
     // T스쿨 Hub
     'https://tskool.kr',
     'https://www.tskool.kr',
