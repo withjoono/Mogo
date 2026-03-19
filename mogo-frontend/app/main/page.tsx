@@ -469,10 +469,10 @@ function PromoPage() {
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight tracking-tight">
             3월 모의고사 준비는<br />
-            <span className="bg-gradient-to-r from-amber-300 to-yellow-200 text-transparent bg-clip-text">모의</span>와 함께!
+            <span className="bg-gradient-to-r from-amber-300 to-yellow-200 text-transparent bg-clip-text">MogoMogo</span>와 함께!
           </h1>
           <p className="text-lg md:text-xl text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed">
-            과거 3월 모의고사를 푼 후, 정답을 모의에 입력하면<br className="hidden md:block" />
+            과거 3월 모의고사를 푼 후, 정답을 MogoMogo에 입력하면<br className="hidden md:block" />
             <strong className="text-white">자동채점, 성적분석, 대학예측, 오답저장</strong>까지!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -489,7 +489,7 @@ function PromoPage() {
           <div className="text-center mb-12">
             <span className="inline-block px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-bold mb-4">✏️ 이렇게 쉬워요</span>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
-              3월 모의고사 채점?<br /><span className="text-[#7b1e7a]">모의에 정답만 입력하세요!</span>
+              3월 모의고사 채점?<br /><span className="text-[#7b1e7a]">MogoMogo에 정답만 입력하세요!</span>
             </h2>
             <p className="text-gray-500 text-lg">단 3단계로 완벽한 성적 분석을 받으세요</p>
           </div>
@@ -530,7 +530,7 @@ function PromoPage() {
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
               자동채점, 성적분석, 오답저장, 대학예측까지!
             </h2>
-            <p className="text-gray-500 text-lg">모의 하나면 모의고사 관리 끝!</p>
+            <p className="text-gray-500 text-lg">MogoMogo 하나면 모의고사 관리 끝!</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* 자동 채점 */}
@@ -630,7 +630,7 @@ function PromoPage() {
             &ldquo;<span className="bg-gradient-to-r from-amber-300 to-yellow-200 text-transparent bg-clip-text">내가 푸는 단 한 문제도 버리지 않도록!</span>&rdquo;
           </h2>
           <p className="text-white/70 text-sm md:text-base max-w-lg mx-auto">
-            모의는 당신이 풀었던 모든 문제를 기억하고, 분석하고, 성장의 발판으로 만듭니다.
+            MogoMogo는 당신이 풀었던 모든 문제를 기억하고, 분석하고, 성장의 발판으로 만듭니다.
           </p>
         </div>
       </section>
@@ -643,7 +643,7 @@ function PromoPage() {
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
               단순 채점을 넘어,<br /><span className="text-[#7b1e7a]">진짜 실력 향상까지</span>
             </h2>
-            <p className="text-gray-500 text-lg">모의만의 심층 분석 도구들을 만나보세요</p>
+            <p className="text-gray-500 text-lg">MogoMogo만의 심층 분석 도구들을 만나보세요</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -742,10 +742,10 @@ function PromoPage() {
                 </div>
                 <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-4 leading-tight">
                   사설 모의고사 기관이신가요?<br />
-                  <span className="text-amber-300">모의와 함께하세요!</span>
+                  <span className="text-amber-300">MogoMogo와 함께하세요!</span>
                 </h2>
                 <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-6">
-                  귀사의 모의고사를 모의 플랫폼에 등록하면,<br />
+                  귀사의 모의고사를 MogoMogo 플랫폼에 등록하면,<br />
                   학생들이 자동채점·성적분석·취약분석까지 원스톱으로 이용할 수 있습니다.<br />
                   사설 모의고사의 가치를 극대화하고, 더 많은 학생에게 도달하세요.
                 </p>
@@ -778,7 +778,7 @@ function PromoPage() {
                     </div>
                   </div>
                 </div>
-                <a href="mailto:contact@examhub.kr" className="inline-flex items-center gap-2 px-7 py-3.5 bg-amber-400 text-gray-900 rounded-xl hover:bg-amber-300 transition-colors font-bold text-sm shadow-lg">
+                <a href="mailto:contact@mogomogo.kr" className="inline-flex items-center gap-2 px-7 py-3.5 bg-amber-400 text-gray-900 rounded-xl hover:bg-amber-300 transition-colors font-bold text-sm shadow-lg">
                   <Handshake className="w-5 h-5" />협업 문의하기<ArrowRight className="w-4 h-4" />
                 </a>
               </div>

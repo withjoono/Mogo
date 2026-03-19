@@ -63,9 +63,9 @@ export function Navigation() {
     window.location.href = getHubUrl()
   }
 
-  // 모의(Mogo) 메뉴 항목
+  // MogoMogo 메뉴 항목
   const menuItems: MenuItem[] = [
-    { name: "모의 홈", href: "/" },
+    { name: "MogoMogo 홈", href: "/" },
     { name: "입력", href: "/main/input" },
     { name: "성적분석", href: "/main/score-analysis" },
     {
@@ -89,9 +89,9 @@ export function Navigation() {
           <div className="flex items-center space-x-3">
             <Link href="/" className="flex items-center space-x-2" style={{ textDecoration: 'none' }}>
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--color-primary)' }}>
-                <span className="text-white font-bold text-sm">E</span>
+                <span className="text-white font-bold text-sm">M</span>
               </div>
-              <span className="text-[15px] font-bold tracking-tight" style={{ color: 'var(--color-primary)' }}>모의</span>
+              <span className="text-[15px] font-bold tracking-tight" style={{ color: 'var(--color-primary)' }}>MogoMogo</span>
             </Link>
           </div>
 

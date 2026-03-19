@@ -9,6 +9,13 @@
           "mogo-app"
         ]
       }
+    },
+    "ts-front-479305": {
+      "hosting": {
+        "mogo": [
+          "mogo-app"
+        ]
+      }
     }
   },
   "etags": {}
