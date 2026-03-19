@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateScoreDto } from './dto/create-score.dto';
 import { UpdateScoreDto } from './dto/update-score.dto';
-import { toExamHubMemberId } from '../common/utils/member-id.util';
+import { toMogoMemberId } from '../common/utils/member-id.util';
 
 @Injectable()
 export class ScoreService {
@@ -15,7 +15,7 @@ export class ScoreService {
     const { studentId, mockExamId, ...scoreData } = createScoreDto;
 
     // 학생 존재 확인 (memberId로 조회)
-    const ehMemberId = toExamHubMemberId(studentId);
+    const ehMemberId = toMogoMemberId(studentId);
     const member = await this.prisma.member.findUnique({
       where: { memberId: ehMemberId },
     });
@@ -96,7 +96,7 @@ export class ScoreService {
    * 학생의 모든 점수 조회
    */
   async findByStudent(studentId: string) {
-    const member = await this.prisma.member.findUnique({ where: { memberId: toExamHubMemberId(studentId) } });
+    const member = await this.prisma.member.findUnique({ where: { memberId: toMogoMemberId(studentId) } });
     if (!member) return [];
     const scores = await this.prisma.studentScore.findMany({
       where: { memberId: member.id },
@@ -116,7 +116,7 @@ export class ScoreService {
    * 특정 학생의 특정 모의고사 점수 조회
    */
   async findOne(studentId: string, mockExamId: number) {
-    const member = await this.prisma.member.findUnique({ where: { memberId: toExamHubMemberId(studentId) } });
+    const member = await this.prisma.member.findUnique({ where: { memberId: toMogoMemberId(studentId) } });
     if (!member) {
       return null;
     }
@@ -191,7 +191,7 @@ export class ScoreService {
    * 학생의 최근 점수 조회
    */
   async findLatestByStudent(studentId: string) {
-    const member = await this.prisma.member.findUnique({ where: { memberId: toExamHubMemberId(studentId) } });
+    const member = await this.prisma.member.findUnique({ where: { memberId: toMogoMemberId(studentId) } });
     if (!member) return null;
     const scores = await this.prisma.studentScore.findMany({
       where: { memberId: member.id },

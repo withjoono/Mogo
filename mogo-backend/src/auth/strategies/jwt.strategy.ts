@@ -16,7 +16,7 @@ import { Request } from 'express';
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(configService: ConfigService<AllConfigType>) {
     const authConfig = configService.get('auth', { infer: true });
-    const secret = authConfig?.secret || process.env.AUTH_SECRET || 'examhub-secret-key-change-in-production';
+    const secret = authConfig?.secret || process.env.AUTH_SECRET || 'mogo-secret-key-change-in-production';
     console.log('JwtStrategy Loaded Secret (Starts with):', secret.substring(0, 5));
     super({
       jwtFromRequest: JwtStrategy.extractJwtFromRequestOrCookie,

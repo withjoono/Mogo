@@ -1,13 +1,13 @@
 {
   "name": "mogo-frontend",
   "version": "1.0.0",
-  "description": "ExamHub 모의고사 분석 서비스 프론트엔드 | G Skool",
+  "description": "모의(Mogo) 모의고사 분석 서비스 프론트엔드 | T Skool",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3003",
+    "dev": "next dev -p 3009",
     "build": "next build",
     "build:firebase": "next build",
-    "start": "next start -p 3003",
+    "start": "next start -p 3009",
     "lint": "next lint",
     "deploy": "npm run build:firebase && firebase deploy --only hosting"
   },

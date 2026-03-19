@@ -12,7 +12,7 @@ export class JwtHelperService {
   /**
    * JWT 토큰에서 앱별 권한 정보 추출
    * @param token JWT 토큰
-   * @param appId 앱 ID (예: 'examhub')
+   * @param appId 앱 ID (예: 'mogo')
    * @returns 앱 권한 정보 또는 undefined
    */
   getAppPermission(token: string, appId: string): AppPermission | undefined {

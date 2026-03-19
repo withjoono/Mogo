@@ -17,7 +17,7 @@ export function SSOListener() {
 
             // 성공 시 SSO 시도 플래그 초기화 후 페이지 새로고침하여 로그인 상단바(User Menu) 업데이트
             if (success) {
-                sessionStorage.removeItem('examhub_sso_attempted')
+                sessionStorage.removeItem('mogo_sso_attempted')
                 window.location.reload()
             }
             setIsSSOLoading(false)

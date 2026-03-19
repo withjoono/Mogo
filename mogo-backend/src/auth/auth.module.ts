@@ -13,7 +13,7 @@ import { HubPermissionGuard } from './guards/hub-permission.guard';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get('AUTH_SECRET') || 'examhub-secret-key-change-in-production',
+        secret: configService.get('AUTH_SECRET') || 'mogo-secret-key-change-in-production',
         signOptions: {
           expiresIn: '2h', // 2시간
           algorithm: 'HS512',

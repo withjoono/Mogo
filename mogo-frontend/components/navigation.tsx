@@ -63,9 +63,9 @@ export function Navigation() {
     window.location.href = getHubUrl()
   }
 
-  // ExamHub 메뉴 항목
+  // 모의(Mogo) 메뉴 항목
   const menuItems: MenuItem[] = [
-    { name: "ExamHub 홈", href: "/" },
+    { name: "모의 홈", href: "/" },
     { name: "입력", href: "/main/input" },
     { name: "성적분석", href: "/main/score-analysis" },
     {
@@ -91,7 +91,7 @@ export function Navigation() {
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--color-primary)' }}>
                 <span className="text-white font-bold text-sm">E</span>
               </div>
-              <span className="text-[15px] font-bold tracking-tight" style={{ color: 'var(--color-primary)' }}>ExamHub</span>
+              <span className="text-[15px] font-bold tracking-tight" style={{ color: 'var(--color-primary)' }}>모의</span>
             </Link>
           </div>
 

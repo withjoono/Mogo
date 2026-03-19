@@ -21,14 +21,13 @@ model Member {
   parentEmail        String?             @map("parent_email") @db.VarChar(100)
   createdAt          DateTime            @default(now()) @map("created_at")
   updatedAt          DateTime            @updatedAt @map("updated_at")
-  achievementResults AchievementResult[]
   answers            StudentAnswer[]
   scores             StudentScore[]
   targets            StudentTarget[]
 
   @@index([memberId])
   @@index([year, grade])
-  @@map("eh_auth_member")
+  @@map("mg_auth_member")
 }
 
 model MockExam {
@@ -55,7 +54,7 @@ model MockExam {
 
   @@index([code])
   @@index([category, grade, year, month])
-  @@map("eh_mock_exams")
+  @@map("mg_mock_exams")
 }
 
 // Hub 공유 테이블 (search_path로 hub 스키마 접근)
@@ -95,7 +94,7 @@ model SubjectChapter {
   minorCode       String? @map("minor_code") @db.VarChar(10)
 
   @@index([subjectAreaCode, subjectCode])
-  @@map("eh_subject_chapters")
+  @@map("mg_subject_chapters")
 }
 
 model ExamQuestion {
@@ -120,7 +119,7 @@ model ExamQuestion {
 
   @@index([mockExamId])
   @@index([subjectAreaCode, subjectCode])
-  @@map("eh_exam_questions")
+  @@map("mg_exam_questions")
 }
 
 model StudentScore {
@@ -166,7 +165,7 @@ model StudentScore {
   @@unique([memberId, mockExamId])
   @@index([memberId])
   @@index([mockExamId])
-  @@map("eh_student_scores")
+  @@map("mg_student_scores")
 }
 
 model StudentTarget {
@@ -178,7 +177,7 @@ model StudentTarget {
   member         Member   @relation(fields: [memberId], references: [id])
 
   @@index([memberId])
-  @@map("eh_student_targets")
+  @@map("mg_student_targets")
 }
 
 model University {
@@ -194,7 +193,7 @@ model University {
 
   @@index([code])
   @@index([region])
-  @@map("eh_universities")
+  @@map("mg_universities")
 }
 
 model Department {
@@ -259,7 +258,7 @@ model Department {
   @@index([universityId])
   @@index([code])
   @@index([category, subCategory])
-  @@map("eh_departments")
+  @@map("mg_departments")
 }
 
 model AdmissionCutoff {
@@ -291,7 +290,7 @@ model AdmissionCutoff {
   @@index([departmentId])
   @@index([year])
   @@index([mockExamId])
-  @@map("eh_admission_cutoffs")
+  @@map("mg_admission_cutoffs")
 }
 
 // === 2015 교육과정 (올해까지 고3, 내년 삭제 예정) ===
@@ -308,7 +307,7 @@ model ScoreConversion2015 {
 
   @@index([mockExamId])
   @@index([subject, standardScore])
-  @@map("eh_2015_score_conversion_standard")
+  @@map("mg_2015_score_conversion_standard")
 }
 
 model ScoreConversionRaw2015 {
@@ -323,7 +322,7 @@ model ScoreConversionRaw2015 {
 
   @@index([mockExamId])
   @@index([subject, subjectType])
-  @@map("eh_2015_score_conversion_raw")
+  @@map("mg_2015_score_conversion_raw")
 }
 
 // === 2022 교육과정 (현재 고2 이하, 내년부터 고3) ===
@@ -340,7 +339,7 @@ model ScoreConversion2022 {
 
   @@index([mockExamId])
   @@index([subject, standardScore])
-  @@map("eh_2022_score_conversion_standard")
+  @@map("mg_2022_score_conversion_standard")
 }
 
 model ScoreConversionRaw2022 {
@@ -355,7 +354,7 @@ model ScoreConversionRaw2022 {
 
   @@index([mockExamId])
   @@index([subject, subjectType])
-  @@map("eh_2022_score_conversion_raw")
+  @@map("mg_2022_score_conversion_raw")
 }
 
 model CumulativeTopPct2015 {
@@ -376,59 +375,10 @@ model CumulativeTopPct2015 {
 
   @@unique([mockExamId, standardSum])
   @@index([mockExamId])
-  @@map("eh_2015_cumulative_top_pct")
+  @@map("mg_2015_cumulative_top_pct")
 }
 
-model Mentoring {
-  id          Int       @id @default(autoincrement())
-  classId     String    @unique @map("class_id") @db.VarChar(30)
-  grade       String?   @db.VarChar(10)
-  subject     String?   @db.VarChar(10)
-  startDate   DateTime? @map("start_date") @db.Date
-  className   String?   @map("class_name") @db.VarChar(100)
-  teacherName String?   @map("teacher_name") @db.VarChar(50)
-  weeklyCount Int?      @map("weekly_count")
-  duration    String?   @db.VarChar(10)
-  day1        String?   @map("day_1") @db.VarChar(10)
-  startTime1  DateTime? @map("start_time_1") @db.Time(6)
-  endTime1    DateTime? @map("end_time_1") @db.Time(6)
-  day2        String?   @map("day_2") @db.VarChar(10)
-  startTime2  DateTime? @map("start_time_2") @db.Time(6)
-  endTime2    DateTime? @map("end_time_2") @db.Time(6)
-  fee         Int?      @default(0)
-  feeType     String?   @map("fee_type") @db.VarChar(20)
-  createdAt   DateTime  @default(now()) @map("created_at")
 
-  @@index([grade])
-  @@index([teacherName])
-  @@map("eh_mentoring")
-}
-
-model AchievementResult {
-  id              Int       @id @default(autoincrement())
-  resultId        String    @unique @map("result_id") @db.VarChar(30)
-  memberId        Int       @map("student_id")
-  missionId       String?   @map("mission_id") @db.VarChar(30)
-  date            DateTime? @db.Date
-  startTime       DateTime? @map("start_time") @db.Time(6)
-  endTime         DateTime? @map("end_time") @db.Time(6)
-  category        String?   @db.VarChar(20)
-  subject         String?   @db.VarChar(20)
-  subCategory     String?   @map("sub_category") @db.VarChar(20)
-  content         String?   @db.VarChar(100)
-  amount          Int?
-  achievementRate Decimal?  @map("achievement_rate") @db.Decimal(5, 2)
-  correctCount    Int?      @map("correct_count")
-  totalCount      Int?      @map("total_count")
-  score           Int?
-  focusLevel      Decimal?  @map("focus_level") @db.Decimal(5, 2)
-  createdAt       DateTime  @default(now()) @map("created_at")
-  member          Member    @relation(fields: [memberId], references: [id])
-
-  @@index([memberId])
-  @@index([date])
-  @@map("eh_achievement_results")
-}
 
 model StudentAnswer {
   id              Int          @id @default(autoincrement())
@@ -457,7 +407,7 @@ model StudentAnswer {
   @@index([memberId, mockExamId])
   @@index([memberId, isCorrect])
   @@index([memberId, subjectAreaName])
-  @@map("eh_student_answers")
+  @@map("mg_student_answers")
 }
 
 model MockAnswer {
@@ -479,7 +429,7 @@ model MockAnswer {
 
   @@index([grade, examName])
   @@index([subject, subjectDetail])
-  @@map("eh_mock_answer")
+  @@map("mg_mock_answer")
 }
 
 // === 문제 분류 테이블 (교육과정별) ===
@@ -500,7 +450,7 @@ model QuestionCategory2015 {
   @@unique([mockExamId, subject, questionNumber])
   @@index([mockExamId])
   @@index([subject, questionType])
-  @@map("eh_2015_question_category")
+  @@map("mg_2015_question_category")
 }
 
 model QuestionCategory2022 {
@@ -519,5 +469,5 @@ model QuestionCategory2022 {
   @@unique([mockExamId, subject, questionNumber])
   @@index([mockExamId])
   @@index([subject, questionType])
-  @@map("eh_2022_question_category")
+  @@map("mg_2022_question_category")
 }

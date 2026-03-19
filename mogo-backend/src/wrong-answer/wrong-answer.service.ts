@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { toExamHubMemberId } from '../common/utils/member-id.util';
+import { toMogoMemberId } from '../common/utils/member-id.util';
 import {
   WrongAnswerGradeDto,
   FilterWrongAnswerDto,
@@ -25,7 +25,7 @@ export class WrongAnswerService {
     const { studentId, mockExamId, subjectAreaName, subjectName, answers } = dto;
 
     // 학생 확인 (memberId로 조회, 없으면 자동 생성)
-    const ehMemberId = toExamHubMemberId(studentId);
+    const ehMemberId = toMogoMemberId(studentId);
     let member = await this.prisma.member.findUnique({
       where: { memberId: ehMemberId },
     });
@@ -234,7 +234,7 @@ export class WrongAnswerService {
     studentId: string,
     filter: FilterWrongAnswerDto,
   ): Promise<WrongAnswerListResponseDto> {
-    const member = await this.prisma.member.findUnique({ where: { memberId: toExamHubMemberId(studentId) } });
+    const member = await this.prisma.member.findUnique({ where: { memberId: toMogoMemberId(studentId) } });
     if (!member) return { memberId: 0, items: [], totalCount: 0, page: 1, limit: 20, totalPages: 0 };
     const numericId = member.id;
     const page = filter.page || 1;
@@ -389,7 +389,7 @@ export class WrongAnswerService {
    * 오답 요약 통계 조회
    */
   async getSummary(studentId: string): Promise<WrongAnswerSummaryDto> {
-    const member = await this.prisma.member.findUnique({ where: { memberId: toExamHubMemberId(studentId) } });
+    const member = await this.prisma.member.findUnique({ where: { memberId: toMogoMemberId(studentId) } });
     const numericId = member?.id ?? -1;
     // 전체 통계
     const totalAnswers = await this.prisma.studentAnswer.count({
@@ -480,7 +480,7 @@ export class WrongAnswerService {
    * 모의고사별 오답 현황 조회
    */
   async getByExam(studentId: string): Promise<WrongAnswerByExamResponseDto> {
-    const member = await this.prisma.member.findUnique({ where: { memberId: toExamHubMemberId(studentId) } });
+    const member = await this.prisma.member.findUnique({ where: { memberId: toMogoMemberId(studentId) } });
     const numericId = member?.id ?? -1;
     // 모의고사별 전체 답안 수
     const totalByExam = await this.prisma.studentAnswer.groupBy({
@@ -549,7 +549,7 @@ export class WrongAnswerService {
    * 학생의 특정 모의고사 답안 전체 삭제
    */
   async removeByExam(studentId: string, mockExamId: number) {
-    const member = await this.prisma.member.findUnique({ where: { memberId: toExamHubMemberId(studentId) } });
+    const member = await this.prisma.member.findUnique({ where: { memberId: toMogoMemberId(studentId) } });
     if (!member) return { count: 0 };
     return this.prisma.studentAnswer.deleteMany({
       where: { memberId: member.id, mockExamId },

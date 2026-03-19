@@ -10,7 +10,7 @@ export class HealthController {
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),
-      service: 'examhub-backend',
+      service: 'mogo-backend',
     };
   }
 
@@ -18,7 +18,7 @@ export class HealthController {
   @ApiOperation({ summary: 'Root endpoint' })
   root() {
     return {
-      name: 'ExamHub Backend API',
+      name: 'Mogo Backend API',
       version: '1.0.0',
       status: 'running',
     };

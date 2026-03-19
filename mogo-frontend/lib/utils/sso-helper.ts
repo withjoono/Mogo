@@ -5,17 +5,17 @@
  *
  * 보안 향상:
  * - Hub에서 일회용 SSO 코드 받기
- * - ExamHub Backend가 Hub Backend에 코드 검증 및 토큰 교환
+ * - Mogo Backend가 Hub Backend에 코드 검증 및 토큰 교환
  * - 코드는 즉시 URL에서 제거 (서버 로그 노출 최소화)
  */
 
 import { setTokens } from '../auth/token-manager';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4009';
 
 /**
  * SSO 코드 처리 (Backend Token Exchange)
- * URL에서 SSO 코드를 추출하여 ExamHub Backend에 토큰 교환 요청
+ * URL에서 SSO 코드를 추출하여 Mogo Backend에 토큰 교환 요청
  *
  * @returns 토큰 처리 성공 여부
  */
@@ -31,7 +31,7 @@ export async function processSSOLogin(): Promise<boolean> {
     console.log('✅ SSO 코드 감지:', ssoCode.substring(0, 20) + '...');
 
     try {
-        // ExamHub Backend에 코드 교환 요청 (Hub Backend와 통신)
+        // Mogo Backend에 코드 교환 요청 (Hub Backend와 통신)
         const response = await fetch(`${API_URL}/auth/sso/exchange`, {
             method: 'POST',
             headers: {

@@ -75,7 +75,7 @@ export class AppController {
         },
         body: JSON.stringify({
           code,
-          serviceId: 'examhub', // ExamHub 서비스 식별자
+          serviceId: 'mogo', // Mogo(모의) 서비스 식별자
         }),
       });
 

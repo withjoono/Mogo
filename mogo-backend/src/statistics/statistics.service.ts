@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { toExamHubMemberId } from '../common/utils/member-id.util';
+import { toMogoMemberId } from '../common/utils/member-id.util';
 import {
   TrendRequestDto,
   CumulativeRequestDto,
@@ -29,7 +29,7 @@ export class StatisticsService {
   ): Promise<TrendAnalysisDto> {
     // 학생 존재 확인 (memberId로 조회)
     const member = await this.prisma.member.findUnique({
-      where: { memberId: toExamHubMemberId(studentId) },
+      where: { memberId: toMogoMemberId(studentId) },
     });
 
     if (!member) {
@@ -130,7 +130,7 @@ export class StatisticsService {
     params?: CumulativeRequestDto,
   ): Promise<CumulativeAnalysisDto> {
     const member = await this.prisma.member.findUnique({
-      where: { memberId: toExamHubMemberId(studentId) },
+      where: { memberId: toMogoMemberId(studentId) },
     });
 
     if (!member) {
@@ -234,7 +234,7 @@ export class StatisticsService {
     params?: SubjectAnalysisRequestDto,
   ): Promise<SubjectAnalysisResponseDto> {
     const member = await this.prisma.member.findUnique({
-      where: { memberId: toExamHubMemberId(studentId) },
+      where: { memberId: toMogoMemberId(studentId) },
     });
 
     if (!member) {

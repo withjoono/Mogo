@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { toExamHubMemberId } from '../common/utils/member-id.util';
+import { toMogoMemberId } from '../common/utils/member-id.util';
 
 export interface DimensionStat {
     label: string;
@@ -31,7 +31,7 @@ export class WeaknessAnalysisService {
      */
     async getAvailableSubjects(studentId: string): Promise<string[]> {
         const member = await this.prisma.member.findUnique({
-            where: { memberId: toExamHubMemberId(studentId) },
+            where: { memberId: toMogoMemberId(studentId) },
         });
         if (!member) return [];
 
@@ -55,7 +55,7 @@ export class WeaknessAnalysisService {
         subject: string,
     ): Promise<SubjectWeaknessData | null> {
         const member = await this.prisma.member.findUnique({
-            where: { memberId: toExamHubMemberId(studentId) },
+            where: { memberId: toMogoMemberId(studentId) },
         });
         if (!member) return null;
 

@@ -5,9 +5,9 @@
  * SSO 및 Zustand persist storage와의 호환성을 위한 fallback 로직 포함
  */
 
-const ACCESS_TOKEN_KEY = 'examhub_access_token';
-const REFRESH_TOKEN_KEY = 'examhub_refresh_token';
-const TOKEN_EXPIRY_KEY = 'examhub_token_expiry';
+const ACCESS_TOKEN_KEY = 'mogo_access_token';
+const REFRESH_TOKEN_KEY = 'mogo_refresh_token';
+const TOKEN_EXPIRY_KEY = 'mogo_token_expiry';
 const AUTH_STORAGE_KEY = 'auth-storage';
 
 /**

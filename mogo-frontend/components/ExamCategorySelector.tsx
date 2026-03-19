@@ -36,7 +36,7 @@ const CATEGORIES: CategoryOption[] = [
     },
 ]
 
-const STORAGE_KEY = "examhub_selected_category"
+const STORAGE_KEY = "mogo_selected_category"
 
 interface ExamCategorySelectorProps {
     onCategoryChange?: (category: ExamCategory) => void

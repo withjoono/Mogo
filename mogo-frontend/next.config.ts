@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
   },
   // Remove rewrites for static export - use environment variable instead
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4009',
   },
 }
 

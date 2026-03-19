@@ -15,7 +15,7 @@ import { AppPermission } from '../types/jwt-payload.type';
  */
 @Injectable()
 export class HubPermissionGuard implements CanActivate {
-  private readonly APP_ID = 'examhub'; // ExamHub 앱 ID
+  private readonly APP_ID = 'mogo'; // Mogo(모의) 앱 ID
 
   constructor(
     private reflector: Reflector,

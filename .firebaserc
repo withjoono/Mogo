@@ -1,9 +1,9 @@
 {
   "projects": {
-    "default": "ts-front-479305"
+    "default": "mogo-app"
   },
   "targets": {
-    "ts-front-479305": {
+    "mogo-app": {
       "hosting": {
         "mogo": [
           "mogo-app"

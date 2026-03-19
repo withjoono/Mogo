@@ -79,7 +79,7 @@ export function getUserFromCache(): User | null {
   if (typeof window === 'undefined') return null;
 
   try {
-    const cachedUser = localStorage.getItem('examhub_user_cache');
+    const cachedUser = localStorage.getItem('mogo_user_cache');
     if (cachedUser) {
       return JSON.parse(cachedUser);
     }
@@ -97,9 +97,9 @@ export function cacheUser(user: User | null): void {
   if (typeof window === 'undefined') return;
 
   if (user) {
-    localStorage.setItem('examhub_user_cache', JSON.stringify(user));
+    localStorage.setItem('mogo_user_cache', JSON.stringify(user));
   } else {
-    localStorage.removeItem('examhub_user_cache');
+    localStorage.removeItem('mogo_user_cache');
   }
 }
 
@@ -108,5 +108,5 @@ export function cacheUser(user: User | null): void {
  */
 export function clearUserCache(): void {
   if (typeof window === 'undefined') return;
-  localStorage.removeItem('examhub_user_cache');
+  localStorage.removeItem('mogo_user_cache');
 }

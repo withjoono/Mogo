@@ -1,24 +1,24 @@
 /**
  * Hub 로그인 연동 유틸리티
- * ExamHub에서 Hub(T Skool) 로그인 페이지로 리디렉트
+ * Mogo(모의)에서 Hub(T Skool) 로그인 페이지로 리디렉트
  */
 
 // Hub Frontend URL (환경 변수 또는 기본값)
-// Hub는 외부 서비스로 포트 3000 사용 (ExamHub와 별개)
+// Hub는 외부 서비스로 포트 3000 사용 (Mogo와 별개)
 const HUB_URL = process.env.NEXT_PUBLIC_HUB_URL || (
   process.env.NODE_ENV === 'production'
     ? 'https://www.tskool.kr'
     : 'http://localhost:3000'
 );
 
-// ExamHub Frontend URL (포트 3003 고정)
+// Mogo Frontend URL (포트 3009 고정)
 const FRONT_URL = process.env.NEXT_PUBLIC_FRONT_URL || (
-  typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3003'
+  typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3009'
 );
 
 /**
  * Hub 로그인 URL 생성
- * 로그인 후 ExamHub로 SSO 토큰과 함께 돌아옴
+ * 로그인 후 Mogo로 SSO 토큰과 함께 돌아옴
  * @param returnPath - 로그인 후 돌아올 경로 (기본: /)
  */
 export function getHubLoginUrl(returnPath: string = '/'): string {

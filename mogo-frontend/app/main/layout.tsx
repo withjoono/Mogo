@@ -2,7 +2,7 @@
 
 import { Navigation } from "@/components/navigation"
 
-export default function ExamHubLayout({
+export default function MogoLayout({
   children,
 }: {
   children: React.ReactNode

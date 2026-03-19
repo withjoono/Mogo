@@ -10,21 +10,19 @@ async function bootstrap() {
   // Cookie Parser 설정 (HttpOnly Cookie 지원)
   app.use(cookieParser());
 
-  // CORS 설정 - ExamHub 포트: 3003 (프론트엔드), 4003 (백엔드)
+  // CORS 설정 - Mogo(모의) 포트: 3009 (프론트엔드), 4009 (백엔드)
   const allowedOrigins = [
-    // ExamHub 프론트엔드
-    'http://localhost:3003',
-    // 거북스쿨 Hub (SSO 연동용)
+    // Mogo 프론트엔드
+    'http://localhost:3009',
+    // T스쿨 Hub (SSO 연동용)
     'http://localhost:3000',
     // Firebase Hosting
-    'https://examhub-app.web.app',
-    'https://examhub-app.firebaseapp.com',
+    'https://mogo-app.web.app',
+    'https://mogo-app.firebaseapp.com',
     // Production domains
-    'https://examhub.kr',
-    'https://www.examhub.kr',
-    // 거북스쿨 Hub
-    'https://geobukschool.kr',
-    'https://www.geobukschool.kr',
+    'https://mogo.tskool.kr',
+    'https://www.mogo.tskool.kr',
+    // T스쿨 Hub
     'https://tskool.kr',
     'https://www.tskool.kr',
   ];
@@ -54,8 +52,8 @@ async function bootstrap() {
 
   // Swagger 설정
   const config = new DocumentBuilder()
-    .setTitle('ExamHub API')
-    .setDescription('ExamHub 모의고사 분석 서비스 API | 거북스쿨')
+    .setTitle('Mogo API')
+    .setDescription('모의(Mogo) 모의고사 분석 서비스 API | T스쿨')
     .setVersion('1.0')
     .addTag('Health', 'Health check endpoints')
     .addTag('모의고사', '모의고사 관련 API')
@@ -71,12 +69,12 @@ async function bootstrap() {
     },
   });
 
-  // ExamHub 백엔드 포트: Cloud Run/App Engine은 PORT 환경변수 사용, 로컬은 4003
-  const port = parseInt(process.env.PORT || '4003', 10);
+  // Mogo 백엔드 포트: Cloud Run/App Engine은 PORT 환경변수 사용, 로컬은 4009
+  const port = parseInt(process.env.PORT || '4009', 10);
 
   await app.listen(port, '0.0.0.0');
 
-  console.log(`🚀 ExamHub Backend is running on port ${port}`);
+  console.log(`🚀 Mogo Backend is running on port ${port}`);
   console.log(`📚 API Documentation: http://localhost:${port}/api-docs`);
 }
 

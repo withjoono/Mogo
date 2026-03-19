@@ -13,5 +13,9 @@
 .git
 .gitignore
 
+# Prevent Custom Runtime detection
+Dockerfile
+cloudbuild.yaml
+
 # Node.js dependencies:
 node_modules/

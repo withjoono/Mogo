@@ -12,9 +12,9 @@ export class PrismaService
     const connectionString = process.env.DATABASE_URL;
     const pool = new Pool({
       connectionString,
-      options: '-c search_path=examhub,hub',
+      options: '-c search_path=mogo,hub',
     });
-    const adapter = new PrismaPg(pool, { schema: 'examhub' });
+    const adapter = new PrismaPg(pool, { schema: 'mogo' });
 
     super({
       adapter,
@@ -40,7 +40,7 @@ export class PrismaService
 
     // 개발/테스트 환경에서 모든 테이블 초기화 (외래키 순서 고려)
     // 삭제 순서: 외래키 참조가 있는 테이블부터 삭제
-    await this.achievementResult.deleteMany();
+
     await this.studentTarget.deleteMany();
     await this.studentScore.deleteMany();
     await this.examQuestion.deleteMany();
@@ -54,7 +54,7 @@ export class PrismaService
     await this.university.deleteMany();
     await this.subjectChapter.deleteMany();
     await this.mockExam.deleteMany();
-    await this.mentoring.deleteMany();
+
     await this.member.deleteMany();
   }
 }

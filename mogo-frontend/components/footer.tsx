@@ -9,7 +9,7 @@
  * - 정책 링크: Hub 본사이트 절대 URL 사용
  *
  * 수정 시 모든 앱에 동일하게 반영해주세요.
- * 앱 목록: Hub, ExamHub, Jungsi (MySanggibu, Grinalda 등 추가 시 동일 적용)
+ * 앱 목록: Hub, Mogo, Jungsi (MySanggibu, Grinalda 등 추가 시 동일 적용)
  */
 
 const HUB_URL = "https://www.tskool.kr";
