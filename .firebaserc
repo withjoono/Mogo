@@ -1,12 +1,12 @@
 {
   "projects": {
-    "default": "examhub-app"
+    "default": "ts-front-479305"
   },
   "targets": {
-    "examhub-app": {
+    "ts-front-479305": {
       "hosting": {
-        "examhub": [
-          "examhub-app"
+        "mogo": [
+          "mogo-app"
         ]
       }
     }

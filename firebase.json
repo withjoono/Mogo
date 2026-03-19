@@ -1,7 +1,7 @@
 {
   "hosting": {
-    "target": "examhub",
-    "public": "examhub-frontend/out",
+    "target": "mogo",
+    "public": "mogo-frontend/out",
     "ignore": [
       "firebase.json",
       "**/.*",
