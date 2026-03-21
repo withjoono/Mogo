@@ -129,7 +129,7 @@ export function Navigation() {
                         child.comingSoon ? (
                           <button
                             key={child.name}
-                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-[#7b1e7a] transition-colors"
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-[#00e5e8] transition-colors"
                             onClick={() => {
                               setOpenSubmenu(null)
                               alert('3월 첫 모의고사 이후 서비스 실행됩니다')
@@ -141,7 +141,7 @@ export function Navigation() {
                           <Link
                             key={child.name}
                             href={child.href}
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-[#7b1e7a] transition-colors"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-[#00e5e8] transition-colors"
                             onClick={() => setOpenSubmenu(null)}
                           >
                             {child.name}
@@ -222,7 +222,7 @@ export function Navigation() {
             ) : (
               <button
                 onClick={handleLogin}
-                className="rounded-full bg-purple-700 hover:bg-purple-800 text-white px-4 py-1.5 text-sm font-medium transition-colors"
+                className="rounded-full bg-cyan-700 hover:bg-purple-800 text-white px-4 py-1.5 text-sm font-medium transition-colors"
               >
                 로그인
               </button>
@@ -233,7 +233,7 @@ export function Navigation() {
           <div className="lg:hidden flex items-center space-x-2">
             {/* 모바일 아이콘들 */}
             <button
-              className="p-2 text-gray-500 hover:text-[#7b1e7a]"
+              className="p-2 text-gray-500 hover:text-[#00e5e8]"
               title="알림"
             >
               <Bell className="w-5 h-5" />
@@ -241,7 +241,7 @@ export function Navigation() {
 
             <button
               onClick={toggleMobileMenu}
-              className="text-gray-700 hover:text-[#7b1e7a] p-2"
+              className="text-gray-700 hover:text-[#00e5e8] p-2"
               aria-label="메뉴 열기"
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -271,7 +271,7 @@ export function Navigation() {
                     <div key={item.name}>
                       <button
                         onClick={() => setMobileOpenSubmenu(mobileOpenSubmenu === item.name ? null : item.name)}
-                        className="flex items-center justify-between w-full px-3 py-2 text-base text-gray-700 hover:text-[#7b1e7a] hover:bg-gray-50 rounded-md"
+                        className="flex items-center justify-between w-full px-3 py-2 text-base text-gray-700 hover:text-[#00e5e8] hover:bg-gray-50 rounded-md"
                       >
                         <span>{item.name}</span>
                         <ChevronDown className={`w-4 h-4 transition-transform ${mobileOpenSubmenu === item.name ? 'rotate-180' : ''}`} />
@@ -282,7 +282,7 @@ export function Navigation() {
                             child.comingSoon ? (
                               <button
                                 key={child.name}
-                                className="block w-full text-left px-3 py-2 text-sm text-gray-600 hover:text-[#7b1e7a] hover:bg-gray-50 rounded-md"
+                                className="block w-full text-left px-3 py-2 text-sm text-gray-600 hover:text-[#00e5e8] hover:bg-gray-50 rounded-md"
                                 onClick={() => {
                                   setIsMobileMenuOpen(false)
                                   alert('3월 첫 모의고사 이후 서비스 실행됩니다')
@@ -294,7 +294,7 @@ export function Navigation() {
                               <Link
                                 key={child.name}
                                 href={child.href}
-                                className="block px-3 py-2 text-sm text-gray-600 hover:text-[#7b1e7a] hover:bg-gray-50 rounded-md"
+                                className="block px-3 py-2 text-sm text-gray-600 hover:text-[#00e5e8] hover:bg-gray-50 rounded-md"
                                 onClick={() => setIsMobileMenuOpen(false)}
                               >
                                 {child.name}
@@ -308,7 +308,7 @@ export function Navigation() {
                     <Link
                       key={item.name}
                       href={item.href}
-                      className="block px-3 py-2 text-base text-gray-700 hover:text-[#7b1e7a] hover:bg-gray-50 rounded-md"
+                      className="block px-3 py-2 text-base text-gray-700 hover:text-[#00e5e8] hover:bg-gray-50 rounded-md"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       {item.name}
@@ -320,11 +320,11 @@ export function Navigation() {
 
                 {/* 모바일 추가 메뉴 */}
                 <div className="flex items-center space-x-4 px-3 py-2">
-                  <button className="flex items-center space-x-2 text-gray-600 hover:text-[#7b1e7a]">
+                  <button className="flex items-center space-x-2 text-gray-600 hover:text-[#00e5e8]">
                     <WonCircle className="w-5 h-5" />
                     <span className="text-sm">결제</span>
                   </button>
-                  <button className="flex items-center space-x-2 text-gray-600 hover:text-purple-700">
+                  <button className="flex items-center space-x-2 text-gray-600 hover:text-cyan-700">
                     <Users className="w-5 h-5" />
                     <span className="text-sm">계정연동</span>
                   </button>
@@ -353,7 +353,7 @@ export function Navigation() {
                   ) : (
                     <button
                       onClick={handleLogin}
-                      className="w-full bg-[#7b1e7a] hover:bg-[#5a1559] text-white px-4 py-2 rounded-full text-sm font-medium"
+                      className="w-full bg-[#00e5e8] hover:bg-[#00b8bb] text-white px-4 py-2 rounded-full text-sm font-medium"
                     >
                       로그인
                     </button>

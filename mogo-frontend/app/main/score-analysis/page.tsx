@@ -278,7 +278,7 @@ export default function MockExamScoreAnalysisPage() {
           <span>&gt;</span>
           <span>모의고사 분석</span>
           <span>&gt;</span>
-          <span className="text-[#7b1e7a] font-medium">성적분석</span>
+          <span className="text-[#00e5e8] font-medium">성적분석</span>
         </div>
 
         <h1 className="text-2xl font-bold text-gray-900 mb-6">성적 분석</h1>
@@ -301,7 +301,7 @@ export default function MockExamScoreAnalysisPage() {
               <p className="text-sm text-gray-500 mb-6">모의고사를 채점하면 성적이 자동으로 기록됩니다.</p>
               <button
                 onClick={() => router.push('/main/input')}
-                className="px-6 py-2 bg-[#7b1e7a] text-white rounded-md hover:bg-[#5a165a] transition-colors"
+                className="px-6 py-2 bg-[#00e5e8] text-white rounded-md hover:bg-[#00b8bb] transition-colors"
               >
                 모의고사 입력하기
               </button>
@@ -318,7 +318,7 @@ export default function MockExamScoreAnalysisPage() {
                     setSelectedScoreId(id)
                     setSelectedScore(scoreRecords.find(s => s.id === id) || null)
                   }}
-                  className="border border-gray-300 rounded-md px-4 py-2 bg-white text-gray-900 focus:ring-[#7b1e7a] focus:border-[#7b1e7a]"
+                  className="border border-gray-300 rounded-md px-4 py-2 bg-white text-gray-900 focus:ring-[#00e5e8] focus:border-[#00e5e8]"
                 >
                   {scoreRecords.map(s => (
                     <option key={s.id} value={s.id}>
@@ -341,7 +341,7 @@ export default function MockExamScoreAnalysisPage() {
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">📝 내 성적</h2>
                         {selectedScore.totalStandardSum && (
                           <div className="flex space-x-4 mb-4">
-                            <span className="text-sm bg-[#f5e6f5] text-[#7b1e7a] px-3 py-1 rounded-full">
+                            <span className="text-sm bg-[#f5e6f5] text-[#00e5e8] px-3 py-1 rounded-full">
                               표준점수 합계: <strong>{selectedScore.totalStandardSum}</strong>
                             </span>
                             {selectedScore.totalPercentileSum && (
@@ -549,7 +549,7 @@ export default function MockExamScoreAnalysisPage() {
                                         <td className="p-3 text-sm text-center text-gray-900">{c.totalStandard}</td>
                                         <td className="p-3 text-sm text-center text-gray-900">{c.avgPercentile.toFixed(1)}</td>
                                         <td className="p-3 text-sm text-center">
-                                          <span className="px-2 py-1 rounded-full bg-[#f5e6f5] text-[#7b1e7a] font-bold">
+                                          <span className="px-2 py-1 rounded-full bg-[#f5e6f5] text-[#00e5e8] font-bold">
                                             {c.avgGrade.toFixed(1)}등급
                                           </span>
                                         </td>
@@ -571,7 +571,7 @@ export default function MockExamScoreAnalysisPage() {
                                 {subjects
                                   .filter(s => s.percentile != null)
                                   .map((s, i) => {
-                                    const colors = ['#7b1e7a', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#ec4899']
+                                    const colors = ['#00e5e8', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#ec4899']
                                     return (
                                       <div key={i} className="flex flex-col items-center gap-1" style={{ width: '60px' }}>
                                         <span className="text-sm font-bold text-gray-900">{s.percentile}</span>

@@ -82,9 +82,9 @@ export function ExamCategorySelector({
               relative flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold
               transition-all duration-200
               ${selected === cat.id
-                                ? "bg-[#7b1e7a] text-white shadow-lg shadow-purple-200/50"
+                                ? "bg-[#00e5e8] text-white shadow-lg shadow-cyan-200/50"
                                 : cat.active
-                                    ? "bg-white text-gray-600 border border-gray-200 hover:border-[#7b1e7a] hover:text-[#7b1e7a]"
+                                    ? "bg-white text-gray-600 border border-gray-200 hover:border-[#00e5e8] hover:text-[#00e5e8]"
                                     : "bg-gray-50 text-gray-400 border border-gray-100 cursor-not-allowed"
                             }
             `}

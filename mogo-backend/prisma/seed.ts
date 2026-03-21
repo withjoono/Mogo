@@ -5,7 +5,7 @@ import { Pool } from 'pg';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  options: '-c search_path=examhub,hub',
+  options: '-c search_path=mogo,hub',
 });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });

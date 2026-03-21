@@ -109,7 +109,7 @@ function DonutChart({
     data: DimensionStat[]
 }) {
     if (data.length === 0) return null
-    const colors = ["#7b1e7a", "#3b82f6", "#f59e0b", "#ef4444", "#10b981", "#6366f1", "#ec4899", "#14b8a6", "#8b5cf6", "#f97316"]
+    const colors = ["#00e5e8", "#3b82f6", "#f59e0b", "#ef4444", "#10b981", "#6366f1", "#ec4899", "#14b8a6", "#8b5cf6", "#f97316"]
     const total = data.reduce((s, d) => s + d.totalCount, 0)
     const r = 60
     const cx = 80
@@ -264,7 +264,7 @@ function RadarChart({
             <polygon
                 points={polygon}
                 fill="rgba(123, 30, 122, 0.15)"
-                stroke="#7b1e7a"
+                stroke="#00e5e8"
                 strokeWidth={2}
             />
             {/* 데이터 점 + 라벨 */}
@@ -273,7 +273,7 @@ function RadarChart({
                 const lp = getPoint(i, 115)
                 return (
                     <g key={i}>
-                        <circle cx={p.x} cy={p.y} r={4} fill="#7b1e7a" />
+                        <circle cx={p.x} cy={p.y} r={4} fill="#00e5e8" />
                         <text
                             x={lp.x}
                             y={lp.y + 4}
@@ -290,7 +290,7 @@ function RadarChart({
                             textAnchor="middle"
                             fontSize={9}
                             fontWeight="bold"
-                            fill="#7b1e7a"
+                            fill="#00e5e8"
                         >
                             {d.wrongRate}%
                         </text>
@@ -458,7 +458,7 @@ export default function WeaknessAnalysisPage() {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* 헤더 */}
-            <div className="bg-gradient-to-r from-[#7b1e7a] to-[#9c3d9a]">
+            <div className="bg-gradient-to-r from-[#00e5e8] to-[#33eeef]">
                 <div className="max-w-6xl mx-auto px-4 py-8">
                     <nav className="text-sm text-white/60 mb-2">
                         <span>홈</span> &gt; <span>모의고사</span> &gt;{" "}
@@ -489,7 +489,7 @@ export default function WeaknessAnalysisPage() {
                             </p>
                             <button
                                 onClick={() => router.push("/main/input")}
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#7b1e7a] text-white rounded-xl hover:bg-[#5a1559] transition-colors font-medium"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#00e5e8] text-white rounded-xl hover:bg-[#00b8bb] transition-colors font-medium"
                             >
                                 모의고사 입력하기
                             </button>
@@ -503,8 +503,8 @@ export default function WeaknessAnalysisPage() {
                                         key={subj}
                                         onClick={() => setSelectedSubject(subj)}
                                         className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${selectedSubject === subj
-                                            ? "bg-[#7b1e7a] text-white shadow-lg shadow-purple-200/50"
-                                            : "bg-white text-gray-600 border border-gray-200 hover:border-[#7b1e7a] hover:text-[#7b1e7a]"
+                                            ? "bg-[#00e5e8] text-white shadow-lg shadow-cyan-200/50"
+                                            : "bg-white text-gray-600 border border-gray-200 hover:border-[#00e5e8] hover:text-[#00e5e8]"
                                             }`}
                                     >
                                         {subj}
@@ -632,7 +632,7 @@ export default function WeaknessAnalysisPage() {
                                             title="유형별 오답률"
                                             emoji="🔍"
                                             data={data.byQuestionType}
-                                            accentColor="#7b1e7a"
+                                            accentColor="#00e5e8"
                                         />
 
                                         {/* 문제형태별 */}

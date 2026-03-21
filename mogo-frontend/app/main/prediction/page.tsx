@@ -83,7 +83,7 @@ export default function MockAnalysisPredictionPage() {
             <Button
               variant="outline"
               size="sm"
-              className="bg-[#7b1e7a] text-white border-[#7b1e7a] hover:bg-[#5a1559]"
+              className="bg-[#00e5e8] text-white border-[#00e5e8] hover:bg-[#00b8bb]"
             >
               대학별 합격
             </Button>
@@ -111,7 +111,7 @@ export default function MockAnalysisPredictionPage() {
                   variant={selectedRegion === region ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedRegion(region)}
-                  className={selectedRegion === region ? "bg-[#7b1e7a] hover:bg-[#5a1559]" : ""}
+                  className={selectedRegion === region ? "bg-[#00e5e8] hover:bg-[#00b8bb]" : ""}
                 >
                   {region}
                 </Button>
@@ -124,7 +124,7 @@ export default function MockAnalysisPredictionPage() {
         <Card className="mb-6">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-[#7b1e7a]">🔧</span>
+              <span className="text-[#00e5e8]">🔧</span>
               <span className="font-medium">계열 선택</span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -134,7 +134,7 @@ export default function MockAnalysisPredictionPage() {
                   variant={selectedCategory === category ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(category)}
-                  className={selectedCategory === category ? "bg-[#7b1e7a] hover:bg-[#5a1559]" : ""}
+                  className={selectedCategory === category ? "bg-[#00e5e8] hover:bg-[#00b8bb]" : ""}
                 >
                   {category}
                 </Button>
@@ -158,9 +158,9 @@ export default function MockAnalysisPredictionPage() {
               </h3>
               <p className="text-sm text-gray-600 flex items-center gap-1">
                 ⭐ 차트에서는
-                <span className="text-[#7b1e7a] font-medium">합격할 대학 비교를</span>
+                <span className="text-[#00e5e8] font-medium">합격할 대학 비교를</span>
                 위해 총점과 점수가
-                <span className="text-[#7b1e7a] font-medium">1000점으로 통일</span>
+                <span className="text-[#00e5e8] font-medium">1000점으로 통일</span>
                 되어 있습니다.
               </p>
             </div>
@@ -206,7 +206,7 @@ export default function MockAnalysisPredictionPage() {
                         >
                           <div
                             className={`absolute w-full rounded ${
-                              isSelected ? "bg-red-600" : "bg-[#7b1e7a]"
+                              isSelected ? "bg-red-600" : "bg-[#00e5e8]"
                             } hover:bg-red-600 transition-colors`}
                             style={{
                               height: `${barHeight}%`,
@@ -239,7 +239,7 @@ export default function MockAnalysisPredictionPage() {
                 <span className="text-sm">내 성적</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-2 bg-[#7b1e7a]"></div>
+                <div className="w-4 h-2 bg-[#00e5e8]"></div>
                 <span className="text-sm">대학 점수 범위</span>
               </div>
             </div>

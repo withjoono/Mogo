@@ -160,7 +160,7 @@ export default function TargetUniversityPage() {
               {/* Legend */}
               <div className="flex items-center justify-center gap-6 mt-8">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-0.5 bg-[#7b1e7a]"></div>
+                  <div className="w-4 h-0.5 bg-[#00e5e8]"></div>
                   <span className="text-sm text-gray-600">수시</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ export default function TargetUniversityPage() {
             {/* Action Button */}
             <div className="flex justify-end mt-6">
               <Link href="/main/target-university/settings">
-                <Button className="bg-[#7b1e7a] hover:bg-[#5a1559] text-white px-6 py-2 rounded-lg">
+                <Button className="bg-[#00e5e8] hover:bg-[#00b8bb] text-white px-6 py-2 rounded-lg">
                   목표대학 설정하기 →
                 </Button>
               </Link>

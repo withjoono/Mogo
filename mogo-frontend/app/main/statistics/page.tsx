@@ -267,7 +267,7 @@ export default function StatisticsPage() {
         {/* Breadcrumb */}
         <div className="flex items-center space-x-2 text-sm text-gray-600 mb-6">
           <span>홈</span><span>&gt;</span><span>모의고사 분석</span><span>&gt;</span>
-          <span className="text-[#7b1e7a] font-medium">성적 추이</span>
+          <span className="text-[#00e5e8] font-medium">성적 추이</span>
         </div>
 
         <div className="flex items-center justify-between mb-6">
@@ -275,7 +275,7 @@ export default function StatisticsPage() {
           <select
             value={selectedYear}
             onChange={e => setSelectedYear(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-[#7b1e7a] focus:border-[#7b1e7a]"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-[#00e5e8] focus:border-[#00e5e8]"
           >
             <option value="all">전체 기간</option>
             {years.map(y => <option key={y} value={y}>{y}년</option>)}
@@ -293,7 +293,7 @@ export default function StatisticsPage() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
               <div className="text-4xl mb-4">📊</div>
               <p className="text-gray-600 mb-4">아직 저장된 성적이 없습니다.</p>
-              <button onClick={() => router.push("/main/input")} className="px-6 py-2 bg-[#7b1e7a] text-white rounded-md hover:bg-[#5a165a]">
+              <button onClick={() => router.push("/main/input")} className="px-6 py-2 bg-[#00e5e8] text-white rounded-md hover:bg-[#00b8bb]">
                 모의고사 입력하기
               </button>
             </div>
@@ -321,7 +321,7 @@ export default function StatisticsPage() {
                   ["subjects", "📚 과목별 분석"],
                 ] as const).map(([key, label]) => (
                   <button key={key} onClick={() => setActiveTab(key)}
-                    className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === key ? "border-[#7b1e7a] text-[#7b1e7a]" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
+                    className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === key ? "border-[#00e5e8] text-[#00e5e8]" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
                     {label}
                   </button>
                 ))}
@@ -361,7 +361,7 @@ function OverviewTab({ trend, examLabels }: { trend: TrendAnalysis; examLabels: 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">평균 등급 추이</h2>
         <LineChart
-          datasets={[{ label: "평균 등급", data: ot.map(e => e.grade ?? null), color: "#7b1e7a" }]}
+          datasets={[{ label: "평균 등급", data: ot.map(e => e.grade ?? null), color: "#00e5e8" }]}
           labels={examLabels}
           yReverse yMin={1} yMax={9} unit="등급"
         />
@@ -371,7 +371,7 @@ function OverviewTab({ trend, examLabels }: { trend: TrendAnalysis; examLabels: 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">국수탐 표준점수 합계 추이</h2>
         <LineChart
-          datasets={[{ label: "표점합", data: ot.map(e => e.standardScore ?? null), color: "#2563eb" }]}
+          datasets={[{ label: "표점합", data: ot.map(e => e.standardScore ?? null), color: "#00e5e8" }]}
           labels={examLabels}
         />
       </div>
@@ -416,10 +416,10 @@ function OverviewTab({ trend, examLabels }: { trend: TrendAnalysis; examLabels: 
               ))}
               {/* 합계 row */}
               <tr className="border-t-2 border-gray-300 bg-[#fdf5fd]">
-                <td className="px-4 py-2 font-bold text-[#7b1e7a] border-r border-gray-200">합계</td>
+                <td className="px-4 py-2 font-bold text-[#00e5e8] border-r border-gray-200">합계</td>
                 <td className="px-4 py-2 text-gray-600 border-r border-gray-200 text-xs">표점합</td>
                 {ot.map((e, i) => (
-                  <td key={i} className="px-4 py-2 text-center font-bold text-[#7b1e7a] border-r border-gray-200">{e.standardScore ?? "-"}</td>
+                  <td key={i} className="px-4 py-2 text-center font-bold text-[#00e5e8] border-r border-gray-200">{e.standardScore ?? "-"}</td>
                 ))}
               </tr>
               <tr className="bg-[#fdf5fd]">
@@ -458,7 +458,7 @@ function CumulativePctTab({ trend, examLabels }: { trend: TrendAnalysis; examLab
   }
 
   const datasets = []
-  if (hasStd) datasets.push({ label: "상위누백 (표점)", data: stdData, color: "#7b1e7a" })
+  if (hasStd) datasets.push({ label: "상위누백 (표점)", data: stdData, color: "#00e5e8" })
   if (hasRaw) datasets.push({ label: "상위누백 (원점수)", data: rawData, color: "#9ca3af" })
 
   return (
@@ -499,8 +499,8 @@ function CumulativePctTab({ trend, examLabels }: { trend: TrendAnalysis; examLab
               </tr>
               {hasStd && (
                 <tr className="border-b bg-[#fdf5fd]">
-                  <td className="px-4 py-3 font-bold text-[#7b1e7a] border-r border-gray-200">상위누백 (표점)</td>
-                  {ot.map((e, i) => <td key={i} className="px-4 py-3 text-center font-bold text-[#7b1e7a] border-r border-gray-200">{e.topCumulativeStd != null ? `${Number(e.topCumulativeStd).toFixed(2)}%` : "-"}</td>)}
+                  <td className="px-4 py-3 font-bold text-[#00e5e8] border-r border-gray-200">상위누백 (표점)</td>
+                  {ot.map((e, i) => <td key={i} className="px-4 py-3 text-center font-bold text-[#00e5e8] border-r border-gray-200">{e.topCumulativeStd != null ? `${Number(e.topCumulativeStd).toFixed(2)}%` : "-"}</td>)}
                 </tr>
               )}
               {hasRaw && (
@@ -600,7 +600,7 @@ function SubjectsTab({ trend, cumulative, examLabels }: { trend: TrendAnalysis; 
       <div className="flex flex-wrap gap-2">
         {trend.subjects.map(s => (
           <button key={s.subject} onClick={() => setSelectedSubject(s.subject)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedSubject === s.subject ? "bg-[#7b1e7a] text-white" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedSubject === s.subject ? "bg-[#00e5e8] text-white" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
             {s.subject} {s.selection ? `(${s.selection})` : ""}
           </button>
         ))}
@@ -618,7 +618,7 @@ function SubjectsTab({ trend, cumulative, examLabels }: { trend: TrendAnalysis; 
             </div>
             <LineChart
               datasets={[
-                { label: "등급", data: subj.dataPoints.map(dp => dp.grade ?? null), color: "#7b1e7a" },
+                { label: "등급", data: subj.dataPoints.map(dp => dp.grade ?? null), color: "#00e5e8" },
               ]}
               labels={examLabels}
               yReverse yMin={1} yMax={9} unit="등급"
@@ -631,7 +631,7 @@ function SubjectsTab({ trend, cumulative, examLabels }: { trend: TrendAnalysis; 
               <h2 className="text-lg font-semibold text-gray-900 mb-4">{subj.subject} 표준점수 / 백분위</h2>
               <LineChart
                 datasets={[
-                  { label: "표준점수", data: subj.dataPoints.map(dp => dp.standardScore ?? null), color: "#2563eb" },
+                  { label: "표준점수", data: subj.dataPoints.map(dp => dp.standardScore ?? null), color: "#00e5e8" },
                   { label: "백분위", data: subj.dataPoints.map(dp => dp.percentile ?? null), color: "#9333ea" },
                 ]}
                 labels={examLabels}

@@ -284,13 +284,13 @@ function ScoreInputPageContent() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <span className="text-[#7b1e7a]">📝</span> 국어
+            <span className="text-[#00e5e8]">📝</span> 국어
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-[#7b1e7a]">원점수 (0~200)</label>
+              <label className="block text-sm font-medium mb-1 text-[#00e5e8]">원점수 (0~200)</label>
               <Input
                 type="number"
                 placeholder="0"
@@ -449,7 +449,7 @@ function ScoreInputPageContent() {
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-[#7b1e7a]">원점수 (0~200)</label>
+              <label className="block text-sm font-medium mb-1 text-[#00e5e8]">원점수 (0~200)</label>
               <Input
                 type="number"
                 placeholder="0"
@@ -518,7 +518,7 @@ function ScoreInputPageContent() {
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-[#7b1e7a]">원점수 (0~200)</label>
+              <label className="block text-sm font-medium mb-1 text-[#00e5e8]">원점수 (0~200)</label>
               <Input
                 type="number"
                 placeholder="0"
@@ -576,7 +576,7 @@ function ScoreInputPageContent() {
               inquiry2Percentile: Number(grade2RawScores.inquiry2.percentile) || 0,
             })
           }}
-          className="bg-[#7b1e7a] hover:bg-[#5a1559] text-white px-6 py-2"
+          className="bg-[#00e5e8] hover:bg-[#00b8bb] text-white px-6 py-2"
         >
           저장
         </Button>
@@ -586,7 +586,7 @@ function ScoreInputPageContent() {
             alert("수정 모드가 활성화되었습니다.")
           }}
           variant="outline"
-          className="border-[#7b1e7a] text-[#7b1e7a] hover:bg-[#faf5fa] px-6 py-2"
+          className="border-[#00e5e8] text-[#00e5e8] hover:bg-[#f0fffe] px-6 py-2"
         >
           수정
         </Button>
@@ -600,12 +600,12 @@ function ScoreInputPageContent() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <span className="text-[#7b1e7a]">📝</span> 국어
+            <span className="text-[#00e5e8]">📝</span> 국어
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="w-48">
-            <label className="block text-sm font-medium mb-1 text-[#7b1e7a]">원점수 (0~100)</label>
+            <label className="block text-sm font-medium mb-1 text-[#00e5e8]">원점수 (0~100)</label>
             <Input
               type="number"
               placeholder="0"
@@ -788,7 +788,7 @@ function ScoreInputPageContent() {
               inquiry2Raw: Number(grade2StandardScores.inquiry2.raw) || 0,
             })
           }}
-          className="bg-[#7b1e7a] hover:bg-[#5a1559] text-white px-6 py-2"
+          className="bg-[#00e5e8] hover:bg-[#00b8bb] text-white px-6 py-2"
         >
           저장
         </Button>
@@ -798,7 +798,7 @@ function ScoreInputPageContent() {
             alert("수정 모드가 활성화되었습니다.")
           }}
           variant="outline"
-          className="border-[#7b1e7a] text-[#7b1e7a] hover:bg-[#faf5fa] px-6 py-2"
+          className="border-[#00e5e8] text-[#00e5e8] hover:bg-[#f0fffe] px-6 py-2"
         >
           수정
         </Button>
@@ -812,12 +812,12 @@ function ScoreInputPageContent() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <span className="text-[#7b1e7a]">📝</span> 국어
+            <span className="text-[#00e5e8]">📝</span> 국어
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="w-48">
-            <label className="block text-sm font-medium mb-1 text-[#7b1e7a]">원점수 (0~100)</label>
+            <label className="block text-sm font-medium mb-1 text-[#00e5e8]">원점수 (0~100)</label>
             <Input
               type="number"
               placeholder="0"
@@ -922,12 +922,12 @@ function ScoreInputPageContent() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <span className="text-purple-500">🏛️</span> 통합사회
+            <span className="text-cyan-500">🏛️</span> 통합사회
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="w-48">
-            <label className="block text-sm font-medium mb-1 text-purple-600">원점수 (0~50)</label>
+            <label className="block text-sm font-medium mb-1 text-cyan-600">원점수 (0~50)</label>
             <Input
               type="number"
               placeholder="0"
@@ -954,7 +954,7 @@ function ScoreInputPageContent() {
               inquiry2Raw: Number(grade1Scores.integratedSocial) || 0,
             })
           }}
-          className="bg-[#7b1e7a] hover:bg-[#5a1559] text-white px-8"
+          className="bg-[#00e5e8] hover:bg-[#00b8bb] text-white px-8"
         >
           저장
         </Button>
@@ -964,7 +964,7 @@ function ScoreInputPageContent() {
             console.log("[v0] Editing Grade 1 raw scores")
             alert("점수를 수정할 수 있습니다.")
           }}
-          className="border-[#7b1e7a] text-[#7b1e7a] hover:bg-[#faf5fa] px-8"
+          className="border-[#00e5e8] text-[#00e5e8] hover:bg-[#f0fffe] px-8"
         >
           수정
         </Button>
@@ -978,13 +978,13 @@ function ScoreInputPageContent() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <span className="text-[#7b1e7a]">📝</span> 국어
+            <span className="text-[#00e5e8]">📝</span> 국어
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-[#7b1e7a]">원점수 (0~200)</label>
+              <label className="block text-sm font-medium mb-1 text-[#00e5e8]">원점수 (0~200)</label>
               <Input
                 type="number"
                 placeholder="0"
@@ -995,7 +995,7 @@ function ScoreInputPageContent() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-[#7b1e7a]">등급 (1~9)</label>
+              <label className="block text-sm font-medium mb-1 text-[#00e5e8]">등급 (1~9)</label>
               <Input
                 type="number"
                 placeholder="0"
@@ -1006,7 +1006,7 @@ function ScoreInputPageContent() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-[#7b1e7a]">백분위 (0~100)</label>
+              <label className="block text-sm font-medium mb-1 text-[#00e5e8]">백분위 (0~100)</label>
               <Input
                 type="number"
                 placeholder="0"
@@ -1114,13 +1114,13 @@ function ScoreInputPageContent() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <span className="text-purple-500">🔬</span> 통합과학
+            <span className="text-cyan-500">🔬</span> 통합과학
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-purple-600">원점수 (0~200)</label>
+              <label className="block text-sm font-medium mb-1 text-cyan-600">원점수 (0~200)</label>
               <Input
                 type="number"
                 placeholder="0"
@@ -1131,7 +1131,7 @@ function ScoreInputPageContent() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-purple-600">등급 (1~9)</label>
+              <label className="block text-sm font-medium mb-1 text-cyan-600">등급 (1~9)</label>
               <Input
                 type="number"
                 placeholder="0"
@@ -1142,7 +1142,7 @@ function ScoreInputPageContent() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-purple-600">백분위 (0~100)</label>
+              <label className="block text-sm font-medium mb-1 text-cyan-600">백분위 (0~100)</label>
               <Input
                 type="number"
                 placeholder="0"
@@ -1222,7 +1222,7 @@ function ScoreInputPageContent() {
               inquiry2Percentile: Number(grade1StandardScores.integratedSocialPercentile) || 0,
             })
           }}
-          className="bg-[#7b1e7a] hover:bg-[#5a1559] text-white px-8"
+          className="bg-[#00e5e8] hover:bg-[#00b8bb] text-white px-8"
         >
           저장
         </Button>
@@ -1232,7 +1232,7 @@ function ScoreInputPageContent() {
             console.log("[v0] Editing Grade 1 standard scores")
             alert("점수를 수정할 수 있습니다.")
           }}
-          className="border-[#7b1e7a] text-[#7b1e7a] hover:bg-[#faf5fa] px-8"
+          className="border-[#00e5e8] text-[#00e5e8] hover:bg-[#f0fffe] px-8"
         >
           수정
         </Button>
@@ -1779,7 +1779,7 @@ function ScoreInputPageContent() {
                 foreignGrade: Number(standardScores.secondLanguage.subject1) || undefined,
               })
             }}
-            className="bg-[#7b1e7a] hover:bg-[#5a1559] text-white px-6 py-2"
+            className="bg-[#00e5e8] hover:bg-[#00b8bb] text-white px-6 py-2"
           >
             저장
           </Button>
@@ -1789,7 +1789,7 @@ function ScoreInputPageContent() {
               alert("수정 모드가 활성화되었습니다.")
             }}
             variant="outline"
-            className="border-[#7b1e7a] text-[#7b1e7a] hover:bg-[#faf5fa] px-6 py-2"
+            className="border-[#00e5e8] text-[#00e5e8] hover:bg-[#f0fffe] px-6 py-2"
           >
             수정
           </Button>
@@ -2164,7 +2164,7 @@ function ScoreInputPageContent() {
                 // foreignRaw logic missing in state, skipping
               })
             }}
-            className="bg-[#7b1e7a] hover:bg-[#5a1559] text-white px-6 py-2"
+            className="bg-[#00e5e8] hover:bg-[#00b8bb] text-white px-6 py-2"
           >
             저장
           </Button>
@@ -2174,7 +2174,7 @@ function ScoreInputPageContent() {
               alert("수정 모드가 활성화되었습니다.")
             }}
             variant="outline"
-            className="border-[#7b1e7a] text-[#7b1e7a] hover:bg-[#faf5fa] px-6 py-2"
+            className="border-[#00e5e8] text-[#00e5e8] hover:bg-[#f0fffe] px-6 py-2"
           >
             수정
           </Button>
@@ -2193,7 +2193,7 @@ function ScoreInputPageContent() {
             <span>›</span>
             <span>모의고사</span>
             <span>›</span>
-            <span className="text-[#7b1e7a]">모의고사 입력</span>
+            <span className="text-[#00e5e8]">모의고사 입력</span>
           </div>
         </div>
       </div>
@@ -2225,7 +2225,7 @@ function ScoreInputPageContent() {
                   <Button
                     size="sm"
                     variant={activeTab === "raw" ? "default" : "outline"}
-                    className={activeTab === "raw" ? "bg-[#7b1e7a] hover:bg-[#5a1559] text-white" : ""}
+                    className={activeTab === "raw" ? "bg-[#00e5e8] hover:bg-[#00b8bb] text-white" : ""}
                     onClick={() => setActiveTab("raw")}
                   >
                     원점수 입력
@@ -2233,7 +2233,7 @@ function ScoreInputPageContent() {
                   <Button
                     size="sm"
                     variant={activeTab === "standard" ? "default" : "outline"}
-                    className={activeTab === "standard" ? "bg-[#7b1e7a] hover:bg-[#5a1559] text-white" : ""}
+                    className={activeTab === "standard" ? "bg-[#00e5e8] hover:bg-[#00b8bb] text-white" : ""}
                     onClick={() => setActiveTab("standard")}
                   >
                     표준점수 입력
@@ -2274,7 +2274,7 @@ function ScoreInputPageContent() {
                     <Button
                       size="sm"
                       variant={activeTab === "raw" ? "default" : "outline"}
-                      className={activeTab === "raw" ? "bg-[#7b1e7a] hover:bg-[#5a1559] text-white" : ""}
+                      className={activeTab === "raw" ? "bg-[#00e5e8] hover:bg-[#00b8bb] text-white" : ""}
                       onClick={() => setActiveTab("raw")}
                     >
                       원점수 입력
@@ -2282,7 +2282,7 @@ function ScoreInputPageContent() {
                     <Button
                       size="sm"
                       variant={activeTab === "standard" ? "default" : "outline"}
-                      className={activeTab === "standard" ? "bg-[#7b1e7a] hover:bg-[#5a1559] text-white" : ""}
+                      className={activeTab === "standard" ? "bg-[#00e5e8] hover:bg-[#00b8bb] text-white" : ""}
                       onClick={() => setActiveTab("standard")}
                     >
                       표준점수 입력
@@ -2294,7 +2294,7 @@ function ScoreInputPageContent() {
 
                 {/* Submit Button */}
                 {/* <div className="mt-8 text-center">
-                  <Button onClick={handleSubmit} className="bg-[#7b1e7a] hover:bg-[#5a1559] text-white px-8 py-2">
+                  <Button onClick={handleSubmit} className="bg-[#00e5e8] hover:bg-[#00b8bb] text-white px-8 py-2">
                     입력완료
                   </Button>
                 </div>
@@ -2308,7 +2308,7 @@ function ScoreInputPageContent() {
                 <Button
                   size="sm"
                   variant="default"
-                  className="bg-[#7b1e7a] hover:bg-[#5a1559] text-white"
+                  className="bg-[#00e5e8] hover:bg-[#00b8bb] text-white"
                   onClick={() => setActiveTab("raw")}
                 >
                   원점수 입력

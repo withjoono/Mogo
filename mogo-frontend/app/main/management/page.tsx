@@ -82,7 +82,7 @@ export default function MockExamManagement() {
             <span>›</span>
             <span>모의고사</span>
             <span>›</span>
-            <span className="text-[#7b1e7a] font-medium">모의고사 관리</span>
+            <span className="text-[#00e5e8] font-medium">모의고사 관리</span>
           </div>
         </div>
       </div>
@@ -94,14 +94,14 @@ export default function MockExamManagement() {
         <div className="mb-8">
           <div className="flex items-center space-x-4">
             <span className="text-lg font-semibold text-gray-900">입학원 모의고사</span>
-            <span className="text-[#7b1e7a] text-sm">📋</span>
+            <span className="text-[#00e5e8] text-sm">📋</span>
           </div>
 
           <div className="mt-4 relative inline-block">
             <select
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#7b1e7a] focus:border-[#7b1e7a]"
+              className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#00e5e8] focus:border-[#00e5e8]"
             >
               <option value="2023년 6월 9월">2023년 6월 9월</option>
               <option value="2023년 3월 6월">2023년 3월 6월</option>
@@ -126,10 +126,10 @@ export default function MockExamManagement() {
                     <div className="flex-1">
                       <div className="text-sm text-gray-600">{subject.name}</div>
                       <div className="flex items-center space-x-4 mt-1">
-                        {subject.score && <span className="text-[#7b1e7a] font-medium text-sm">{subject.score}</span>}
+                        {subject.score && <span className="text-[#00e5e8] font-medium text-sm">{subject.score}</span>}
                         {subject.grade && <span className="text-gray-600 text-sm">{subject.grade}</span>}
                         {subject.percentage && (
-                          <span className="text-[#7b1e7a] font-medium text-sm">{subject.percentage}</span>
+                          <span className="text-[#00e5e8] font-medium text-sm">{subject.percentage}</span>
                         )}
                       </div>
                     </div>
@@ -157,7 +157,7 @@ export default function MockExamManagement() {
 
         {/* Status Indicator */}
         <div className="mt-8 text-right">
-          <span className="text-[#7b1e7a] text-sm font-medium">전체 상태 ●</span>
+          <span className="text-[#00e5e8] text-sm font-medium">전체 상태 ●</span>
         </div>
       </div>
     </div>

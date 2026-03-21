@@ -107,14 +107,14 @@ function Dashboard({ user }: { user: User }) {
         {/* 환영 헤더 */}
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
-            안녕하세요, <span className="text-[#7b1e7a]">{user.name}</span>님! 👋
+            안녕하세요, <span className="text-[#00e5e8]">{user.name}</span>님! 👋
           </h1>
           <p className="text-gray-500 mt-1">오늘도 목표를 향해 한 걸음 더!</p>
         </div>
 
         {/* 빠른 액션 카드 */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Link href="/main/input" className="bg-gradient-to-br from-[#7b1e7a] to-[#9c3d9a] rounded-2xl p-5 text-white hover:shadow-lg hover:shadow-purple-200/50 transition-all hover:-translate-y-0.5">
+          <Link href="/main/input" className="bg-gradient-to-br from-[#00e5e8] to-[#33eeef] rounded-2xl p-5 text-white hover:shadow-lg hover:shadow-cyan-200/50 transition-all hover:-translate-y-0.5">
             <FileText className="w-7 h-7 mb-3 opacity-80" />
             <div className="font-bold text-sm">모의고사 입력</div>
             <div className="text-xs text-white/70 mt-1">정답 입력 & 채점</div>
@@ -142,12 +142,12 @@ function Dashboard({ user }: { user: User }) {
           </div>
         ) : scores.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center shadow-sm">
-            <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
-              <AlertCircle className="w-8 h-8 text-[#7b1e7a]" />
+            <div className="w-16 h-16 bg-cyan-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
+              <AlertCircle className="w-8 h-8 text-[#00e5e8]" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">아직 입력한 모의고사가 없습니다</h3>
             <p className="text-gray-500 mb-6">모의고사 정답을 입력하면 자동채점, 성적분석, 대학예측까지 한번에!</p>
-            <Link href="/main/input" className="inline-flex items-center gap-2 px-6 py-3 bg-[#7b1e7a] text-white rounded-xl hover:bg-[#5a1559] transition-colors font-medium">
+            <Link href="/main/input" className="inline-flex items-center gap-2 px-6 py-3 bg-[#00e5e8] text-white rounded-xl hover:bg-[#00b8bb] transition-colors font-medium">
               <Zap className="w-5 h-5" />첫 모의고사 입력하기<ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -155,9 +155,9 @@ function Dashboard({ user }: { user: User }) {
           <div className="space-y-6">
             {/* 요약 통계 카드 */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-white rounded-2xl border border-gray-200 border-b-4 border-b-[#7b1e7a]/30 p-5 text-center shadow-md">
+              <div className="bg-white rounded-2xl border border-gray-200 border-b-4 border-b-[#00e5e8]/30 p-5 text-center shadow-md">
                 <div className="text-xs text-gray-400 mb-1">응시 모의고사</div>
-                <div className="text-3xl font-extrabold text-[#7b1e7a]">{scores.length}</div>
+                <div className="text-3xl font-extrabold text-[#00e5e8]">{scores.length}</div>
                 <div className="text-xs text-gray-400 mt-1">회</div>
               </div>
               <div className="bg-white rounded-2xl border border-gray-200 border-b-4 border-b-blue-300 p-5 text-center shadow-md">
@@ -182,19 +182,19 @@ function Dashboard({ user }: { user: User }) {
                 { name: "탐구2", grade: Number(latest.inquiry2Grade) || 0 },
                 { name: "한국사", grade: Number(latest.historyGrade) || 0 },
               ].filter(s => s.grade > 0)
-              const colors = ['#7b1e7a', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1']
+              const colors = ['#00e5e8', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1']
               const svgW = 360
               const svgH = 200
               const barW = 36
               const gap = (svgW - subjects.length * barW) / (subjects.length + 1)
               return (
-                <div className="bg-gradient-to-b from-white to-gray-50 rounded-2xl border border-gray-200 border-b-4 border-b-purple-300 shadow-md overflow-hidden">
+                <div className="bg-gradient-to-b from-white to-gray-50 rounded-2xl border border-gray-200 border-b-4 border-b-cyan-300 shadow-md overflow-hidden">
                   <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                     <div>
                       <h2 className="text-lg font-bold text-gray-900">📊 최근 시험 과목별 등급</h2>
                       <p className="text-xs text-gray-400 mt-0.5">{latest.mockExam?.name || `모의고사 #${latest.mockExamId}`} · {latest.mockExam?.year}년 {latest.mockExam?.month}월</p>
                     </div>
-                    <Link href="/main/score-analysis" className="text-sm text-[#7b1e7a] hover:underline flex items-center gap-1 font-medium">
+                    <Link href="/main/score-analysis" className="text-sm text-[#00e5e8] hover:underline flex items-center gap-1 font-medium">
                       상세보기<ChevronRight className="w-4 h-4" />
                     </Link>
                   </div>
@@ -322,7 +322,7 @@ function Dashboard({ user }: { user: User }) {
 
               // 차트 1: 과목별 백분위 추이
               const subjectPercentileData = [
-                { name: '국어', color: '#7b1e7a', data: ordered.map(s => Number(s.koreanPercentile) || null) },
+                { name: '국어', color: '#00e5e8', data: ordered.map(s => Number(s.koreanPercentile) || null) },
                 { name: '수학', color: '#3b82f6', data: ordered.map(s => Number(s.mathPercentile) || null) },
                 { name: '탐구1', color: '#f59e0b', data: ordered.map(s => Number(s.inquiry1Standard) ? (Number(s.inquiry1Percentile) || null) : null) },
                 { name: '탐구2', color: '#ef4444', data: ordered.map(s => Number(s.inquiry2Standard) ? (Number(s.inquiry2Percentile) || null) : null) },
@@ -353,7 +353,7 @@ function Dashboard({ user }: { user: User }) {
 
               // 과목별 백분위 데이터
               const allSubjectPercentiles: { [key: string]: { color: string; data: (number | null)[] } } = {
-                '국어': { color: '#7b1e7a', data: ordered.map(s => Number(s.koreanPercentile) || null) },
+                '국어': { color: '#00e5e8', data: ordered.map(s => Number(s.koreanPercentile) || null) },
                 '수학': { color: '#3b82f6', data: ordered.map(s => Number(s.mathPercentile) || null) },
                 '탐구1': { color: '#f59e0b', data: ordered.map(s => Number(s.inquiry1Percentile) || null) },
                 '탐구2': { color: '#ef4444', data: ordered.map(s => Number(s.inquiry2Percentile) || null) },
@@ -370,7 +370,7 @@ function Dashboard({ user }: { user: User }) {
                       <select
                         value={selectedSubject}
                         onChange={e => setSelectedSubject(e.target.value)}
-                        className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-[#7b1e7a]/30"
+                        className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-[#00e5e8]/30"
                       >
                         {availableSubjects.map(s => (
                           <option key={s} value={s}>{s}</option>
@@ -395,7 +395,7 @@ function Dashboard({ user }: { user: User }) {
                   <div className="bg-gradient-to-b from-white to-gray-50 rounded-2xl border border-gray-200 border-b-4 border-b-emerald-300 shadow-md overflow-hidden">
                     <div className="p-5 border-b border-gray-100 flex items-center justify-between">
                       <h2 className="text-base font-bold text-gray-900">📈 백분위 평균 추이</h2>
-                      <Link href="/main/score-analysis" className="text-sm text-[#7b1e7a] hover:underline flex items-center gap-1 font-medium">
+                      <Link href="/main/score-analysis" className="text-sm text-[#00e5e8] hover:underline flex items-center gap-1 font-medium">
                         상세보기<ChevronRight className="w-4 h-4" />
                       </Link>
                     </div>
@@ -415,14 +415,14 @@ function Dashboard({ user }: { user: User }) {
                   <div className="bg-gradient-to-b from-white to-gray-50 rounded-2xl border border-gray-200 border-b-4 border-b-amber-300 shadow-md overflow-hidden">
                     <div className="p-5 border-b border-gray-100 flex items-center justify-between">
                       <h2 className="text-base font-bold text-gray-900">🎯 국영수탐 평균등급 추이</h2>
-                      <Link href="/main/score-analysis" className="text-sm text-[#7b1e7a] hover:underline flex items-center gap-1 font-medium">
+                      <Link href="/main/score-analysis" className="text-sm text-[#00e5e8] hover:underline flex items-center gap-1 font-medium">
                         상세보기<ChevronRight className="w-4 h-4" />
                       </Link>
                     </div>
                     <div className="p-5">
                       <LineChart
                         title=""
-                        datasets={[{ name: '평균 등급', color: '#7b1e7a', data: avgGradeData }]}
+                        datasets={[{ name: '평균 등급', color: '#00e5e8', data: avgGradeData }]}
                         yMin={1}
                         yMax={9}
                         yLabel="등급"
@@ -436,12 +436,12 @@ function Dashboard({ user }: { user: User }) {
             })()}
 
             {/* 새 모의고사 CTA */}
-            <div className="bg-gradient-to-r from-[#7b1e7a] to-[#9c3d9a] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="bg-gradient-to-r from-[#00e5e8] to-[#33eeef] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="text-white">
                 <h3 className="text-lg font-bold">새 모의고사를 풀었나요?</h3>
                 <p className="text-white/70 text-sm mt-1">정답을 입력하고 바로 성적을 분석해보세요!</p>
               </div>
-              <Link href="/main/input" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#7b1e7a] rounded-xl hover:bg-gray-100 transition-colors font-bold shadow-lg whitespace-nowrap">
+              <Link href="/main/input" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#00e5e8] rounded-xl hover:bg-gray-100 transition-colors font-bold shadow-lg whitespace-nowrap">
                 <Zap className="w-5 h-5" />모의고사 입력하기
               </Link>
             </div>
@@ -458,7 +458,7 @@ function PromoPage() {
   return (
     <>
       {/* 히어로 섹션 */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#1e3a8a] via-[#2563eb] to-[#1d4ed8]">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#006d6f] via-[#00e5e8] to-[#00b8bb]">
         <div className="absolute inset-0">
           <div className="absolute top-20 left-10 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-300/10 rounded-full blur-3xl" />
@@ -480,7 +480,7 @@ function PromoPage() {
             <strong className="text-white">선생님의 시험 관리를 하나의 플랫폼에서!</strong>
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/main/input" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-[#2563eb] rounded-2xl hover:bg-gray-100 transition-all duration-300 font-bold text-lg shadow-2xl shadow-black/20 hover:scale-105">
+            <Link href="/main/input" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-[#00e5e8] rounded-2xl hover:bg-gray-100 transition-all duration-300 font-bold text-lg shadow-2xl shadow-black/20 hover:scale-105">
               <Zap className="w-5 h-5" />시작하기
             </Link>
           </div>
@@ -528,13 +528,13 @@ function PromoPage() {
           <div className="text-center mb-14">
             <span className="inline-block px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-bold mb-4">✨ MogoMogo가 해결합니다</span>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
-              시험 관리, <span className="text-[#2563eb]">단 3단계</span>로 끝!
+              시험 관리, <span className="text-[#00e5e8]">단 3단계</span>로 끝!
             </h2>
             <p className="text-gray-500 text-lg">출제 → 응시 → 분석, 소요 시간: 5분</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="relative bg-white rounded-3xl p-8 border border-gray-100 shadow-lg shadow-gray-100/50 text-center group hover:shadow-xl transition-all duration-300">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-[#2563eb] rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">1</div>
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-[#00e5e8] rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">1</div>
               <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-5 mt-2">
                 <PenTool className="w-8 h-8 text-blue-600" />
               </div>
@@ -542,7 +542,7 @@ function PromoPage() {
               <p className="text-sm text-gray-500">문제와 정답을 입력하면<br />시험지가 자동으로 생성됩니다</p>
             </div>
             <div className="relative bg-white rounded-3xl p-8 border border-gray-100 shadow-lg shadow-gray-100/50 text-center group hover:shadow-xl transition-all duration-300">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-[#2563eb] rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">2</div>
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-[#00e5e8] rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">2</div>
               <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-50 rounded-2xl flex items-center justify-center mx-auto mb-5 mt-2">
                 <QrCode className="w-8 h-8 text-green-600" />
               </div>
@@ -550,9 +550,9 @@ function PromoPage() {
               <p className="text-sm text-gray-500">코드나 QR로 시험에 입장하고<br />모바일로 답안을 바로 제출합니다</p>
             </div>
             <div className="relative bg-white rounded-3xl p-8 border border-gray-100 shadow-lg shadow-gray-100/50 text-center group hover:shadow-xl transition-all duration-300">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-[#2563eb] rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">3</div>
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-50 rounded-2xl flex items-center justify-center mx-auto mb-5 mt-2">
-                <BarChart3 className="w-8 h-8 text-purple-600" />
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-[#00e5e8] rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">3</div>
+              <div className="w-16 h-16 bg-gradient-to-br from-cyan-100 to-cyan-50 rounded-2xl flex items-center justify-center mx-auto mb-5 mt-2">
+                <BarChart3 className="w-8 h-8 text-cyan-600" />
               </div>
               <h3 className="font-bold text-gray-900 text-lg mb-2">자동 분석</h3>
               <p className="text-sm text-gray-500">자동 채점과 함께<br />학생별 · 문항별 분석까지 완료!</p>
@@ -567,7 +567,7 @@ function PromoPage() {
           <div className="text-center mb-14">
             <span className="inline-block px-4 py-1.5 bg-green-100 text-green-700 rounded-full text-sm font-bold mb-4">🚀 핵심 기능</span>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
-              선생님 시험 관리의 <span className="text-[#2563eb]">모든 것</span>
+              선생님 시험 관리의 <span className="text-[#00e5e8]">모든 것</span>
             </h2>
             <p className="text-gray-500 text-lg">MogoMogo 하나로 시험의 전 과정을 관리하세요</p>
           </div>
@@ -634,10 +634,10 @@ function PromoPage() {
 
             {/* 학생 관리 */}
             <div className="bg-white rounded-3xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-              <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-6">
+              <div className="bg-gradient-to-r from-cyan-500 to-cyan-600 p-6">
                 <Users className="w-10 h-10 text-white/90 mb-3" />
                 <h3 className="text-xl font-bold text-white">👥 학생 관리</h3>
-                <p className="text-purple-200 text-sm mt-1">반 구성 · 학생 초대 · 시험 배정</p>
+                <p className="text-cyan-200 text-sm mt-1">반 구성 · 학생 초대 · 시험 배정</p>
               </div>
               <div className="p-6">
                 <p className="text-gray-600 text-sm leading-relaxed mb-4">
@@ -645,9 +645,9 @@ function PromoPage() {
                   시험을 반 단위로 배정하고 관리합니다.
                 </p>
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-purple-400" />반별 학생 관리</div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-purple-400" />코드/QR로 간편 초대</div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-purple-400" />시험 결과 누적 관리</div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-cyan-400" />반별 학생 관리</div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-cyan-400" />코드/QR로 간편 초대</div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500"><CheckCircle2 className="w-4 h-4 text-cyan-400" />시험 결과 누적 관리</div>
                 </div>
               </div>
             </div>
@@ -656,7 +656,7 @@ function PromoPage() {
       </section>
 
       {/* 모토 배너 */}
-      <section className="py-12 md:py-16 bg-gradient-to-r from-[#1e3a8a] via-[#2563eb] to-[#1e3a8a] relative overflow-hidden">
+      <section className="py-12 md:py-16 bg-gradient-to-r from-[#006d6f] via-[#00e5e8] to-[#006d6f] relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-cyan-300/10 rounded-full blur-3xl" />
@@ -678,9 +678,9 @@ function PromoPage() {
       <section className="py-16 md:py-20 bg-white">
         <div className="max-w-5xl mx-auto px-4">
           <div className="text-center mb-14">
-            <span className="inline-block px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-sm font-bold mb-4">✨ 더 강력한 기능들</span>
+            <span className="inline-block px-4 py-1.5 bg-cyan-100 text-cyan-700 rounded-full text-sm font-bold mb-4">✨ 더 강력한 기능들</span>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
-              단순 채점을 넘어,<br /><span className="text-[#2563eb]">교육의 질을 높이다</span>
+              단순 채점을 넘어,<br /><span className="text-[#00e5e8]">교육의 질을 높이다</span>
             </h2>
           </div>
 
@@ -706,9 +706,9 @@ function PromoPage() {
               <h3 className="font-bold text-gray-900 mb-1.5">실시간 모니터링</h3>
               <p className="text-sm text-gray-500">학생들의 응시 현황을 실시간으로 확인하고 진행 상태를 모니터링합니다.</p>
             </div>
-            <div className="bg-gray-50 rounded-2xl p-6 hover:bg-purple-50/50 transition-colors group">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Layers className="w-6 h-6 text-purple-600" />
+            <div className="bg-gray-50 rounded-2xl p-6 hover:bg-cyan-50/50 transition-colors group">
+              <div className="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Layers className="w-6 h-6 text-cyan-600" />
               </div>
               <h3 className="font-bold text-gray-900 mb-1.5">문제 은행</h3>
               <p className="text-sm text-gray-500">한번 출제한 문제는 문제은행에 저장! 다음 시험 때 쉽게 재사용할 수 있습니다.</p>
@@ -737,7 +737,7 @@ function PromoPage() {
           <div className="text-center mb-14">
             <span className="inline-block px-4 py-1.5 bg-indigo-100 text-indigo-700 rounded-full text-sm font-bold mb-4">🎯 활용 사례</span>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
-              이런 선생님들이 <span className="text-[#2563eb]">MogoMogo</span>를 사용합니다
+              이런 선생님들이 <span className="text-[#00e5e8]">MogoMogo</span>를 사용합니다
             </h2>
           </div>
 
@@ -761,7 +761,7 @@ function PromoPage() {
               </div>
             </div>
             <div className="bg-white rounded-2xl border border-gray-100 shadow-md p-7 flex gap-5">
-              <div className="w-14 h-14 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <div className="w-14 h-14 bg-cyan-50 rounded-xl flex items-center justify-center flex-shrink-0">
                 <span className="text-2xl">🎓</span>
               </div>
               <div>
@@ -783,7 +783,7 @@ function PromoPage() {
       </section>
 
       {/* CTA 섹션 */}
-      <section className="py-16 md:py-20 bg-gradient-to-br from-[#1e3a8a] via-[#2563eb] to-[#1d4ed8] relative overflow-hidden">
+      <section className="py-16 md:py-20 bg-gradient-to-br from-[#006d6f] via-[#00e5e8] to-[#00b8bb] relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-10 right-20 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
           <div className="absolute bottom-10 left-20 w-80 h-80 bg-cyan-300/10 rounded-full blur-3xl" />
@@ -793,7 +793,7 @@ function PromoPage() {
           <p className="text-white/80 mb-10 max-w-xl mx-auto text-lg leading-relaxed">
             시험 출제부터 자동 채점, 성적 분석까지<br />MogoMogo와 함께라면 시험 관리가 쉬워집니다.
           </p>
-          <Link href="/main/input" className="inline-flex items-center justify-center gap-3 px-10 py-5 bg-white text-[#2563eb] rounded-2xl hover:bg-gray-100 transition-all duration-300 font-bold text-lg shadow-2xl shadow-black/20 hover:scale-105">
+          <Link href="/main/input" className="inline-flex items-center justify-center gap-3 px-10 py-5 bg-white text-[#00e5e8] rounded-2xl hover:bg-gray-100 transition-all duration-300 font-bold text-lg shadow-2xl shadow-black/20 hover:scale-105">
             <Zap className="w-6 h-6" />무료로 시작하기<ArrowRight className="w-5 h-5" />
           </Link>
         </div>

@@ -37,15 +37,15 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
-  /* Grape (Purple) Color Palette - Primary Color #7b1e7a */
-  --grape-50: #faf5fa;
-  --grape-100: #f3e8f3;
+  /* Grape (Purple) Color Palette - Primary Color #00e5e8 */
+  --grape-50: #f0fffe;
+  --grape-100: #e0fffe;
   --grape-200: #d4a5d3;
   --grape-300: #b86db7;
-  --grape-400: #9c3d9a;
-  --grape-500: #7b1e7a;
+  --grape-400: #33eeef;
+  --grape-500: #00e5e8;
   --grape-600: #6a1969;
-  --grape-700: #5a1559;
+  --grape-700: #00b8bb;
   --grape-800: #4a1149;
   --grape-900: #3a0d39;
 }

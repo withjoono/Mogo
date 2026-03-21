@@ -196,7 +196,7 @@ export default function WrongAnswersPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <nav className="text-sm text-gray-500 mb-2">
-            <span>홈</span> &gt; <span>모의고사</span> &gt; <span className="text-[#7b1e7a]">오답노트</span>
+            <span>홈</span> &gt; <span>모의고사</span> &gt; <span className="text-[#00e5e8]">오답노트</span>
           </nav>
           <h1 className="text-2xl font-bold text-gray-900">오답노트</h1>
         </div>
@@ -272,14 +272,14 @@ export default function WrongAnswersPage() {
               <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg w-fit">
                 <button
                   onClick={() => setActiveTab("byExam")}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === "byExam" ? "bg-white text-[#7b1e7a] shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === "byExam" ? "bg-white text-[#00e5e8] shadow-sm" : "text-gray-600 hover:text-gray-900"
                     }`}
                 >
                   모의고사별
                 </button>
                 <button
                   onClick={() => setActiveTab("all")}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === "all" ? "bg-white text-[#7b1e7a] shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === "all" ? "bg-white text-[#00e5e8] shadow-sm" : "text-gray-600 hover:text-gray-900"
                     }`}
                 >
                   전체 오답
@@ -297,7 +297,7 @@ export default function WrongAnswersPage() {
                         <p>아직 채점한 모의고사가 없습니다.</p>
                         <button
                           onClick={() => router.push('/main/input')}
-                          className="mt-4 px-6 py-2 bg-[#7b1e7a] text-white rounded-md hover:bg-[#5a165a] transition-colors text-sm"
+                          className="mt-4 px-6 py-2 bg-[#00e5e8] text-white rounded-md hover:bg-[#00b8bb] transition-colors text-sm"
                         >
                           모의고사 입력하기
                         </button>
@@ -346,7 +346,7 @@ export default function WrongAnswersPage() {
                         {selectedExamId && (
                           <button
                             onClick={() => setSelectedExamId(null)}
-                            className="ml-2 text-sm font-normal text-[#7b1e7a] hover:underline"
+                            className="ml-2 text-sm font-normal text-[#00e5e8] hover:underline"
                           >
                             (필터 해제)
                           </button>
@@ -360,7 +360,7 @@ export default function WrongAnswersPage() {
                       <div className="flex flex-wrap gap-2 mb-4">
                         <button
                           onClick={() => setSelectedSubject("")}
-                          className={`px-3 py-1 rounded-full text-sm ${!selectedSubject ? 'bg-[#7b1e7a] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                          className={`px-3 py-1 rounded-full text-sm ${!selectedSubject ? 'bg-[#00e5e8] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                         >
                           전체
                         </button>
@@ -368,7 +368,7 @@ export default function WrongAnswersPage() {
                           <button
                             key={area}
                             onClick={() => setSelectedSubject(area)}
-                            className={`px-3 py-1 rounded-full text-sm ${selectedSubject === area ? 'bg-[#7b1e7a] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                            className={`px-3 py-1 rounded-full text-sm ${selectedSubject === area ? 'bg-[#00e5e8] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                           >
                             {area}
                           </button>
@@ -471,7 +471,7 @@ export default function WrongAnswersPage() {
               <div className="mt-8 flex justify-center">
                 <button
                   onClick={() => router.push('/main/input')}
-                  className="bg-[#7b1e7a] hover:bg-[#5a1559] text-white px-8 py-3 rounded-lg font-medium transition-colors"
+                  className="bg-[#00e5e8] hover:bg-[#00b8bb] text-white px-8 py-3 rounded-lg font-medium transition-colors"
                 >
                   입력페이지로
                 </button>

@@ -180,7 +180,7 @@ export default function TargetUniversitySettingsPage() {
             <div
                 className="px-6 py-8"
                 style={{
-                    background: "linear-gradient(135deg, #7b1e7a 0%, #9b30a0 50%, #b850b0 100%)",
+                    background: "linear-gradient(135deg, #00e5e8 0%, #9b30a0 50%, #b850b0 100%)",
                 }}
             >
                 <div className="mx-auto max-w-3xl">
@@ -207,7 +207,7 @@ export default function TargetUniversitySettingsPage() {
                                 ? "text-white"
                                 : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                             }`}
-                        style={activeTab === "university" ? { backgroundColor: "#7b1e7a" } : {}}
+                        style={activeTab === "university" ? { backgroundColor: "#00e5e8" } : {}}
                     >
                         🏫 목표 대학
                     </button>
@@ -217,7 +217,7 @@ export default function TargetUniversitySettingsPage() {
                                 ? "text-white"
                                 : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                             }`}
-                        style={activeTab === "major" ? { backgroundColor: "#7b1e7a" } : {}}
+                        style={activeTab === "major" ? { backgroundColor: "#00e5e8" } : {}}
                     >
                         📚 목표 계열/학과
                     </button>
@@ -241,7 +241,7 @@ export default function TargetUniversitySettingsPage() {
                         <Card className="shadow-sm border">
                             <CardHeader className="pb-3">
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <span style={{ color: "#7b1e7a" }}>🔍</span> 대학 검색
+                                    <span style={{ color: "#00e5e8" }}>🔍</span> 대학 검색
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -267,7 +267,7 @@ export default function TargetUniversitySettingsPage() {
                                                     setUniResults([])
                                                     setSelectedDeptIds(new Set())
                                                 }}
-                                                className="w-full px-4 py-3 text-left text-sm hover:bg-purple-50 transition-colors border-b last:border-b-0 flex items-center justify-between"
+                                                className="w-full px-4 py-3 text-left text-sm hover:bg-cyan-50 transition-colors border-b last:border-b-0 flex items-center justify-between"
                                             >
                                                 <span className="font-medium">{uni.name}</span>
                                                 <Badge variant="secondary" className="text-xs">
@@ -286,7 +286,7 @@ export default function TargetUniversitySettingsPage() {
                                 <CardHeader className="pb-3">
                                     <div className="flex items-center justify-between">
                                         <CardTitle className="text-lg flex items-center gap-2">
-                                            <span style={{ color: "#7b1e7a" }}>📋</span>
+                                            <span style={{ color: "#00e5e8" }}>📋</span>
                                             {selectedUniversity.name}
                                             <Badge variant="outline" className="text-xs">
                                                 {selectedUniversity.region}
@@ -321,14 +321,14 @@ export default function TargetUniversitySettingsPage() {
                                                         key={dept.id}
                                                         onClick={() => toggleDeptSelection(dept.id)}
                                                         className={`w-full flex items-center gap-3 rounded-lg px-4 py-3 text-left text-sm transition-all duration-150 ${isSelected
-                                                                ? "bg-purple-50 border border-purple-200 shadow-sm"
+                                                                ? "bg-cyan-50 border border-cyan-200 shadow-sm"
                                                                 : "hover:bg-gray-50 border border-transparent"
                                                             }`}
                                                     >
                                                         <div
                                                             className={`h-5 w-5 rounded flex items-center justify-center shrink-0 transition-colors ${isSelected ? "text-white" : "border-2 border-gray-300"
                                                                 }`}
-                                                            style={isSelected ? { backgroundColor: "#7b1e7a" } : {}}
+                                                            style={isSelected ? { backgroundColor: "#00e5e8" } : {}}
                                                         >
                                                             {isSelected && <span className="text-xs">✓</span>}
                                                         </div>
@@ -361,7 +361,7 @@ export default function TargetUniversitySettingsPage() {
                                     onClick={() => saveTargets(selectedDeptIds)}
                                     disabled={isSaving}
                                     className="px-8 py-3 text-sm font-semibold text-white rounded-xl shadow-lg transition-all hover:shadow-xl"
-                                    style={{ backgroundColor: "#7b1e7a" }}
+                                    style={{ backgroundColor: "#00e5e8" }}
                                 >
                                     {isSaving ? "저장 중..." : `${selectedDeptIds.size}개 목표 대학 등록`}
                                 </Button>
@@ -376,7 +376,7 @@ export default function TargetUniversitySettingsPage() {
                         <Card className="shadow-sm border">
                             <CardHeader className="pb-3">
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <span style={{ color: "#7b1e7a" }}>🔍</span> 계열/학과 검색
+                                    <span style={{ color: "#00e5e8" }}>🔍</span> 계열/학과 검색
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -399,7 +399,7 @@ export default function TargetUniversitySettingsPage() {
                                 <CardHeader className="pb-3">
                                     <div className="flex items-center justify-between">
                                         <CardTitle className="text-lg flex items-center gap-2">
-                                            <span style={{ color: "#7b1e7a" }}>📋</span>
+                                            <span style={{ color: "#00e5e8" }}>📋</span>
                                             검색 결과
                                         </CardTitle>
                                         <div className="flex gap-2">
@@ -426,14 +426,14 @@ export default function TargetUniversitySettingsPage() {
                                                     key={dept.id}
                                                     onClick={() => toggleMajorDeptSelection(dept.id)}
                                                     className={`w-full flex items-center gap-3 rounded-lg px-4 py-3 text-left text-sm transition-all duration-150 ${isSelected
-                                                            ? "bg-purple-50 border border-purple-200 shadow-sm"
+                                                            ? "bg-cyan-50 border border-cyan-200 shadow-sm"
                                                             : "hover:bg-gray-50 border border-transparent"
                                                         }`}
                                                 >
                                                     <div
                                                         className={`h-5 w-5 rounded flex items-center justify-center shrink-0 transition-colors ${isSelected ? "text-white" : "border-2 border-gray-300"
                                                             }`}
-                                                        style={isSelected ? { backgroundColor: "#7b1e7a" } : {}}
+                                                        style={isSelected ? { backgroundColor: "#00e5e8" } : {}}
                                                     >
                                                         {isSelected && <span className="text-xs">✓</span>}
                                                     </div>
@@ -470,7 +470,7 @@ export default function TargetUniversitySettingsPage() {
                                     onClick={() => saveTargets(selectedMajorDeptIds)}
                                     disabled={isSaving}
                                     className="px-8 py-3 text-sm font-semibold text-white rounded-xl shadow-lg transition-all hover:shadow-xl"
-                                    style={{ backgroundColor: "#7b1e7a" }}
+                                    style={{ backgroundColor: "#00e5e8" }}
                                 >
                                     {isSaving ? "저장 중..." : `${selectedMajorDeptIds.size}개 목표 대학 등록`}
                                 </Button>

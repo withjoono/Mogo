@@ -211,7 +211,7 @@ export default function MockExamInputPage() {
             <span>›</span>
             <span>모의고사</span>
             <span>›</span>
-            <span className="text-[#7b1e7a]">모의고사 입력</span>
+            <span className="text-[#00e5e8]">모의고사 입력</span>
           </div>
         </div>
       </div>
@@ -248,7 +248,7 @@ export default function MockExamInputPage() {
                     <select
                       value={selectedGrade}
                       onChange={(e) => setSelectedGrade(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-[#7b1e7a] focus:border-[#7b1e7a] appearance-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-[#00e5e8] focus:border-[#00e5e8] appearance-none"
                     >
                       <option value="">학년 선택</option>
                       {grades.map((grade) => {
@@ -273,7 +273,7 @@ export default function MockExamInputPage() {
                       value={selectedYear}
                       onChange={(e) => setSelectedYear(e.target.value)}
                       disabled={!selectedGrade || availableYears.length === 0}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-[#7b1e7a] focus:border-[#7b1e7a] appearance-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-[#00e5e8] focus:border-[#00e5e8] appearance-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                     >
                       <option value="">
                         {!selectedGrade ? "학년을 먼저 선택" : availableYears.length === 0 ? "등록된 시험 없음" : "연도 선택"}
@@ -296,7 +296,7 @@ export default function MockExamInputPage() {
                       value={selectedExamId}
                       onChange={(e) => setSelectedExamId(e.target.value)}
                       disabled={!selectedYear || filteredExams.length === 0}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-[#7b1e7a] focus:border-[#7b1e7a] appearance-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-[#00e5e8] focus:border-[#00e5e8] appearance-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                     >
                       <option value="">
                         {!selectedYear ? "연도를 먼저 선택" : filteredExams.length === 0 ? "등록된 시험 없음" : "시험 선택"}
@@ -358,8 +358,8 @@ export default function MockExamInputPage() {
 
                       {/* 답안 입력 내역 */}
                       {enteredAnswerSubjects.length > 0 && (
-                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                          <div className="flex items-center gap-2 text-purple-700 font-semibold mb-2">
+                        <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
+                          <div className="flex items-center gap-2 text-cyan-700 font-semibold mb-2">
                             <FileText className="w-4 h-4" />
                             ✏️ 답안 입력 내역 ({enteredAnswerSubjects.length}과목)
                           </div>
@@ -367,13 +367,13 @@ export default function MockExamInputPage() {
                             {enteredAnswerSubjects.map((subject) => (
                               <span
                                 key={subject}
-                                className="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded-full"
+                                className="inline-flex items-center px-3 py-1 bg-cyan-100 text-purple-800 text-sm font-medium rounded-full"
                               >
                                 {subject}
                               </span>
                             ))}
                           </div>
-                          <p className="text-xs text-purple-500 mt-2 pl-6">
+                          <p className="text-xs text-cyan-500 mt-2 pl-6">
                             위 과목의 답안이 이미 입력되어 있습니다. 정답 입력 시 기존 데이터를 수정합니다.
                           </p>
                         </div>
@@ -396,7 +396,7 @@ export default function MockExamInputPage() {
               <button
                 onClick={handleScoreInput}
                 disabled={!selectedExam}
-                className="flex-1 relative bg-[#7b1e7a] hover:bg-[#5a1559] disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-8 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:shadow-none"
+                className="flex-1 relative bg-[#00e5e8] hover:bg-[#00b8bb] disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-8 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:shadow-none"
               >
                 {enteredScoreSubjects.length > 0 ? "점수 수정" : "점수 입력"}
                 {enteredScoreSubjects.length > 0 && (
@@ -408,7 +408,7 @@ export default function MockExamInputPage() {
               <button
                 onClick={handleAnswerInput}
                 disabled={!selectedExam}
-                className="flex-1 relative bg-[#7b1e7a] hover:bg-[#5a1559] disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-8 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:shadow-none"
+                className="flex-1 relative bg-[#00e5e8] hover:bg-[#00b8bb] disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-8 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:shadow-none"
               >
                 {enteredAnswerSubjects.length > 0 ? "정답 수정" : "정답 입력"}
                 {enteredAnswerSubjects.length > 0 && (

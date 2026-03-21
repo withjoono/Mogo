@@ -260,7 +260,7 @@ function MockExamFormPageContent() {
               maxLength={3}
               value={selectedAnswer || ""}
               onChange={(e) => handleNumberInput(questionNum, e.target.value)}
-              className="w-16 h-10 border-2 border-gray-300 rounded text-center font-medium focus:border-[#7b1e7a] focus:outline-none"
+              className="w-16 h-10 border-2 border-gray-300 rounded text-center font-medium focus:border-[#00e5e8] focus:outline-none"
               placeholder="000"
             />
           </div>
@@ -277,7 +277,7 @@ function MockExamFormPageContent() {
               key={option}
               onClick={() => handleAnswerSelect(questionNum, option)}
               className={`w-10 h-10 rounded-full border-2 font-medium text-sm transition-colors ${selectedAnswer === option
-                ? "bg-[#7b1e7a] border-[#7b1e7a] text-white"
+                ? "bg-[#00e5e8] border-[#00e5e8] text-white"
                 : "bg-white border-gray-300 text-gray-700 hover:border-[#d4a5d3]"
                 }`}
             >
@@ -302,7 +302,7 @@ function MockExamFormPageContent() {
               key={option}
               onClick={() => handleAnswerSelect(questionNum, option)}
               className={`w-10 h-10 rounded-full border-2 font-medium text-sm transition-colors ${selectedAnswer === option
-                ? "bg-[#7b1e7a] border-[#7b1e7a] text-white"
+                ? "bg-[#00e5e8] border-[#00e5e8] text-white"
                 : "bg-white border-gray-300 text-gray-700 hover:border-[#d4a5d3]"
                 }`}
             >
@@ -351,7 +351,7 @@ function MockExamFormPageContent() {
           <select
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7b1e7a] focus:border-[#7b1e7a]"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00e5e8] focus:border-[#00e5e8]"
           >
             <option value="">과목을 선택하세요</option>
             <optgroup label="사회탐구">
@@ -436,7 +436,7 @@ function MockExamFormPageContent() {
           <select
             value={secondForeignLanguage}
             onChange={(e) => setSecondForeignLanguage(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7b1e7a] focus:border-[#7b1e7a]"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00e5e8] focus:border-[#00e5e8]"
           >
             <option value="">과목을 선택하세요</option>
             {secondForeignLanguageSubjects.map((subject) => (
@@ -525,7 +525,7 @@ function MockExamFormPageContent() {
             <span>›</span>
             <span>모의고사</span>
             <span>›</span>
-            <span className="text-[#7b1e7a]">모의고사 입력</span>
+            <span className="text-[#00e5e8]">모의고사 입력</span>
           </div>
         </div>
       </div>
@@ -558,7 +558,7 @@ function MockExamFormPageContent() {
                     key={subject}
                     onClick={() => setSelectedSubject(subject)}
                     className={`w-full text-left px-4 py-3 mb-2 rounded-md text-sm font-medium transition-colors ${selectedSubject === subject
-                      ? "bg-[#f3e8f3] text-[#7b1e7a] border border-[#d4a5d3]"
+                      ? "bg-[#e0fffe] text-[#00e5e8] border border-[#d4a5d3]"
                       : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
                       }`}
                   >
@@ -574,10 +574,10 @@ function MockExamFormPageContent() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">
                   {selectedSubject}
                   {selectedSubject === "국어" && grade === "고3" && koreanSelection && (
-                    <span className="ml-2 text-sm text-[#7b1e7a] font-normal">({koreanSelection})</span>
+                    <span className="ml-2 text-sm text-[#00e5e8] font-normal">({koreanSelection})</span>
                   )}
                   {selectedSubject === "수학" && grade === "고3" && mathSelection && (
-                    <span className="ml-2 text-sm text-[#7b1e7a] font-normal">({mathSelection})</span>
+                    <span className="ml-2 text-sm text-[#00e5e8] font-normal">({mathSelection})</span>
                   )}
                 </h3>
 
@@ -589,7 +589,7 @@ function MockExamFormPageContent() {
                         <select
                           value={koreanSelection}
                           onChange={(e) => setKoreanSelection(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7b1e7a] focus:border-[#7b1e7a]"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00e5e8] focus:border-[#00e5e8]"
                         >
                           <option value="">선택과목을 선택하세요</option>
                           {koreanSubjects.map((s) => (
@@ -611,7 +611,7 @@ function MockExamFormPageContent() {
                         <select
                           value={mathSelection}
                           onChange={(e) => setMathSelection(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7b1e7a] focus:border-[#7b1e7a]"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00e5e8] focus:border-[#00e5e8]"
                         >
                           <option value="">선택과목을 선택하세요</option>
                           {mathSubjects.map((s) => (
@@ -655,8 +655,8 @@ function MockExamFormPageContent() {
                 <div className="mt-8 space-y-4">
                   {/* 채점 결과 */}
                   {gradeResults.length > 0 && (
-                    <div className="bg-gradient-to-r from-[#f3e8f3] to-[#e8f0fe] rounded-lg p-6 border border-[#d4a5d3]">
-                      <h3 className="text-xl font-bold text-[#7b1e7a] mb-4">📊 채점 결과</h3>
+                    <div className="bg-gradient-to-r from-[#e0fffe] to-[#e8f0fe] rounded-lg p-6 border border-[#d4a5d3]">
+                      <h3 className="text-xl font-bold text-[#00e5e8] mb-4">📊 채점 결과</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {gradeResults.map((result, idx) => (
                           <div key={idx} className="bg-white rounded-lg p-4 shadow-sm">
@@ -666,7 +666,7 @@ function MockExamFormPageContent() {
                             </h4>
                             <div className="flex items-center gap-4">
                               <div className="text-center">
-                                <div className="text-2xl font-bold text-[#7b1e7a]">
+                                <div className="text-2xl font-bold text-[#00e5e8]">
                                   {result.correctCount}/{result.totalQuestions}
                                 </div>
                                 <div className="text-xs text-gray-500">정답</div>
@@ -697,7 +697,7 @@ function MockExamFormPageContent() {
                       <div className="mt-4 flex justify-center">
                         <button
                           onClick={() => router.push('/main/wrong-answers')}
-                          className="px-6 py-2 bg-[#7b1e7a] text-white rounded-md hover:bg-[#5a165a] transition-colors"
+                          className="px-6 py-2 bg-[#00e5e8] text-white rounded-md hover:bg-[#00b8bb] transition-colors"
                         >
                           오답노트 보기 →
                         </button>
@@ -743,7 +743,7 @@ function MockExamFormPageContent() {
                         disabled={isSaving || !isLoggedIn}
                         className={`px-8 py-3 rounded-md font-medium transition-colors ${isSaving || !isLoggedIn
                           ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          : 'bg-[#7b1e7a] hover:bg-[#5a165a] text-white'
+                          : 'bg-[#00e5e8] hover:bg-[#00b8bb] text-white'
                           }`}
                       >
                         {isSaving ? '채점 중...' : '채점하기'}
