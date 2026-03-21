@@ -7,7 +7,7 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   options: '-c search_path=mogo,hub',
 });
-const adapter = new PrismaPg(pool);
+const adapter = new PrismaPg(pool, { schema: 'mogo' });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {

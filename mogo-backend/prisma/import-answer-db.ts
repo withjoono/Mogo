@@ -11,7 +11,8 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
 });
-const adapter = new PrismaPg(pool);
+
+const adapter = new PrismaPg(pool, { schema: 'mogo' });
 const prisma = new PrismaClient({ adapter });
 
 const EXCEL_PATH = path.join(
