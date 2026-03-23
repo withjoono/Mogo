@@ -44,6 +44,7 @@ function MockExamFormPageContent() {
   const [gradeResultMap, setGradeResultMap] = useState<Record<string, GradeResultEntry>>({})
   const [isGraded, setIsGraded] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
+  const [enteredSubjects, setEnteredSubjects] = useState<Set<string>>(new Set())
 
   // 쿼리 파라미터 없으면 모의고사 선택 페이지로 리다이렉트
   useEffect(() => {
@@ -73,6 +74,26 @@ function MockExamFormPageContent() {
     }
     fetchMockExam()
   }, [year, grade, month])
+
+  // 이미 입력된 과목 조회
+  useEffect(() => {
+    async function fetchEnteredSubjects() {
+      if (!studentId || !mockExamId) return
+      try {
+        const res = await api.get<any>(`/api/wrong-answers/student/${studentId}?mockExamId=${mockExamId}&wrongOnly=false&limit=100`)
+        if (res && res.items && res.items.length > 0) {
+          const subjectSet = new Set<string>()
+          res.items.forEach((item: any) => {
+            subjectSet.add(item.subjectName || item.subjectAreaName)
+          })
+          setEnteredSubjects(subjectSet)
+        }
+      } catch (e) {
+        // 답안 없음
+      }
+    }
+    fetchEnteredSubjects()
+  }, [studentId, mockExamId])
 
   const getSubjects = () => {
     if (grade === "고1") {
@@ -770,18 +791,34 @@ function MockExamFormPageContent() {
             {/* Subject Sidebar */}
             <div className="w-80 bg-gray-50 border-r border-gray-200">
               <div className="p-4">
-                {subjects.map((subject) => (
-                  <button
-                    key={subject}
-                    onClick={() => setSelectedSubject(subject)}
-                    className={`w-full text-left px-4 py-3 mb-2 rounded-md text-sm font-medium transition-colors ${selectedSubject === subject
-                      ? "bg-[#e0fffe] text-[#00e5e8] border border-[#d4a5d3]"
-                      : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
-                      }`}
-                  >
-                    {subject}
-                  </button>
-                ))}
+                {subjects.map((subject) => {
+                  // 이 과목이 이미 DB에 저장되어 있는지 확인
+                  const isEntered = enteredSubjects.has(subject) ||
+                    // 탐구/국어/수학 등은 세부과목명으로 저장되므로 매핑 체크
+                    (subject === '국어' && (enteredSubjects.has('화법과작문') || enteredSubjects.has('언어와매체'))) ||
+                    (subject === '수학' && (enteredSubjects.has('확률과통계') || enteredSubjects.has('미적분') || enteredSubjects.has('기하'))) ||
+                    (subject === '탐구1' && Array.from(enteredSubjects).some(s =>
+                      [...(inquirySubjects.사회탐구 || []), ...(inquirySubjects.과학탐구 || [])].includes(s)
+                    )) ||
+                    (subject === '탐구2' && Array.from(enteredSubjects).filter(s =>
+                      [...(inquirySubjects.사회탐구 || []), ...(inquirySubjects.과학탐구 || [])].includes(s)
+                    ).length >= 2)
+                  return (
+                    <button
+                      key={subject}
+                      onClick={() => setSelectedSubject(subject)}
+                      className={`w-full text-left px-4 py-3 mb-2 rounded-md text-sm font-medium transition-colors flex items-center justify-between ${selectedSubject === subject
+                        ? "bg-[#e0fffe] text-[#00e5e8] border border-[#d4a5d3]"
+                        : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+                        }`}
+                    >
+                      <span>{subject}</span>
+                      {isEntered && (
+                        <span className="text-emerald-500 text-xs font-bold">✅</span>
+                      )}
+                    </button>
+                  )
+                })}
               </div>
             </div>
 

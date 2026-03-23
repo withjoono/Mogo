@@ -405,18 +405,40 @@ export default function MockExamInputPage() {
                   </span>
                 )}
               </button>
-              <button
-                onClick={handleAnswerInput}
-                disabled={!selectedExam}
-                className="flex-1 relative bg-[#00e5e8] hover:bg-[#00b8bb] disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-8 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:shadow-none"
-              >
-                {enteredAnswerSubjects.length > 0 ? "정답 수정" : "정답 입력"}
-                {enteredAnswerSubjects.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-yellow-400 text-xs text-black px-2 py-1 rounded-full shadow-md font-bold">
-                    {enteredAnswerSubjects.length}과목
-                  </span>
-                )}
-              </button>
+              {enteredAnswerSubjects.length === 0 ? (
+                /* 미입력: 정답 입력 버튼만 */
+                <button
+                  onClick={handleAnswerInput}
+                  disabled={!selectedExam}
+                  className="flex-1 relative bg-[#00e5e8] hover:bg-[#00b8bb] disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-8 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:shadow-none"
+                >
+                  정답 입력
+                </button>
+              ) : (
+                /* 일부/전체 입력: 계속 입력 + 수정 */
+                <>
+                  <button
+                    onClick={handleAnswerInput}
+                    disabled={!selectedExam}
+                    className="flex-1 relative bg-[#00e5e8] hover:bg-[#00b8bb] disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-8 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:shadow-none"
+                  >
+                    정답 계속 입력
+                    <span className="absolute -top-2 -right-2 bg-orange-500 text-xs text-white px-2 py-1 rounded-full shadow-md font-bold">
+                      {enteredAnswerSubjects.length}과목 완료
+                    </span>
+                  </button>
+                  <button
+                    onClick={handleAnswerInput}
+                    disabled={!selectedExam}
+                    className="flex-1 relative bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-8 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:shadow-none"
+                  >
+                    정답 수정
+                    <span className="absolute -top-2 -right-2 bg-yellow-400 text-xs text-black px-2 py-1 rounded-full shadow-md font-bold">
+                      {enteredAnswerSubjects.length}과목
+                    </span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>}
