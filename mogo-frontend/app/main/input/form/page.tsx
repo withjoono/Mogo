@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { CheckCircle2, XCircle, RotateCcw, BookOpen, Save, Pencil } from "lucide-react"
+import { CheckCircle2, XCircle, RotateCcw, BookOpen, Save, Pencil, BarChart3, ArrowRight } from "lucide-react"
 import { getUser, type User } from "@/lib/auth/user"
 import { mockExamApi } from "@/lib/api/mock-exam"
 import { api } from "@/lib/api/client"
@@ -890,28 +890,67 @@ function MockExamFormPageContent() {
                       </div>
 
                       {/* 액션 버튼 */}
-                      <div className="flex items-center gap-3 pt-3 border-t border-white/10">
-                        <button
-                          onClick={handleEdit}
-                          className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors"
-                        >
-                          <Pencil className="w-4 h-4" />
-                          수정하기
-                        </button>
-                        <button
-                          onClick={handleReset}
-                          className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-medium transition-colors"
-                        >
-                          <RotateCcw className="w-4 h-4" />
-                          다시 풀기
-                        </button>
-                        <button
-                          onClick={() => router.push('/main/wrong-answers')}
-                          className="flex items-center gap-2 px-5 py-2.5 bg-[#00e5e8] hover:bg-[#00b8bb] text-white rounded-lg text-sm font-medium transition-colors"
-                        >
-                          <BookOpen className="w-4 h-4" />
-                          오답노트 보기
-                        </button>
+                      <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                        {/* 좌측: 수정, 초기화, 저장 */}
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={handleEdit}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors"
+                          >
+                            <Pencil className="w-4 h-4" />
+                            수정
+                          </button>
+                          <button
+                            onClick={handleReset}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-medium transition-colors"
+                          >
+                            <RotateCcw className="w-4 h-4" />
+                            초기화
+                          </button>
+                          <button
+                            onClick={handleSaveOnly}
+                            disabled={isSaving || !isLoggedIn}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                              isSaving || !isLoggedIn
+                                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                            }`}
+                          >
+                            <Save className="w-4 h-4" />
+                            {isSaving ? '저장 중...' : '저장'}
+                          </button>
+                        </div>
+                        {/* 우측: 다른 과목 채점, 성적 분석, 오답노트 */}
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              handleEdit()
+                              // 다음 과목으로 자동 이동
+                              const currentIdx = subjects.indexOf(selectedSubject)
+                              if (currentIdx < subjects.length - 1) {
+                                setSelectedSubject(subjects[currentIdx + 1])
+                              }
+                            }}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition-colors"
+                          >
+                            <ArrowRight className="w-4 h-4" />
+                            다른 과목
+                          </button>
+                          <button
+                            onClick={() => router.push('/main/score-analysis')}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
+                          >
+                            <BarChart3 className="w-4 h-4" />
+                            성적 분석
+                          </button>
+                          <button
+                            onClick={() => router.push('/main/wrong-answers')}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-[#00e5e8] hover:bg-[#00b8bb] text-white rounded-lg text-sm font-medium transition-colors"
+                          >
+                            <BookOpen className="w-4 h-4" />
+                            오답노트
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -944,24 +983,13 @@ function MockExamFormPageContent() {
                     </div>
                   )}
 
-                  {/* 채점 전 — 저장 + 채점하기 버튼 */}
+                  {/* 채점 전 — 채점하기 버튼만 */}
                   {!isGraded && (
-                    <div className="flex justify-end gap-3">
-                      <button
-                        onClick={handleSaveOnly}
-                        disabled={isSaving || !isLoggedIn}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-colors ${isSaving || !isLoggedIn
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          : 'bg-slate-700 hover:bg-slate-800 text-white shadow-lg hover:shadow-xl'
-                          }`}
-                      >
-                        <Save className="w-4 h-4" />
-                        {isSaving ? '저장 중...' : '저장'}
-                      </button>
+                    <div className="flex justify-end">
                       <button
                         onClick={handleSave}
                         disabled={isSaving || !isLoggedIn}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-colors ${isSaving || !isLoggedIn
+                        className={`flex items-center gap-2 px-8 py-3 rounded-md font-medium transition-colors ${isSaving || !isLoggedIn
                           ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           : 'bg-[#00e5e8] hover:bg-[#00b8bb] text-white shadow-lg hover:shadow-xl'
                           }`}
