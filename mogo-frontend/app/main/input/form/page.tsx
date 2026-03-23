@@ -225,6 +225,9 @@ function MockExamFormPageContent() {
         const questionNumber = parseInt(questionNumStr)
         const selectedAnswer = typeof value === 'string' ? parseInt(value) : value
 
+        // 빈 값이거나 NaN이면 스킵 (단답형 문제 빈 입력 등)
+        if (isNaN(selectedAnswer) || (typeof value === 'string' && value.trim() === '')) return
+
         if (!answersBySubject[subject]) {
           answersBySubject[subject] = []
         }
@@ -335,6 +338,10 @@ function MockExamFormPageContent() {
         const [subject, questionNumStr] = key.split('-')
         const questionNumber = parseInt(questionNumStr)
         const selectedAnswer = typeof value === 'string' ? parseInt(value) : value
+
+        // 빈 값이거나 NaN이면 스킵 (단답형 문제 빈 입력 등)
+        if (isNaN(selectedAnswer) || (typeof value === 'string' && value.trim() === '')) return
+
         if (!answersBySubject[subject]) answersBySubject[subject] = []
         answersBySubject[subject].push({ questionNumber, selectedAnswer })
       })
