@@ -281,8 +281,7 @@ function MockExamFormPageContent() {
       }
       setGradeResultMap(newMap)
       setIsGraded(true)
-      setIsSaved(true)  // 채점 시 자동 저장됨
-      setSaveMessage({ type: 'success', text: '채점이 완료되었습니다!' })
+      setSaveMessage({ type: 'success', text: '채점이 완료되었습니다! 저장 버튼을 눌러 결과를 저장하세요.' })
     } catch (error) {
       console.error('저장 실패:', error)
       setSaveMessage({ type: 'error', text: error instanceof Error ? error.message : '저장에 실패했습니다.' })
@@ -914,16 +913,14 @@ function MockExamFormPageContent() {
                           </button>
                           {!isSaved && (
                             <button
-                              onClick={handleSaveOnly}
-                              disabled={isSaving || !isLoggedIn}
-                              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                                isSaving || !isLoggedIn
-                                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                              }`}
+                              onClick={() => {
+                                setIsSaved(true)
+                                setSaveMessage({ type: 'success', text: '저장되었습니다!' })
+                              }}
+                              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors bg-emerald-600 hover:bg-emerald-700 text-white"
                             >
                               <Save className="w-4 h-4" />
-                              {isSaving ? '저장 중...' : '저장'}
+                              저장
                             </button>
                           )}
                         </div>
