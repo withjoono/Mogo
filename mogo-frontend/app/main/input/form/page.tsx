@@ -43,6 +43,7 @@ function MockExamFormPageContent() {
   const [gradeResults, setGradeResults] = useState<any[]>([])
   const [gradeResultMap, setGradeResultMap] = useState<Record<string, GradeResultEntry>>({})
   const [isGraded, setIsGraded] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
 
   // 쿼리 파라미터 없으면 모의고사 선택 페이지로 리다이렉트
   useEffect(() => {
@@ -280,6 +281,7 @@ function MockExamFormPageContent() {
       }
       setGradeResultMap(newMap)
       setIsGraded(true)
+      setIsSaved(true)  // 채점 시 자동 저장됨
       setSaveMessage({ type: 'success', text: '채점이 완료되었습니다!' })
     } catch (error) {
       console.error('저장 실패:', error)
@@ -342,6 +344,7 @@ function MockExamFormPageContent() {
       }
 
       setSaveMessage({ type: 'success', text: '답안이 저장되었습니다!' })
+      setIsSaved(true)
     } catch (error) {
       console.error('저장 실패:', error)
       setSaveMessage({ type: 'error', text: error instanceof Error ? error.message : '저장에 실패했습니다.' })
@@ -350,12 +353,13 @@ function MockExamFormPageContent() {
     }
   }
 
-  // 다시 풀기 핸들러 (답안 초기화)
+  // 초기화 핸들러 (답안 초기화)
   const handleReset = useCallback(() => {
     setAnswers({})
     setGradeResults([])
     setGradeResultMap({})
     setIsGraded(false)
+    setIsSaved(false)
     setSaveMessage(null)
   }, [])
 
@@ -364,6 +368,7 @@ function MockExamFormPageContent() {
     setGradeResults([])
     setGradeResultMap({})
     setIsGraded(false)
+    setIsSaved(false)
     setSaveMessage(null)
   }, [])
 
@@ -890,7 +895,7 @@ function MockExamFormPageContent() {
                       </div>
 
                       {/* 액션 버튼 */}
-                      <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                      <div className="flex items-center justify-between pt-3 border-t border-white/10 flex-wrap gap-2">
                         {/* 좌측: 수정, 초기화, 저장 */}
                         <div className="flex items-center gap-2">
                           <button
@@ -907,50 +912,53 @@ function MockExamFormPageContent() {
                             <RotateCcw className="w-4 h-4" />
                             초기화
                           </button>
-                          <button
-                            onClick={handleSaveOnly}
-                            disabled={isSaving || !isLoggedIn}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                              isSaving || !isLoggedIn
-                                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                                : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                            }`}
-                          >
-                            <Save className="w-4 h-4" />
-                            {isSaving ? '저장 중...' : '저장'}
-                          </button>
+                          {!isSaved && (
+                            <button
+                              onClick={handleSaveOnly}
+                              disabled={isSaving || !isLoggedIn}
+                              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                                isSaving || !isLoggedIn
+                                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                              }`}
+                            >
+                              <Save className="w-4 h-4" />
+                              {isSaving ? '저장 중...' : '저장'}
+                            </button>
+                          )}
                         </div>
-                        {/* 우측: 다른 과목 채점, 성적 분석, 오답노트 */}
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => {
-                              handleEdit()
-                              // 다음 과목으로 자동 이동
-                              const currentIdx = subjects.indexOf(selectedSubject)
-                              if (currentIdx < subjects.length - 1) {
-                                setSelectedSubject(subjects[currentIdx + 1])
-                              }
-                            }}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition-colors"
-                          >
-                            <ArrowRight className="w-4 h-4" />
-                            다른 과목
-                          </button>
-                          <button
-                            onClick={() => router.push('/main/score-analysis')}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
-                          >
-                            <BarChart3 className="w-4 h-4" />
-                            성적 분석
-                          </button>
-                          <button
-                            onClick={() => router.push('/main/wrong-answers')}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-[#00e5e8] hover:bg-[#00b8bb] text-white rounded-lg text-sm font-medium transition-colors"
-                          >
-                            <BookOpen className="w-4 h-4" />
-                            오답노트
-                          </button>
-                        </div>
+                        {/* 우측: 저장 후에만 표시 — 타 과목 채점, 성적 분석, 오답노트 */}
+                        {isSaved && (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                handleEdit()
+                                const currentIdx = subjects.indexOf(selectedSubject)
+                                if (currentIdx < subjects.length - 1) {
+                                  setSelectedSubject(subjects[currentIdx + 1])
+                                }
+                              }}
+                              className="flex items-center gap-2 px-4 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition-colors"
+                            >
+                              <ArrowRight className="w-4 h-4" />
+                              타 과목 채점
+                            </button>
+                            <button
+                              onClick={() => router.push('/main/score-analysis')}
+                              className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
+                            >
+                              <BarChart3 className="w-4 h-4" />
+                              성적 분석
+                            </button>
+                            <button
+                              onClick={() => router.push('/main/wrong-answers')}
+                              className="flex items-center gap-2 px-4 py-2.5 bg-[#00e5e8] hover:bg-[#00b8bb] text-white rounded-lg text-sm font-medium transition-colors"
+                            >
+                              <BookOpen className="w-4 h-4" />
+                              오답노트
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
