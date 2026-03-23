@@ -1,10 +1,19 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, useCallback, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
+import { CheckCircle2, XCircle, RotateCcw, BookOpen } from "lucide-react"
 import { getUser, type User } from "@/lib/auth/user"
 import { mockExamApi } from "@/lib/api/mock-exam"
 import { api } from "@/lib/api/client"
+
+// 채점 결과 맵 타입
+interface GradeResultEntry {
+  isCorrect: boolean
+  correctAnswer: number
+  selectedAnswer: number
+  earnedScore: number
+}
 
 function MockExamFormPageContent() {
   const searchParams = useSearchParams()
@@ -32,6 +41,8 @@ function MockExamFormPageContent() {
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [gradeResults, setGradeResults] = useState<any[]>([])
+  const [gradeResultMap, setGradeResultMap] = useState<Record<string, GradeResultEntry>>({})
+  const [isGraded, setIsGraded] = useState(false)
 
   // 쿼리 파라미터 없으면 모의고사 선택 페이지로 리다이렉트
   useEffect(() => {
@@ -236,6 +247,39 @@ function MockExamFormPageContent() {
       }
 
       setGradeResults(allResults)
+
+      // 인라인 표시를 위한 과목-문번 → 결과 맵 생성
+      const newMap: Record<string, GradeResultEntry> = {}
+      for (const result of allResults) {
+        const subjectKey = result.displayName || result.subjectAreaName || ''
+        // 결과에서 서버 subjectAreaName과 프론트 탭 이름 모두 매핑
+        if (result.results) {
+          for (const r of result.results) {
+            // 프론트 탭 이름 기준으로 키 생성
+            // subjectAreaName으로도 보조 키 생성 (탐구 등 세부과목일 때 탭 이름은 "탐구1" 등)
+            const keys = new Set<string>()
+            // 원래 과목 영역명 (API 호출 시 사용)
+            Object.entries(answersBySubject).forEach(([tabName]) => {
+              const answerKey = `${tabName}-${r.questionNumber}`
+              if (answers[answerKey] !== undefined) {
+                keys.add(tabName)
+              }
+            })
+            // 못 찾으면 displayName fallback
+            if (keys.size === 0) keys.add(subjectKey)
+            for (const k of keys) {
+              newMap[`${k}-${r.questionNumber}`] = {
+                isCorrect: r.isCorrect,
+                correctAnswer: r.correctAnswer,
+                selectedAnswer: r.selectedAnswer,
+                earnedScore: r.earnedScore,
+              }
+            }
+          }
+        }
+      }
+      setGradeResultMap(newMap)
+      setIsGraded(true)
       setSaveMessage({ type: 'success', text: '채점이 완료되었습니다!' })
     } catch (error) {
       console.error('저장 실패:', error)
@@ -245,41 +289,129 @@ function MockExamFormPageContent() {
     }
   }
 
+  // 다시 풀기 핸들러
+  const handleReset = useCallback(() => {
+    setAnswers({})
+    setGradeResults([])
+    setGradeResultMap({})
+    setIsGraded(false)
+    setSaveMessage(null)
+  }, [])
+
+  // 문제별 인라인 채점 아이콘 렌더링
+  const renderGradeIndicator = (questionNum: number) => {
+    const key = `${selectedSubject}-${questionNum}`
+    const result = gradeResultMap[key]
+    if (!isGraded || !result) return null
+
+    if (result.isCorrect) {
+      return (
+        <div className="flex items-center justify-center w-6 flex-shrink-0" title="정답">
+          <CheckCircle2 className="w-5 h-5 text-emerald-500" strokeWidth={2.5} />
+        </div>
+      )
+    } else {
+      return (
+        <div className="flex items-center justify-center w-6 flex-shrink-0" title="오답">
+          <XCircle className="w-5 h-5 text-red-500" strokeWidth={2.5} />
+        </div>
+      )
+    }
+  }
+
+  // 선택지 버튼 스타일 결정
+  const getOptionStyle = (questionNum: number, option: number, selectedAnswer: number | string | undefined) => {
+    const key = `${selectedSubject}-${questionNum}`
+    const result = gradeResultMap[key]
+
+    // 채점 전: 기존 스타일
+    if (!isGraded || !result) {
+      if (selectedAnswer === option) {
+        return "bg-[#00e5e8] border-[#00e5e8] text-white"
+      }
+      return "bg-white border-gray-300 text-gray-700 hover:border-[#d4a5d3]"
+    }
+
+    // 채점 후
+    const isSelected = selectedAnswer === option
+    const isCorrectOption = result.correctAnswer === option
+
+    if (result.isCorrect && isSelected) {
+      // 정답 선택
+      return "bg-emerald-500 border-emerald-500 text-white ring-2 ring-emerald-200"
+    }
+    if (!result.isCorrect) {
+      if (isSelected) {
+        // 오답으로 선택한 번호
+        return "bg-red-500 border-red-500 text-white ring-2 ring-red-200"
+      }
+      if (isCorrectOption) {
+        // 실제 정답 번호 (초록 테두리)
+        return "bg-white border-emerald-500 text-emerald-600 ring-2 ring-emerald-200 font-bold"
+      }
+    }
+    // 나머지 옵션
+    return "bg-white border-gray-200 text-gray-400"
+  }
+
   const renderMathQuestion = (questionNum: number) => {
     const key = `${selectedSubject}-${questionNum}`
     const selectedAnswer = answers[key]
     const inputType = getMathInputType(questionNum)
+    const result = gradeResultMap[key]
 
     if (inputType === "number-input") {
+      // 숫자 입력 문항의 채점 결과 스타일
+      let inputStyle = "w-16 h-10 border-2 border-gray-300 rounded text-center font-medium focus:border-[#00e5e8] focus:outline-none"
+      if (isGraded && result) {
+        inputStyle = result.isCorrect
+          ? "w-16 h-10 border-2 border-emerald-500 rounded text-center font-medium bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200"
+          : "w-16 h-10 border-2 border-red-500 rounded text-center font-medium bg-red-50 text-red-700 ring-2 ring-red-200"
+      }
+
       return (
-        <div key={questionNum} className="flex items-center space-x-4 mb-4">
-          <div className="w-8 text-center font-medium text-gray-700">{questionNum}.</div>
-          <div className="flex space-x-2">
+        <div key={questionNum} className="flex items-center space-x-2 mb-4">
+          {renderGradeIndicator(questionNum)}
+          <div className={`w-8 text-center font-medium ${
+            isGraded && result
+              ? result.isCorrect ? 'text-emerald-600' : 'text-red-600'
+              : 'text-gray-700'
+          }`}>{questionNum}.</div>
+          <div className="flex items-center space-x-2">
             <input
               type="text"
               maxLength={3}
               value={selectedAnswer || ""}
               onChange={(e) => handleNumberInput(questionNum, e.target.value)}
-              className="w-16 h-10 border-2 border-gray-300 rounded text-center font-medium focus:border-[#00e5e8] focus:outline-none"
+              className={inputStyle}
               placeholder="000"
+              disabled={isGraded}
             />
+            {isGraded && result && !result.isCorrect && (
+              <span className="text-sm text-emerald-600 font-semibold ml-1">정답: {result.correctAnswer}</span>
+            )}
           </div>
         </div>
       )
     }
 
     return (
-      <div key={questionNum} className="flex items-center space-x-4 mb-4">
-        <div className="w-8 text-center font-medium text-gray-700">{questionNum}.</div>
+      <div key={questionNum} className="flex items-center space-x-2 mb-4">
+        {renderGradeIndicator(questionNum)}
+        <div className={`w-8 text-center font-medium ${
+          isGraded && result
+            ? result.isCorrect ? 'text-emerald-600' : 'text-red-600'
+            : 'text-gray-700'
+        }`}>{questionNum}.</div>
         <div className="flex space-x-2">
           {answerOptions.map((option) => (
             <button
               key={option}
-              onClick={() => handleAnswerSelect(questionNum, option)}
-              className={`w-10 h-10 rounded-full border-2 font-medium text-sm transition-colors ${selectedAnswer === option
-                ? "bg-[#00e5e8] border-[#00e5e8] text-white"
-                : "bg-white border-gray-300 text-gray-700 hover:border-[#d4a5d3]"
-                }`}
+              onClick={() => !isGraded && handleAnswerSelect(questionNum, option)}
+              disabled={isGraded}
+              className={`w-10 h-10 rounded-full border-2 font-medium text-sm transition-all duration-300 ${
+                getOptionStyle(questionNum, option, selectedAnswer)
+              } ${isGraded ? 'cursor-default' : ''}`}
             >
               {option}
             </button>
@@ -292,19 +424,31 @@ function MockExamFormPageContent() {
   const renderRegularQuestion = (questionNum: number) => {
     const key = `${selectedSubject}-${questionNum}`
     const selectedAnswer = answers[key]
+    const result = gradeResultMap[key]
 
     return (
-      <div key={questionNum} className="flex items-center space-x-4 mb-3">
-        <div className="w-8 text-center font-medium text-gray-700">{questionNum}.</div>
+      <div key={questionNum} className={`flex items-center space-x-2 mb-3 py-1 px-2 rounded-lg transition-all duration-300 ${
+        isGraded && result
+          ? result.isCorrect
+            ? 'bg-emerald-50/50'
+            : 'bg-red-50/50'
+          : ''
+      }`}>
+        {renderGradeIndicator(questionNum)}
+        <div className={`w-8 text-center font-medium ${
+          isGraded && result
+            ? result.isCorrect ? 'text-emerald-600' : 'text-red-600'
+            : 'text-gray-700'
+        }`}>{questionNum}.</div>
         <div className="flex space-x-2">
           {answerOptions.map((option) => (
             <button
               key={option}
-              onClick={() => handleAnswerSelect(questionNum, option)}
-              className={`w-10 h-10 rounded-full border-2 font-medium text-sm transition-colors ${selectedAnswer === option
-                ? "bg-[#00e5e8] border-[#00e5e8] text-white"
-                : "bg-white border-gray-300 text-gray-700 hover:border-[#d4a5d3]"
-                }`}
+              onClick={() => !isGraded && handleAnswerSelect(questionNum, option)}
+              disabled={isGraded}
+              className={`w-10 h-10 rounded-full border-2 font-medium text-sm transition-all duration-300 ${
+                getOptionStyle(questionNum, option, selectedAnswer)
+              } ${isGraded ? 'cursor-default' : ''}`}
             >
               {option}
             </button>
@@ -651,67 +795,51 @@ function MockExamFormPageContent() {
                   )}
                 </div>
 
-                {/* Save Button & Results */}
+                {/* 채점 결과 요약 바 + 버튼 영역 */}
                 <div className="mt-8 space-y-4">
-                  {/* 채점 결과 */}
-                  {gradeResults.length > 0 && (
-                    <div className="bg-gradient-to-r from-[#e0fffe] to-[#e8f0fe] rounded-lg p-6 border border-[#d4a5d3]">
-                      <h3 className="text-xl font-bold text-[#00e5e8] mb-4">📊 채점 결과</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {gradeResults.map((result, idx) => (
-                          <div key={idx} className="bg-white rounded-lg p-4 shadow-sm">
-                            <h4 className="font-semibold text-gray-800 mb-2">
-                              {result.displayName}
-                              {result.subjectName && <span className="text-sm text-gray-500 ml-1">({result.subjectName})</span>}
-                            </h4>
-                            <div className="flex items-center gap-4">
-                              <div className="text-center">
-                                <div className="text-2xl font-bold text-[#00e5e8]">
+                  {/* 인라인 채점 완료 시 — 컴팩트 요약 바 */}
+                  {isGraded && gradeResults.length > 0 && (
+                    <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-5 shadow-lg">
+                      {/* 과목별 결과 칩 */}
+                      <div className="flex flex-wrap gap-3 mb-4">
+                        {gradeResults.map((result: any, idx: number) => {
+                          const rate = result.correctRate
+                          const rateColor = rate >= 80 ? 'text-emerald-400' : rate >= 60 ? 'text-yellow-400' : 'text-red-400'
+                          const ringColor = rate >= 80 ? 'ring-emerald-500/30' : rate >= 60 ? 'ring-yellow-500/30' : 'ring-red-500/30'
+                          return (
+                            <div key={idx} className={`bg-white/10 backdrop-blur rounded-lg px-4 py-3 ring-1 ${ringColor} min-w-[140px]`}>
+                              <div className="text-xs text-gray-400 mb-1">{result.displayName}</div>
+                              <div className="flex items-baseline gap-2">
+                                <span className={`text-xl font-bold ${rateColor}`}>{result.correctRate}%</span>
+                                <span className="text-sm text-gray-400">
                                   {result.correctCount}/{result.totalQuestions}
-                                </div>
-                                <div className="text-xs text-gray-500">정답</div>
+                                </span>
                               </div>
-                              <div className="text-center">
-                                <div className="text-2xl font-bold text-blue-600">
-                                  {result.earnedScore}/{result.totalScore}
-                                </div>
-                                <div className="text-xs text-gray-500">점수</div>
-                              </div>
-                              <div className="text-center">
-                                <div className={`text-2xl font-bold ${result.correctRate >= 80 ? 'text-green-600' :
-                                  result.correctRate >= 60 ? 'text-yellow-600' : 'text-red-600'
-                                  }`}>
-                                  {result.correctRate}%
-                                </div>
-                                <div className="text-xs text-gray-500">정답률</div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {result.earnedScore}/{result.totalScore}점
                               </div>
                             </div>
-                            {result.wrongCount > 0 && (
-                              <div className="mt-3 text-sm text-red-600">
-                                오답: {result.results?.filter((r: any) => !r.isCorrect).map((r: any) => `${r.questionNumber}번`).join(', ')}
-                              </div>
-                            )}
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
-                      <div className="mt-4 flex justify-center">
+
+                      {/* 액션 버튼 */}
+                      <div className="flex items-center gap-3 pt-3 border-t border-white/10">
+                        <button
+                          onClick={handleReset}
+                          className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-medium transition-colors"
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                          다시 풀기
+                        </button>
                         <button
                           onClick={() => router.push('/main/wrong-answers')}
-                          className="px-6 py-2 bg-[#00e5e8] text-white rounded-md hover:bg-[#00b8bb] transition-colors"
+                          className="flex items-center gap-2 px-5 py-2.5 bg-[#00e5e8] hover:bg-[#00b8bb] text-white rounded-lg text-sm font-medium transition-colors"
                         >
-                          오답노트 보기 →
+                          <BookOpen className="w-4 h-4" />
+                          오답노트 보기
                         </button>
                       </div>
-                    </div>
-                  )}
-
-                  {/* 상태 메시지 */}
-                  {saveMessage && gradeResults.length === 0 && (
-                    <div className={`p-4 rounded-md ${saveMessage.type === 'success'
-                      ? 'bg-green-100 text-green-800 border border-green-300'
-                      : 'bg-red-100 text-red-800 border border-red-300'
-                      }`}>
-                      {saveMessage.text}
                     </div>
                   )}
 
@@ -736,14 +864,15 @@ function MockExamFormPageContent() {
                     </div>
                   )}
 
-                  {gradeResults.length === 0 && (
+                  {/* 채점 전 — 채점하기 버튼 */}
+                  {!isGraded && (
                     <div className="flex justify-end">
                       <button
                         onClick={handleSave}
                         disabled={isSaving || !isLoggedIn}
                         className={`px-8 py-3 rounded-md font-medium transition-colors ${isSaving || !isLoggedIn
                           ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          : 'bg-[#00e5e8] hover:bg-[#00b8bb] text-white'
+                          : 'bg-[#00e5e8] hover:bg-[#00b8bb] text-white shadow-lg hover:shadow-xl'
                           }`}
                       >
                         {isSaving ? '채점 중...' : '채점하기'}
