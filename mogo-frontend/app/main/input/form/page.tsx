@@ -813,7 +813,16 @@ function MockExamFormPageContent() {
                   return (
                     <button
                       key={subject}
-                      onClick={() => setSelectedSubject(subject)}
+                      onClick={() => {
+                        if (subject !== selectedSubject) {
+                          setIsGraded(false)
+                          setIsSaved(false)
+                          setGradeResults([])
+                          setGradeResultMap({})
+                          setSaveMessage(null)
+                        }
+                        setSelectedSubject(subject)
+                      }}
                       className={`w-full text-left px-4 py-3 mb-2 rounded-md text-sm font-medium transition-colors flex items-center justify-between ${selectedSubject === subject
                         ? "bg-[#e0fffe] text-[#00e5e8] border border-[#d4a5d3]"
                         : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
