@@ -22,10 +22,10 @@ export class WrongAnswerItemDto {
   @Max(45)
   questionNumber: number;
 
-  @ApiProperty({ description: '학생이 선택한 답 (1-5)', example: 3 })
+  @ApiProperty({ description: '학생이 선택한 답 (1-5 또는 단답형 숫자)', example: 3 })
   @IsInt()
   @Min(1)
-  @Max(5)
+  @Max(999)
   selectedAnswer: number;
 }
 
