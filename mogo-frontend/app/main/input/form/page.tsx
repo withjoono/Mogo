@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { CheckCircle2, XCircle, RotateCcw, BookOpen } from "lucide-react"
+import { CheckCircle2, XCircle, RotateCcw, BookOpen, Save, Pencil } from "lucide-react"
 import { getUser, type User } from "@/lib/auth/user"
 import { mockExamApi } from "@/lib/api/mock-exam"
 import { api } from "@/lib/api/client"
@@ -289,9 +289,78 @@ function MockExamFormPageContent() {
     }
   }
 
-  // 다시 풀기 핸들러
+  // 저장만 (채점 인라인 표시 없이 DB 저장)
+  const handleSaveOnly = async () => {
+    if (!isLoggedIn || !studentId) {
+      setSaveMessage({ type: 'error', text: '로그인이 필요합니다.' })
+      return
+    }
+    if (!mockExamId) {
+      setSaveMessage({ type: 'error', text: '모의고사 정보를 찾을 수 없습니다.' })
+      return
+    }
+    if (Object.keys(answers).length === 0) {
+      setSaveMessage({ type: 'error', text: '입력된 답안이 없습니다.' })
+      return
+    }
+
+    setIsSaving(true)
+    setSaveMessage(null)
+
+    try {
+      const answersBySubject: Record<string, { questionNumber: number; selectedAnswer: number }[]> = {}
+      Object.entries(answers).forEach(([key, value]) => {
+        const [subject, questionNumStr] = key.split('-')
+        const questionNumber = parseInt(questionNumStr)
+        const selectedAnswer = typeof value === 'string' ? parseInt(value) : value
+        if (!answersBySubject[subject]) answersBySubject[subject] = []
+        answersBySubject[subject].push({ questionNumber, selectedAnswer })
+      })
+
+      for (const [subjectAreaName, subjectAnswers] of Object.entries(answersBySubject)) {
+        let actualSubjectName: string | undefined
+        if (subjectAreaName === '국어' && grade === '고3' && koreanSelection) actualSubjectName = koreanSelection
+        else if (subjectAreaName === '수학' && grade === '고3' && mathSelection) actualSubjectName = mathSelection
+        else if (subjectAreaName === '탐구1') actualSubjectName = inquiry1Subject
+        else if (subjectAreaName === '탐구2') actualSubjectName = inquiry2Subject
+        else if (subjectAreaName === '제2외국어') actualSubjectName = secondForeignLanguage
+
+        let apiSubjectAreaName = subjectAreaName
+        if (subjectAreaName === '탐구1' || subjectAreaName === '탐구2') {
+          const selected = subjectAreaName === '탐구1' ? inquiry1Subject : inquiry2Subject
+          const isSocial = inquirySubjects.사회탐구.includes(selected)
+          apiSubjectAreaName = isSocial ? '사회탐구' : '과학탐구'
+        }
+
+        await api.post<any>('/api/wrong-answers/grade', {
+          studentId,
+          mockExamId,
+          subjectAreaName: apiSubjectAreaName,
+          subjectName: actualSubjectName,
+          answers: subjectAnswers,
+        })
+      }
+
+      setSaveMessage({ type: 'success', text: '답안이 저장되었습니다!' })
+    } catch (error) {
+      console.error('저장 실패:', error)
+      setSaveMessage({ type: 'error', text: error instanceof Error ? error.message : '저장에 실패했습니다.' })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // 다시 풀기 핸들러 (답안 초기화)
   const handleReset = useCallback(() => {
     setAnswers({})
+    setGradeResults([])
+    setGradeResultMap({})
+    setIsGraded(false)
+    setSaveMessage(null)
+  }, [])
+
+  // 수정하기 핸들러 (답안 유지, 채점 결과만 해제)
+  const handleEdit = useCallback(() => {
     setGradeResults([])
     setGradeResultMap({})
     setIsGraded(false)
@@ -823,6 +892,13 @@ function MockExamFormPageContent() {
                       {/* 액션 버튼 */}
                       <div className="flex items-center gap-3 pt-3 border-t border-white/10">
                         <button
+                          onClick={handleEdit}
+                          className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors"
+                        >
+                          <Pencil className="w-4 h-4" />
+                          수정하기
+                        </button>
+                        <button
                           onClick={handleReset}
                           className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-medium transition-colors"
                         >
@@ -847,9 +923,16 @@ function MockExamFormPageContent() {
                     </div>
                   )}
 
+                  {/* 저장 성공 메시지 */}
+                  {saveMessage?.type === 'success' && !isGraded && (
+                    <div className="bg-emerald-100 text-emerald-800 p-4 rounded-md border border-emerald-300">
+                      ✅ {saveMessage.text}
+                    </div>
+                  )}
+
                   {/* 로그인 안내 */}
                   {!authLoading && !isLoggedIn && (
-                    <div className="bg-yellow-100 text-yellow-800 p-4 rounded-md border border-yellow-300">
+                    <div className="bg-orange-500 text-white p-4 rounded-md shadow-md">
                       ⚠️ 답안을 저장하려면 상단 네비게이션 바에서 먼저 로그인해주세요.
                     </div>
                   )}
@@ -861,13 +944,24 @@ function MockExamFormPageContent() {
                     </div>
                   )}
 
-                  {/* 채점 전 — 채점하기 버튼 */}
+                  {/* 채점 전 — 저장 + 채점하기 버튼 */}
                   {!isGraded && (
-                    <div className="flex justify-end">
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={handleSaveOnly}
+                        disabled={isSaving || !isLoggedIn}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-colors ${isSaving || !isLoggedIn
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : 'bg-slate-700 hover:bg-slate-800 text-white shadow-lg hover:shadow-xl'
+                          }`}
+                      >
+                        <Save className="w-4 h-4" />
+                        {isSaving ? '저장 중...' : '저장'}
+                      </button>
                       <button
                         onClick={handleSave}
                         disabled={isSaving || !isLoggedIn}
-                        className={`px-8 py-3 rounded-md font-medium transition-colors ${isSaving || !isLoggedIn
+                        className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-colors ${isSaving || !isLoggedIn
                           ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           : 'bg-[#00e5e8] hover:bg-[#00b8bb] text-white shadow-lg hover:shadow-xl'
                           }`}
