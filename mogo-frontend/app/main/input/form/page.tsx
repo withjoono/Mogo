@@ -810,13 +810,10 @@ function MockExamFormPageContent() {
                             <div key={idx} className={`bg-white/10 backdrop-blur rounded-lg px-4 py-3 ring-1 ${ringColor} min-w-[140px]`}>
                               <div className="text-xs text-gray-400 mb-1">{result.displayName}</div>
                               <div className="flex items-baseline gap-2">
-                                <span className={`text-xl font-bold ${rateColor}`}>{result.correctRate}%</span>
-                                <span className="text-sm text-gray-400">
-                                  {result.correctCount}/{result.totalQuestions}
-                                </span>
+                                <span className={`text-xl font-bold ${rateColor}`}>{result.earnedScore}<span className="text-sm">/{result.totalScore}점</span></span>
                               </div>
                               <div className="text-xs text-gray-500 mt-1">
-                                {result.earnedScore}/{result.totalScore}점
+                                {result.correctCount}/{result.totalQuestions}개 정답
                               </div>
                             </div>
                           )
