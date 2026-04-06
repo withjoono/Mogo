@@ -29,6 +29,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^12.8.0",
+    "geobuk-shared": "github:withjoono/geobuk-shared",
     "lucide-react": "^0.454.0",
     "next": "^16.0.10",
     "next-themes": "latest",

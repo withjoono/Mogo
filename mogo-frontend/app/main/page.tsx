@@ -6,10 +6,15 @@ import { getUser, type User } from "@/lib/auth/user"
 import { api } from "@/lib/api/client"
 import { Footer } from "@/components/footer"
 import {
+  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, Cell,
+} from "recharts"
+import {
   FileText,
   BarChart3,
   GraduationCap,
   TrendingUp,
+  TrendingDown,
   BookX,
   Zap,
   CheckCircle2,
@@ -30,6 +35,9 @@ import {
   Timer,
   Download,
   Users,
+  Target,
+  Award,
+  Hash,
 } from "lucide-react"
 
 // ========== 타입 ==========
@@ -84,25 +92,47 @@ function Dashboard({ user }: { user: User }) {
   }
 
   const gradeBarColor = (g: number) => {
-    if (g <= 2) return '#22c55e'
+    if (g <= 2) return '#10b981'
     if (g <= 4) return '#3b82f6'
     if (g <= 6) return '#f59e0b'
     return '#ef4444'
   }
 
   const gradeBg = (g: number) => {
-    if (g <= 2) return "bg-green-100 text-green-700"
-    if (g <= 4) return "bg-blue-100 text-blue-700"
-    if (g <= 6) return "bg-yellow-100 text-yellow-700"
-    return "bg-red-100 text-red-700"
+    if (g <= 2) return "bg-emerald-50 text-emerald-600"
+    if (g <= 4) return "bg-blue-50 text-blue-600"
+    if (g <= 6) return "bg-amber-50 text-amber-600"
+    return "bg-red-50 text-red-600"
   }
 
   const latest = scores.length > 0 ? scores[0] : null
   const latestAvg = latest ? calcAvgGrade(latest) : 0
   const latestTotal = latest ? (Number(latest.totalStandardSum) || 0) : 0
 
+  // Previous exam comparison
+  const prevScore = scores.length > 1 ? scores[1] : null
+  const prevAvg = prevScore ? calcAvgGrade(prevScore) : null
+  const prevTotal = prevScore ? (Number(prevScore.totalStandardSum) || 0) : null
+
+  // Custom Tooltip
+  const ChartTooltip = ({ active, payload, label, suffix = '' }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white/95 backdrop-blur-sm rounded-xl px-4 py-3 shadow-lg border border-gray-100">
+          <p className="text-xs font-medium text-gray-400 mb-1">{label}</p>
+          {payload.map((p: any, i: number) => (
+            <p key={i} className="text-sm font-bold" style={{ color: p.color }}>
+              {p.name}: {typeof p.value === 'number' ? (Number.isInteger(p.value) ? p.value : p.value.toFixed(1)) : p.value}{suffix}
+            </p>
+          ))}
+        </div>
+      )
+    }
+    return null
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F7F8FA]">
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* 환영 헤더 */}
         <div className="mb-8">
@@ -137,8 +167,18 @@ function Dashboard({ user }: { user: User }) {
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-gray-400">데이터 로딩 중...</div>
+          /* 스켈레톤 로딩 */
+          <div className="space-y-6">
+            <div className="grid grid-cols-3 gap-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="bg-white rounded-2xl p-6 animate-pulse">
+                  <div className="h-3 bg-gray-200 rounded w-20 mb-3" />
+                  <div className="h-8 bg-gray-200 rounded w-16 mb-2" />
+                  <div className="h-3 bg-gray-200 rounded w-12" />
+                </div>
+              ))}
+            </div>
+            <div className="bg-white rounded-2xl p-6 animate-pulse h-64" />
           </div>
         ) : scores.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center shadow-sm">
@@ -153,26 +193,65 @@ function Dashboard({ user }: { user: User }) {
           </div>
         ) : (
           <div className="space-y-6">
-            {/* 요약 통계 카드 */}
+            {/* ─── KPI 요약 카드 ─── */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-white rounded-2xl border border-gray-200 border-b-4 border-b-[#00e5e8]/30 p-5 text-center shadow-md">
-                <div className="text-xs text-gray-400 mb-1">응시 모의고사</div>
-                <div className="text-3xl font-extrabold text-[#00e5e8]">{scores.length}</div>
-                <div className="text-xs text-gray-400 mt-1">회</div>
+              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-cyan-50 flex items-center justify-center">
+                    <Hash className="w-4.5 h-4.5 text-[#00e5e8]" />
+                  </div>
+                </div>
+                <div className="text-xs font-medium text-gray-400 mb-1">응시 모의고사</div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-extrabold text-gray-900">{scores.length}</span>
+                  <span className="text-sm text-gray-400">회</span>
+                </div>
               </div>
-              <div className="bg-white rounded-2xl border border-gray-200 border-b-4 border-b-blue-300 p-5 text-center shadow-md">
-                <div className="text-xs text-gray-400 mb-1">최근 평균 등급</div>
-                <div className={`text-3xl font-extrabold`} style={{ color: gradeBarColor(latestAvg) }}>{latestAvg.toFixed(1)}</div>
-                <div className="text-xs text-gray-400 mt-1">등급</div>
+
+              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <Target className="w-4.5 h-4.5 text-blue-500" />
+                  </div>
+                  {prevAvg !== null && (
+                    <div className={`flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      latestAvg < prevAvg ? 'bg-emerald-50 text-emerald-600' : latestAvg > prevAvg ? 'bg-red-50 text-red-500' : 'bg-gray-50 text-gray-400'
+                    }`}>
+                      {latestAvg < prevAvg ? <TrendingUp className="w-3 h-3" /> : latestAvg > prevAvg ? <TrendingDown className="w-3 h-3" /> : null}
+                      {Math.abs(latestAvg - prevAvg).toFixed(1)}
+                    </div>
+                  )}
+                </div>
+                <div className="text-xs font-medium text-gray-400 mb-1">최근 평균 등급</div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-extrabold" style={{ color: gradeBarColor(latestAvg) }}>{latestAvg.toFixed(1)}</span>
+                  <span className="text-sm text-gray-400">등급</span>
+                </div>
               </div>
-              <div className="bg-white rounded-2xl border border-gray-200 border-b-4 border-b-emerald-300 p-5 text-center shadow-md">
-                <div className="text-xs text-gray-400 mb-1">최근 표준점수 합</div>
-                <div className="text-3xl font-extrabold text-gray-900">{latestTotal || '-'}</div>
-                <div className="text-xs text-gray-400 mt-1">점</div>
+
+              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
+                    <Award className="w-4.5 h-4.5 text-emerald-500" />
+                  </div>
+                  {prevTotal !== null && prevTotal > 0 && latestTotal > 0 && (
+                    <div className={`flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      latestTotal > prevTotal ? 'bg-emerald-50 text-emerald-600' : latestTotal < prevTotal ? 'bg-red-50 text-red-500' : 'bg-gray-50 text-gray-400'
+                    }`}>
+                      {latestTotal > prevTotal ? <TrendingUp className="w-3 h-3" /> : latestTotal < prevTotal ? <TrendingDown className="w-3 h-3" /> : null}
+                      {Math.abs(latestTotal - prevTotal)}
+                    </div>
+                  )}
+                </div>
+                <div className="text-xs font-medium text-gray-400 mb-1">최근 표준점수 합</div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-extrabold text-gray-900">{latestTotal || '-'}</span>
+                  <span className="text-sm text-gray-400">점</span>
+                </div>
               </div>
             </div>
 
-            {/* 최근 시험 과목별 등급 차트 - SVG */}
+            {/* ─── 과목별 등급 - Recharts 수평 바차트 ─── */}
             {latest && (() => {
               const subjects = [
                 { name: "국어", grade: Number(latest.koreanGrade) || 0 },
@@ -182,174 +261,45 @@ function Dashboard({ user }: { user: User }) {
                 { name: "탐구2", grade: Number(latest.inquiry2Grade) || 0 },
                 { name: "한국사", grade: Number(latest.historyGrade) || 0 },
               ].filter(s => s.grade > 0)
-              const colors = ['#00e5e8', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1']
-              const svgW = 360
-              const svgH = 200
-              const barW = 36
-              const gap = (svgW - subjects.length * barW) / (subjects.length + 1)
+              // Bar value = 10 - grade (so grade 1 = tallest bar)
+              const chartData = subjects.map(s => ({ ...s, value: 10 - s.grade }))
+
               return (
-                <div className="bg-gradient-to-b from-white to-gray-50 rounded-2xl border border-gray-200 border-b-4 border-b-cyan-300 shadow-md overflow-hidden">
-                  <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                  <div className="px-6 py-5 flex items-center justify-between border-b border-gray-50">
                     <div>
-                      <h2 className="text-lg font-bold text-gray-900">📊 최근 시험 과목별 등급</h2>
+                      <h2 className="text-base font-bold text-gray-900">과목별 등급</h2>
                       <p className="text-xs text-gray-400 mt-0.5">{latest.mockExam?.name || `모의고사 #${latest.mockExamId}`} · {latest.mockExam?.year}년 {latest.mockExam?.month}월</p>
                     </div>
-                    <Link href="/main/score-analysis" className="text-sm text-[#00e5e8] hover:underline flex items-center gap-1 font-medium">
+                    <Link href="/main/score-analysis" className="text-sm text-[#00e5e8] hover:text-[#00b8bb] flex items-center gap-0.5 font-medium transition-colors">
                       상세보기<ChevronRight className="w-4 h-4" />
                     </Link>
                   </div>
-                  <div className="p-6 flex justify-center">
-                    <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full" style={{ maxWidth: '500px', maxHeight: '260px' }}>
-                      {[1, 3, 5, 7, 9].map(g => {
-                        const y = 20 + ((10 - g) / 9) * 150
-                        return (
-                          <g key={g}>
-                            <line x1={0} y1={y} x2={svgW} y2={y} stroke="#f3f4f6" strokeWidth={1} strokeDasharray="4,4" />
-                            <text x={svgW - 2} y={y - 3} textAnchor="end" fontSize={8} fill="#d1d5db">{g}등급</text>
-                          </g>
-                        )
-                      })}
-                      {subjects.map((s, i) => {
-                        const barHeight = Math.max(((10 - s.grade) / 9) * 150, 12)
-                        const x = gap + i * (barW + gap)
-                        const y = 20 + 150 - barHeight
-                        return (
-                          <g key={s.name}>
-                            <rect x={x} y={y} width={barW} height={barHeight} rx={6} fill={colors[i % colors.length]} opacity={0.9} />
-                            <text x={x + barW / 2} y={y - 6} textAnchor="middle" fontSize={11} fontWeight="bold" fill={colors[i % colors.length]}>{s.grade}등급</text>
-                            <text x={x + barW / 2} y={svgH - 5} textAnchor="middle" fontSize={10} fill="#6b7280" fontWeight="500">{s.name}</text>
-                          </g>
-                        )
-                      })}
-                    </svg>
+                  <div className="px-4 py-5">
+                    <ResponsiveContainer width="100%" height={subjects.length * 52 + 20}>
+                      <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 60, left: 10, bottom: 5 }} barSize={28}>
+                        <XAxis type="number" domain={[0, 9]} hide />
+                        <YAxis type="category" dataKey="name" width={45} tick={{ fontSize: 13, fill: '#6b7280', fontWeight: 500 }} axisLine={false} tickLine={false} />
+                        <Tooltip content={<ChartTooltip suffix="등급" />} cursor={{ fill: 'rgba(0,0,0,0.02)' }} />
+                        <Bar dataKey="value" radius={[0, 8, 8, 0]} animationDuration={800} label={({ x, y, width, height, index }: any) => (
+                          <text x={x + width + 8} y={y + height / 2 + 1} textAnchor="start" dominantBaseline="middle" fontSize={13} fontWeight={700} fill={gradeBarColor(chartData[index].grade)}>
+                            {chartData[index].grade}등급
+                          </text>
+                        )}>
+                          {chartData.map((entry, i) => (
+                            <Cell key={i} fill={gradeBarColor(entry.grade)} fillOpacity={0.85} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
               )
             })()}
 
-            {/* 성적 추이 그래프 */}
+            {/* ─── 추이 차트 영역 ─── */}
             {scores.length >= 1 && (() => {
               const ordered = scores.slice().reverse()
-              const chartW = 400
-              const chartH = 200
-              const padL = 45
-              const padR = 20
-              const padT = 20
-              const padB = 30
-              const w = chartW - padL - padR
-              const h = chartH - padT - padB
-              const n = ordered.length
-
-              // helper: SVG line chart
-              const LineChart = ({
-                title,
-                datasets,
-                yMin,
-                yMax,
-                yLabel,
-                invertY,
-                yTicks,
-              }: {
-                title: string
-                datasets: { name: string; color: string; data: (number | null)[] }[]
-                yMin: number
-                yMax: number
-                yLabel: string
-                invertY?: boolean
-                yTicks?: number[]
-              }) => {
-                const ticks = yTicks || Array.from({ length: 5 }, (_, i) => yMin + ((yMax - yMin) * i) / 4)
-                const getX = (i: number) => padL + (n > 1 ? (i / (n - 1)) * w : w / 2)
-                const getY = (v: number) => {
-                  const ratio = (v - yMin) / (yMax - yMin)
-                  return invertY ? padT + ratio * h : padT + (1 - ratio) * h
-                }
-
-                return (
-                  <div className="mb-8 last:mb-0">
-                    <h3 className="text-sm font-bold text-gray-700 mb-3">{title}</h3>
-                    <svg viewBox={`0 0 ${chartW} ${chartH}`} className="w-full" style={{ maxHeight: '240px' }}>
-                      {/* 배경 그리드 */}
-                      {ticks.map((t) => (
-                        <g key={t}>
-                          <line x1={padL} y1={getY(t)} x2={chartW - padR} y2={getY(t)} stroke="#e5e7eb" strokeWidth={1} />
-                          <text x={padL - 6} y={getY(t) + 4} textAnchor="end" fontSize={10} fill="#9ca3af">{invertY ? t : t.toFixed(0)}</text>
-                        </g>
-                      ))}
-                      {/* X축 라벨 */}
-                      {ordered.map((s, i) => (
-                        <text key={s.id} x={getX(i)} y={chartH - 5} textAnchor="middle" fontSize={10} fill="#9ca3af">
-                          {s.mockExam?.month || '?'}월
-                        </text>
-                      ))}
-                      {/* Y축 라벨 */}
-                      <text x={8} y={padT + h / 2} textAnchor="middle" fontSize={9} fill="#9ca3af" transform={`rotate(-90, 8, ${padT + h / 2})`}>{yLabel}</text>
-                      {/* 데이터 선 */}
-                      {datasets.map((ds) => {
-                        const points = ds.data.map((v, i) => v != null ? { x: getX(i), y: getY(v), v } : null)
-                        const validPoints = points.filter(p => p != null) as { x: number; y: number; v: number }[]
-                        if (validPoints.length === 0) return null
-                        const pathD = validPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
-                        return (
-                          <g key={ds.name}>
-                            <polyline fill="none" stroke={ds.color} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" points={validPoints.map(p => `${p.x},${p.y}`).join(' ')} />
-                            {validPoints.map((p, i) => (
-                              <g key={i}>
-                                <circle cx={p.x} cy={p.y} r={4} fill="white" stroke={ds.color} strokeWidth={2} />
-                                <text x={p.x} y={p.y - 8} textAnchor="middle" fontSize={9} fontWeight="bold" fill={ds.color}>
-                                  {invertY ? p.v.toFixed(1) : Math.round(p.v)}
-                                </text>
-                              </g>
-                            ))}
-                          </g>
-                        )
-                      })}
-                    </svg>
-                    {/* 범례 */}
-                    {datasets.length > 1 && (
-                      <div className="flex items-center justify-center gap-4 mt-2">
-                        {datasets.map(ds => (
-                          <div key={ds.name} className="flex items-center gap-1.5">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: ds.color }} />
-                            <span className="text-xs text-gray-500">{ds.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )
-              }
-
-              // 차트 1: 과목별 백분위 추이
-              const subjectPercentileData = [
-                { name: '국어', color: '#00e5e8', data: ordered.map(s => Number(s.koreanPercentile) || null) },
-                { name: '수학', color: '#3b82f6', data: ordered.map(s => Number(s.mathPercentile) || null) },
-                { name: '탐구1', color: '#f59e0b', data: ordered.map(s => Number(s.inquiry1Standard) ? (Number(s.inquiry1Percentile) || null) : null) },
-                { name: '탐구2', color: '#ef4444', data: ordered.map(s => Number(s.inquiry2Standard) ? (Number(s.inquiry2Percentile) || null) : null) },
-              ].filter(ds => ds.data.some(v => v != null))
-
-              // 차트 2: 백분위 평균 추이
-              const avgPercentileData = ordered.map(s => {
-                const vals = [
-                  Number(s.koreanPercentile) || 0,
-                  Number(s.mathPercentile) || 0,
-                  Number(s.inquiry1Percentile) || 0,
-                  Number(s.inquiry2Percentile) || 0,
-                ].filter(v => v > 0)
-                return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null
-              })
-
-              // 차트 3: 국영수탐 평균등급 추이
-              const avgGradeData = ordered.map(s => {
-                const vals = [
-                  Number(s.koreanGrade) || 0,
-                  Number(s.mathGrade) || 0,
-                  Number(s.englishGrade) || 0,
-                  Number(s.inquiry1Grade) || 0,
-                  Number(s.inquiry2Grade) || 0,
-                ].filter(v => v > 0)
-                return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null
-              })
 
               // 과목별 백분위 데이터
               const allSubjectPercentiles: { [key: string]: { color: string; data: (number | null)[] } } = {
@@ -361,74 +311,166 @@ function Dashboard({ user }: { user: User }) {
               const availableSubjects = Object.entries(allSubjectPercentiles).filter(([, v]) => v.data.some(d => d != null)).map(([k]) => k)
               const selectedDs = allSubjectPercentiles[selectedSubject]
 
+              // 백분위 차트 데이터 변환
+              const percentileChartData = ordered.map((s, i) => ({
+                name: `${s.mockExam?.month || '?'}월`,
+                [selectedSubject]: selectedDs?.data[i] ?? null,
+              }))
+
+              // 백분위 평균 추이
+              const avgPercentileChartData = ordered.map((s) => {
+                const vals = [
+                  Number(s.koreanPercentile) || 0,
+                  Number(s.mathPercentile) || 0,
+                  Number(s.inquiry1Percentile) || 0,
+                  Number(s.inquiry2Percentile) || 0,
+                ].filter(v => v > 0)
+                return {
+                  name: `${s.mockExam?.month || '?'}월`,
+                  평균: vals.length > 0 ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null,
+                }
+              })
+
+              // 평균등급 추이
+              const avgGradeChartData = ordered.map((s) => {
+                const vals = [
+                  Number(s.koreanGrade) || 0,
+                  Number(s.mathGrade) || 0,
+                  Number(s.englishGrade) || 0,
+                  Number(s.inquiry1Grade) || 0,
+                  Number(s.inquiry2Grade) || 0,
+                ].filter(v => v > 0)
+                return {
+                  name: `${s.mockExam?.month || '?'}월`,
+                  등급: vals.length > 0 ? +(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1) : null,
+                }
+              })
+
               return (
                 <div className="space-y-6">
-                  {/* 차트 1: 과목별 백분위 추이 */}
-                  <div className="bg-gradient-to-b from-white to-gray-50 rounded-2xl border border-gray-200 border-b-4 border-b-blue-300 shadow-md overflow-hidden">
-                    <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-                      <h2 className="text-base font-bold text-gray-900">📊 과목별 백분위 추이</h2>
-                      <select
-                        value={selectedSubject}
-                        onChange={e => setSelectedSubject(e.target.value)}
-                        className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-[#00e5e8]/30"
-                      >
+                  {/* 과목별 백분위 추이 */}
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div className="px-6 py-5 flex items-center justify-between border-b border-gray-50">
+                      <h2 className="text-base font-bold text-gray-900">과목별 백분위 추이</h2>
+                      <div className="flex items-center gap-2">
                         {availableSubjects.map(s => (
-                          <option key={s} value={s}>{s}</option>
+                          <button
+                            key={s}
+                            onClick={() => setSelectedSubject(s)}
+                            className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${
+                              selectedSubject === s
+                                ? 'bg-[#00e5e8] text-white shadow-sm'
+                                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                            }`}
+                          >
+                            {s}
+                          </button>
                         ))}
-                      </select>
+                      </div>
                     </div>
-                    <div className="p-5">
-                      {selectedDs && (
-                        <LineChart
-                          title=""
-                          datasets={[{ name: selectedSubject, color: selectedDs.color, data: selectedDs.data }]}
-                          yMin={0}
-                          yMax={100}
-                          yLabel="백분위"
-                          yTicks={[0, 25, 50, 75, 100]}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* 차트 2: 백분위 평균 추이 */}
-                  <div className="bg-gradient-to-b from-white to-gray-50 rounded-2xl border border-gray-200 border-b-4 border-b-emerald-300 shadow-md overflow-hidden">
-                    <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-                      <h2 className="text-base font-bold text-gray-900">📈 백분위 평균 추이</h2>
-                      <Link href="/main/score-analysis" className="text-sm text-[#00e5e8] hover:underline flex items-center gap-1 font-medium">
-                        상세보기<ChevronRight className="w-4 h-4" />
-                      </Link>
-                    </div>
-                    <div className="p-5">
-                      <LineChart
-                        title=""
-                        datasets={[{ name: '평균 백분위', color: '#10b981', data: avgPercentileData }]}
-                        yMin={0}
-                        yMax={100}
-                        yLabel="백분위"
-                        yTicks={[0, 25, 50, 75, 100]}
-                      />
+                    <div className="px-4 py-5">
+                      <ResponsiveContainer width="100%" height={240}>
+                        <AreaChart data={percentileChartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="gradPercentile" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor={selectedDs?.color || '#00e5e8'} stopOpacity={0.3} />
+                              <stop offset="95%" stopColor={selectedDs?.color || '#00e5e8'} stopOpacity={0.02} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                          <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} tick={{ fill: '#9ca3af' }} />
+                          <YAxis domain={[0, 100]} fontSize={12} tickLine={false} axisLine={false} tick={{ fill: '#9ca3af' }} ticks={[0, 25, 50, 75, 100]} />
+                          <Tooltip content={<ChartTooltip />} />
+                          <Area
+                            type="monotone"
+                            dataKey={selectedSubject}
+                            stroke={selectedDs?.color || '#00e5e8'}
+                            strokeWidth={2.5}
+                            fill="url(#gradPercentile)"
+                            dot={{ r: 4, fill: 'white', stroke: selectedDs?.color || '#00e5e8', strokeWidth: 2 }}
+                            activeDot={{ r: 6, fill: selectedDs?.color || '#00e5e8', stroke: 'white', strokeWidth: 2 }}
+                            animationDuration={800}
+                            connectNulls
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
                     </div>
                   </div>
 
-                  {/* 차트 3: 국영수탐 평균등급 추이 */}
-                  <div className="bg-gradient-to-b from-white to-gray-50 rounded-2xl border border-gray-200 border-b-4 border-b-amber-300 shadow-md overflow-hidden">
-                    <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-                      <h2 className="text-base font-bold text-gray-900">🎯 국영수탐 평균등급 추이</h2>
-                      <Link href="/main/score-analysis" className="text-sm text-[#00e5e8] hover:underline flex items-center gap-1 font-medium">
-                        상세보기<ChevronRight className="w-4 h-4" />
-                      </Link>
+                  {/* 하단 2열 그리드: 백분위 평균 + 평균등급 */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* 백분위 평균 추이 */}
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                      <div className="px-6 py-5 flex items-center justify-between border-b border-gray-50">
+                        <h2 className="text-base font-bold text-gray-900">백분위 평균 추이</h2>
+                        <Link href="/main/score-analysis" className="text-sm text-[#00e5e8] hover:text-[#00b8bb] flex items-center gap-0.5 font-medium transition-colors">
+                          상세보기<ChevronRight className="w-4 h-4" />
+                        </Link>
+                      </div>
+                      <div className="px-3 py-5">
+                        <ResponsiveContainer width="100%" height={220}>
+                          <AreaChart data={avgPercentileChartData} margin={{ top: 10, right: 15, left: -10, bottom: 0 }}>
+                            <defs>
+                              <linearGradient id="gradAvgPct" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#10b981" stopOpacity={0.25} />
+                                <stop offset="95%" stopColor="#10b981" stopOpacity={0.02} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                            <XAxis dataKey="name" fontSize={11} tickLine={false} axisLine={false} tick={{ fill: '#9ca3af' }} />
+                            <YAxis domain={[0, 100]} fontSize={11} tickLine={false} axisLine={false} tick={{ fill: '#9ca3af' }} ticks={[0, 25, 50, 75, 100]} />
+                            <Tooltip content={<ChartTooltip />} />
+                            <Area
+                              type="monotone"
+                              dataKey="평균"
+                              stroke="#10b981"
+                              strokeWidth={2.5}
+                              fill="url(#gradAvgPct)"
+                              dot={{ r: 4, fill: 'white', stroke: '#10b981', strokeWidth: 2 }}
+                              activeDot={{ r: 6, fill: '#10b981', stroke: 'white', strokeWidth: 2 }}
+                              animationDuration={800}
+                              connectNulls
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
-                    <div className="p-5">
-                      <LineChart
-                        title=""
-                        datasets={[{ name: '평균 등급', color: '#00e5e8', data: avgGradeData }]}
-                        yMin={1}
-                        yMax={9}
-                        yLabel="등급"
-                        invertY
-                        yTicks={[1, 2, 3, 4, 5, 6, 7, 8, 9]}
-                      />
+
+                    {/* 국영수탐 평균등급 추이 */}
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                      <div className="px-6 py-5 flex items-center justify-between border-b border-gray-50">
+                        <h2 className="text-base font-bold text-gray-900">평균등급 추이</h2>
+                        <Link href="/main/score-analysis" className="text-sm text-[#00e5e8] hover:text-[#00b8bb] flex items-center gap-0.5 font-medium transition-colors">
+                          상세보기<ChevronRight className="w-4 h-4" />
+                        </Link>
+                      </div>
+                      <div className="px-3 py-5">
+                        <ResponsiveContainer width="100%" height={220}>
+                          <AreaChart data={avgGradeChartData} margin={{ top: 10, right: 15, left: -10, bottom: 0 }}>
+                            <defs>
+                              <linearGradient id="gradAvgGrade" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#00e5e8" stopOpacity={0.25} />
+                                <stop offset="95%" stopColor="#00e5e8" stopOpacity={0.02} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                            <XAxis dataKey="name" fontSize={11} tickLine={false} axisLine={false} tick={{ fill: '#9ca3af' }} />
+                            <YAxis domain={[1, 9]} fontSize={11} tickLine={false} axisLine={false} tick={{ fill: '#9ca3af' }} ticks={[1, 3, 5, 7, 9]} reversed />
+                            <Tooltip content={<ChartTooltip suffix="등급" />} />
+                            <Area
+                              type="monotone"
+                              dataKey="등급"
+                              stroke="#00e5e8"
+                              strokeWidth={2.5}
+                              fill="url(#gradAvgGrade)"
+                              dot={{ r: 4, fill: 'white', stroke: '#00e5e8', strokeWidth: 2 }}
+                              activeDot={{ r: 6, fill: '#00e5e8', stroke: 'white', strokeWidth: 2 }}
+                              animationDuration={800}
+                              connectNulls
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
                   </div>
                 </div>
