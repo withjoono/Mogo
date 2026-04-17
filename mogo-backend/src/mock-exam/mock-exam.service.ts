@@ -12,16 +12,36 @@ export class MockExamService {
   constructor(private readonly prisma: PrismaService) { }
 
   async findAll() {
-    return this.prisma.mockExam.findMany({
+    const exams = await this.prisma.mockExam.findMany({
       orderBy: [{ year: 'desc' }, { month: 'desc' }],
+      include: {
+        _count: {
+          select: { scoreConversion2015: true, scoreConversion2022: true }
+        }
+      }
     });
+    return exams.map(e => ({
+      ...e,
+      isStandardScoreReleased: e._count.scoreConversion2015 > 0 || e._count.scoreConversion2022 > 0,
+      _count: undefined
+    }));
   }
 
   async findByGrade(grade: string) {
-    return this.prisma.mockExam.findMany({
+    const exams = await this.prisma.mockExam.findMany({
       where: { grade: this.gradeToCode(grade) },
       orderBy: [{ year: 'desc' }, { month: 'desc' }],
+      include: {
+        _count: {
+          select: { scoreConversion2015: true, scoreConversion2022: true }
+        }
+      }
     });
+    return exams.map(e => ({
+      ...e,
+      isStandardScoreReleased: e._count.scoreConversion2015 > 0 || e._count.scoreConversion2022 > 0,
+      _count: undefined
+    }));
   }
 
   // Helper: 학년 표시명 → DB 코드 변환 ("고3" → "H3")
@@ -36,39 +56,75 @@ export class MockExamService {
     if (year) where.year = year;
     if (grade) where.grade = this.gradeToCode(grade);
     if (month) where.month = month;
-    return this.prisma.mockExam.findMany({
+    const exams = await this.prisma.mockExam.findMany({
       where,
       orderBy: [{ year: 'desc' }, { month: 'desc' }],
+      include: {
+        _count: {
+          select: { scoreConversion2015: true, scoreConversion2022: true }
+        }
+      }
     });
+    return exams.map(e => ({
+      ...e,
+      isStandardScoreReleased: e._count.scoreConversion2015 > 0 || e._count.scoreConversion2022 > 0,
+      _count: undefined
+    }));
   }
 
   async findByCode(code: string) {
     const mockExam = await this.prisma.mockExam.findUnique({
       where: { code },
-      include: { questions: { orderBy: { questionNumber: 'asc' } } },
+      include: { 
+        questions: { orderBy: { questionNumber: 'asc' } },
+        _count: { select: { scoreConversion2015: true, scoreConversion2022: true } }
+      },
     });
     if (!mockExam) {
       throw new NotFoundException(`모의고사 코드 ${code}를 찾을 수 없습니다.`);
     }
-    return mockExam;
+    return {
+      ...mockExam,
+      isStandardScoreReleased: mockExam._count.scoreConversion2015 > 0 || mockExam._count.scoreConversion2022 > 0,
+      _count: undefined
+    };
   }
 
   async findById(id: number) {
     const mockExam = await this.prisma.mockExam.findUnique({
       where: { id },
-      include: { questions: { orderBy: { questionNumber: 'asc' } } },
+      include: { 
+        questions: { orderBy: { questionNumber: 'asc' } },
+        _count: { select: { scoreConversion2015: true, scoreConversion2022: true } }
+      },
     });
     if (!mockExam) {
       throw new NotFoundException(`모의고사 ID ${id}를 찾을 수 없습니다.`);
     }
-    return mockExam;
+    return {
+      ...mockExam,
+      isStandardScoreReleased: mockExam._count.scoreConversion2015 > 0 || mockExam._count.scoreConversion2022 > 0,
+      _count: undefined
+    };
   }
 
   async checkExists(year: number, grade: string, month: number) {
     const mockExam = await this.prisma.mockExam.findFirst({
       where: { year, grade: this.gradeToCode(grade), month },
+      include: {
+        _count: { select: { scoreConversion2015: true, scoreConversion2022: true } }
+      }
     });
-    return { exists: !!mockExam, mockExam: mockExam || null };
+
+    let isStandardScoreReleased = false;
+    if (mockExam) {
+      isStandardScoreReleased = mockExam._count.scoreConversion2015 > 0 || mockExam._count.scoreConversion2022 > 0;
+    }
+
+    return { 
+      exists: !!mockExam, 
+      mockExam: mockExam ? { ...mockExam, _count: undefined, isStandardScoreReleased } : null 
+    };
   }
 
   async getKyokwaSubjects(curriculum: '2015' | '2022' = '2015') {

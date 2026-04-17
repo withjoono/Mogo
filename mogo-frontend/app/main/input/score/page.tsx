@@ -16,6 +16,7 @@ function ScoreInputPageContent() {
   const [user, setUser] = useState<User | null>(null)
   const [mockExamId, setMockExamId] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isStandardReleased, setIsStandardReleased] = useState(false)
 
   const [grade1StandardScores, setGrade1StandardScores] = useState({
     korean: "",
@@ -108,6 +109,12 @@ function ScoreInputPageContent() {
           if (res && res.exists && res.mockExam) {
             const mId = res.mockExam.id
             setMockExamId(mId)
+            
+            if (res.mockExam?.isStandardScoreReleased) {
+              setIsStandardReleased(true)
+              setActiveTab("standard")
+            }
+            
             console.log("Mock Exam Found:", mId)
 
             // 기존 성적 조회
@@ -1358,20 +1365,68 @@ function ScoreInputPageContent() {
         const stdScore = parseInt(value)
         if (isNaN(stdScore) || stdScore <= 0) return
 
+        // 수학 선택과목 매핑: 확률과통계→확통, 미적분→미적, 기하→기하
+        const mapMathSelection = (sel: string) => {
+          if (sel === "확률과통계") return "확통"
+          if (sel === "미적분") return "미적"
+          if (sel === "기하") return "기하"
+          return sel
+        }
+
         // 과목명 매핑 (state key → DB subject name)
-        // 변환표는 대과목명(국어/수학)으로 저장됨
+        const mapSubjectToDB = (frontendName: string) => {
+          if (!frontendName) return ""
+          let dbSubj = frontendName
+          
+          // 정치와법 → 정치와 법 등 띄어쓰기 교정
+          if (dbSubj === "정치와법") dbSubj = "정치와 법"
+          else if (dbSubj === "생활과윤리") dbSubj = "생활과 윤리"
+          else if (dbSubj === "윤리와사상") dbSubj = "윤리와 사상"
+          
+          // I / II 를 전각 문자 Ⅰ / Ⅱ 로 변경하며 띄어쓰기 추가 (예: 물리학I -> 물리학 Ⅰ)
+          if (dbSubj.endsWith("II")) {
+            dbSubj = dbSubj.substring(0, dbSubj.length - 2) + " Ⅱ"
+          } else if (dbSubj.endsWith("I")) {
+            dbSubj = dbSubj.substring(0, dbSubj.length - 1) + " Ⅰ"
+          }
+          
+          return dbSubj
+        }
+
         let subjectName = ""
         if (subject === "korean") subjectName = "국어"
-        else if (subject === "math") subjectName = "수학"
-        else if (subject === "inquiry1") subjectName = standardScores.inquiry1.subject
-        else if (subject === "inquiry2") subjectName = standardScores.inquiry2.subject
+        else if (subject === "math") subjectName = `수학(${mapMathSelection(mathSelection)})`
+        else if (subject === "inquiry1") subjectName = mapSubjectToDB(standardScores.inquiry1.subject)
+        else if (subject === "inquiry2") subjectName = mapSubjectToDB(standardScores.inquiry2.subject)
+        else if (subject === "secondLanguage") subjectName = mapSubjectToDB(standardScores.secondLanguage.category)
+
         if (!subjectName) return
 
         try {
           const conversionTable = await api.get<any[]>(`/api/scores/conversion/standard/${mockExamId}?subject=${encodeURIComponent(subjectName)}`)
           if (Array.isArray(conversionTable) && conversionTable.length > 0) {
             // 변환표에서 해당 표준점수 찾기
-            const match = conversionTable.find((r: any) => Number(r.standardScore) === stdScore)
+            let match = conversionTable.find((r: any) => Number(r.standardScore) === stdScore)
+
+            // 입력한 점수가 변환표의 범위를 벗어나는 경우 (테스트용 등), 근사값(최대/최소)으로 매핑
+            if (!match) {
+              const maxScore = Math.max(...conversionTable.map(r => Number(r.standardScore)))
+              const minScore = Math.min(...conversionTable.map(r => Number(r.standardScore)))
+              if (stdScore >= maxScore) {
+                match = conversionTable.find((r: any) => Number(r.standardScore) === maxScore)
+              } else if (stdScore <= minScore) {
+                match = conversionTable.find((r: any) => Number(r.standardScore) === minScore)
+              }
+            }
+
+            // 엑셀에서 병합된 셀(빈 칸)로 인해 현재 점수에 등급/백분위가 비어있다면, 그보다 낮거나 같은 점수 중 가장 가까운 유효 등급을 차용
+            if (match && (!match.grade || !match.percentile)) {
+              const nearestFallback = conversionTable.find((r: any) => Number(r.standardScore) <= stdScore && r.grade && r.percentile)
+              if (nearestFallback) {
+                match = { ...match, grade: nearestFallback.grade, percentile: nearestFallback.percentile }
+              }
+            }
+
             if (match) {
               setStandardScores((prev) => ({
                 ...prev,
@@ -2220,55 +2275,7 @@ function ScoreInputPageContent() {
           {grade === "고1" ? (
             <>
               {/* Tab Selection */}
-              <div className="mb-8">
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant={activeTab === "raw" ? "default" : "outline"}
-                    className={activeTab === "raw" ? "bg-[#00e5e8] hover:bg-[#00b8bb] text-white" : ""}
-                    onClick={() => setActiveTab("raw")}
-                  >
-                    원점수 입력
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={activeTab === "standard" ? "default" : "outline"}
-                    className={activeTab === "standard" ? "bg-[#00e5e8] hover:bg-[#00b8bb] text-white" : ""}
-                    onClick={() => setActiveTab("standard")}
-                  >
-                    표준점수 입력
-                  </Button>
-                </div>
-              </div>
-
-              {activeTab === "raw" ? <Grade1ScoreInput /> : <Grade1StandardScoreInput />}
-            </>
-          ) : grade === "고2" ? (
-            <>
-              {/* Grade 2 Tabs */}
-              <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
-                <button
-                  onClick={() => setActiveTab("raw")}
-                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "raw" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
-                    }`}
-                >
-                  원점수 입력
-                </button>
-                <button
-                  onClick={() => setActiveTab("standard")}
-                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "standard" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
-                    }`}
-                >
-                  표준점수 입력
-                </button>
-              </div>
-
-              {activeTab === "raw" ? <Grade2StandardScoreInput /> : <Grade2RawScoreInput />}
-            </>
-          ) : grade === "고3" ? (
-            <div className="min-h-screen bg-gray-50 py-8">
-              <div className="max-w-4xl mx-auto px-4">
-                {/* Header */}
+              {!isStandardReleased && (
                 <div className="mb-8">
                   <div className="flex gap-2">
                     <Button
@@ -2289,6 +2296,60 @@ function ScoreInputPageContent() {
                     </Button>
                   </div>
                 </div>
+              )}
+
+              {activeTab === "raw" ? <Grade1ScoreInput /> : <Grade1StandardScoreInput />}
+            </>
+          ) : grade === "고2" ? (
+            <>
+              {/* Grade 2 Tabs */}
+              {!isStandardReleased && (
+                <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
+                  <button
+                    onClick={() => setActiveTab("raw")}
+                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "raw" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                      }`}
+                  >
+                    원점수 입력
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("standard")}
+                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "standard" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                      }`}
+                  >
+                    표준점수 입력
+                  </button>
+                </div>
+              )}
+
+              {activeTab === "raw" ? <Grade2StandardScoreInput /> : <Grade2RawScoreInput />}
+            </>
+          ) : grade === "고3" ? (
+            <div className="min-h-screen bg-gray-50 py-8">
+              <div className="max-w-4xl mx-auto px-4">
+                {/* Header */}
+                {!isStandardReleased && (
+                  <div className="mb-8">
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant={activeTab === "raw" ? "default" : "outline"}
+                        className={activeTab === "raw" ? "bg-[#00e5e8] hover:bg-[#00b8bb] text-white" : ""}
+                        onClick={() => setActiveTab("raw")}
+                      >
+                        원점수 입력
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={activeTab === "standard" ? "default" : "outline"}
+                        className={activeTab === "standard" ? "bg-[#00e5e8] hover:bg-[#00b8bb] text-white" : ""}
+                        onClick={() => setActiveTab("standard")}
+                      >
+                        표준점수 입력
+                      </Button>
+                    </div>
+                  </div>
+                )}
 
                 {activeTab === "standard" ? <Grade3StandardScoreInput /> : <Grade3RawScoreInput />}
 

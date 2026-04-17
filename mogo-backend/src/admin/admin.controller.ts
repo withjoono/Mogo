@@ -92,4 +92,31 @@ export class AdminController {
   async getGradingByStudent(@Param('studentId') studentId: string) {
     return this.adminService.getGradingByStudent(studentId);
   }
+
+  // Seed Status & Data Seeding
+  @Get('seed-status')
+  @ApiOperation({ summary: '시딩 현황 확인', description: 'mg_mock_answer, mg_exam_questions 데이터 현황을 확인합니다.' })
+  async getSeedStatus() {
+    return this.adminService.getSeedStatus();
+  }
+
+  @Post('seed-questions')
+  @ApiOperation({
+    summary: 'mg_mock_answer → mg_exam_questions 시딩',
+    description: 'mg_mock_answer 테이블의 데이터를 읽어 mg_exam_questions에 삽입합니다. forceReseed=true이면 기존 데이터를 삭제 후 재시딩합니다.',
+  })
+  async seedQuestions(@Body() body: { forceReseed?: boolean }) {
+    return this.adminService.seedExamQuestionsFromMockAnswer({
+      forceReseed: body?.forceReseed ?? false,
+    });
+  }
+
+  @Post('import-mock-answers')
+  @ApiOperation({
+    summary: 'mg_mock_answer 데이터 일괄 임포트',
+    description: 'Mock Answer 데이터를 mg_mock_answer 테이블에 일괄 삽입합니다.',
+  })
+  async importMockAnswers(@Body() body: { rows: any[]; truncateFirst?: boolean }) {
+    return this.adminService.importMockAnswers(body.rows, body.truncateFirst);
+  }
 }

@@ -24,6 +24,9 @@ export class MockExamResponseDto {
 
   @ApiProperty({ description: '생성일' })
   createdAt: Date;
+
+  @ApiPropertyOptional({ description: '표준점수 발표 여부', example: true })
+  isStandardScoreReleased?: boolean;
 }
 
 

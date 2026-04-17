@@ -62,6 +62,8 @@ async function request<T>(
   }
 
   const response = await fetch(url, {
+    // Prevent browser from caching API responses
+    cache: 'no-store',
     ...fetchOptions,
     headers,
   });

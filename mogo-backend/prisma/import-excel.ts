@@ -10,8 +10,9 @@ const pool = new Pool({
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
+  options: '-c search_path=mogo,hub',
 });
-const adapter = new PrismaPg(pool);
+const adapter = new PrismaPg(pool, { schema: 'mogo' });
 const prisma = new PrismaClient({ adapter });
 
 const EXCEL_PATH = path.join(__dirname, '../../Uploads/모의고사 디비 폼.xlsx');
@@ -121,57 +122,9 @@ async function importStudents(data: unknown[]) {
 }
 
 // 멘토링 정보 임포트 (실제 컬럼명에 맞춤)
-async function importMentoring(data: unknown[]) {
-  console.log('👨‍🏫 Importing mentoring...');
-
-  let count = 0;
-  for (const row of data as any[]) {
-    const classId = String(row['수업ID'] || '').trim();
-    if (!classId) continue;
-
-    const className = String(row['수업명'] || '').trim() || null;
-    const grade = String(row['학년'] || '').trim() || null;
-    const subject = String(row['과목'] || '').trim() || null;
-    const teacherName = String(row['선생님명'] || '').trim() || null;
-    const weeklyCount = parseInt(row['주당수업회수'] || '0', 10) || null;
-    const duration = String(row['1회 수업시간'] || '').trim() || null;
-    const fee = parseInt(row['수업료'] || '0', 10) || null;
-    const feeType = String(row['수업료기준'] || '').trim() || null;
-
-    // 일정 정보
-    const day1 = String(row['요일'] || '').trim() || null;
-
-    await prisma.mentoring.upsert({
-      where: { classId },
-      update: {
-        className,
-        grade,
-        subject,
-        teacherName,
-        weeklyCount,
-        duration,
-        fee,
-        feeType,
-        day1,
-      },
-      create: {
-        classId,
-        className,
-        grade,
-        subject,
-        teacherName,
-        weeklyCount,
-        duration,
-        fee,
-        feeType,
-        day1,
-      },
-    });
-    count++;
-  }
-
-  console.log(`✅ Imported ${count} mentoring records`);
-}
+// async function importMentoring(data: unknown[]) {
+//   console.log('👨‍🏫 Importing mentoring... (Skipped, not in schema)');
+// }
 
 // 대학 및 학과 임포트 (실제 컬럼명에 맞춤 - 복잡한 헤더 구조)
 async function importUniversitiesAndDepartments(data: unknown[]) {
@@ -418,9 +371,9 @@ async function main() {
   }
 
   // 4. 멘토링 임포트
-  if (data['멘토링']) {
-    await importMentoring(data['멘토링']);
-  }
+  // if (data['멘토링']) {
+  //   await importMentoring(data['멘토링']);
+  // }
 
   // 5. 학생 목표대학 임포트 (클래스 시트)
   if (data['클래스']) {
