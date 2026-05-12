@@ -72,13 +72,14 @@ export function Navigation() {
       name: "대학예측",
       href: "/main/prediction",
       children: [
-        { name: "목표대학 설정", href: "/main/target-university/settings", comingSoon: true },
-        { name: "대학 예측", href: "/main/prediction", comingSoon: true },
+        { name: "목표대학 설정", href: "/main/target-university/settings" },
+        { name: "대학 예측", href: "/main/prediction" },
       ],
     },
     { name: "누적분석", href: "/main/statistics" },
     { name: "취약분석", href: "/main/weakness-analysis" },
     { name: "오답노트", href: "/main/wrong-answers" },
+    { name: "마이클래스", href: "/main/my-class" },
   ]
 
   return (

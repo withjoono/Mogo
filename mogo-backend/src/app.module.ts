@@ -14,6 +14,8 @@ import { TargetModule } from './target/target.module';
 import { AdminModule } from './admin/admin.module';
 import { WrongAnswerModule } from './wrong-answer/wrong-answer.module';
 import { WeaknessAnalysisModule } from './weakness-analysis/weakness-analysis.module';
+import { ExploreModule } from './explore/explore.module';
+import { MyClassModule } from './my-class/my-class.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { WeaknessAnalysisModule } from './weakness-analysis/weakness-analysis.mo
     AdminModule,
     WrongAnswerModule,
     WeaknessAnalysisModule,
+    ExploreModule,
+    MyClassModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

@@ -24,6 +24,7 @@ model Member {
   answers            StudentAnswer[]
   scores             StudentScore[]
   targets            StudentTarget[]
+  classMembers       ClassMember[]
 
   @@index([memberId])
   @@index([year, grade])
@@ -253,6 +254,7 @@ model Department {
   createdAt        DateTime          @default(now()) @map("created_at")
   updatedAt        DateTime          @updatedAt @map("updated_at")
   admissionCutoffs AdmissionCutoff[]
+  simpleCutoffs    SimpleAdmissionCutoff[]
   university       University        @relation(fields: [universityId], references: [id])
 
   @@index([universityId])
@@ -291,6 +293,22 @@ model AdmissionCutoff {
   @@index([year])
   @@index([mockExamId])
   @@map("mg_admission_cutoffs")
+}
+
+model SimpleAdmissionCutoff {
+  id               Int        @id @default(autoincrement())
+  departmentId     Int        @map("department_id")
+  year             Int?
+  standardScoreSum Decimal?   @map("standard_score_sum") @db.Decimal(10, 4)
+  englishGrade     Decimal?   @map("english_grade") @db.Decimal(4, 2)
+  historyGrade     Decimal?   @map("history_grade") @db.Decimal(4, 2)
+  status           String?    @default("ACTIVE") @db.VarChar(20)
+  createdAt        DateTime   @default(now()) @map("created_at")
+  department       Department @relation(fields: [departmentId], references: [id])
+
+  @@index([departmentId])
+  @@index([year])
+  @@map("mg_simple_admission_cutoffs")
 }
 
 // === 2015 교육과정 (올해까지 고3, 내년 삭제 예정) ===
@@ -470,4 +488,36 @@ model QuestionCategory2022 {
   @@index([mockExamId])
   @@index([subject, questionType])
   @@map("mg_2022_question_category")
+}
+
+// === 마이클래스 ===
+
+model MyClass {
+  id          Int           @id @default(autoincrement())
+  classCode   String        @unique @map("class_code") @db.VarChar(8)
+  name        String        @db.VarChar(50)
+  creatorId   Int           @map("creator_id")
+  description String?       @db.VarChar(200)
+  maxMembers  Int           @default(20) @map("max_members")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  members     ClassMember[]
+
+  @@index([classCode])
+  @@index([creatorId])
+  @@map("mg_my_classes")
+}
+
+model ClassMember {
+  id        Int      @id @default(autoincrement())
+  classId   Int      @map("class_id")
+  memberId  Int      @map("member_id")
+  role      String   @default("member") @db.VarChar(10)
+  joinedAt  DateTime @default(now()) @map("joined_at")
+  myClass   MyClass  @relation(fields: [classId], references: [id], onDelete: Cascade)
+  member    Member   @relation(fields: [memberId], references: [id])
+
+  @@unique([classId, memberId])
+  @@index([memberId])
+  @@map("mg_class_members")
 }
