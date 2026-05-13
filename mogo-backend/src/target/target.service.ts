@@ -60,6 +60,18 @@ export class TargetService {
           universityName = dept.university?.name;
           departmentName = dept.name;
           category = dept.category || undefined;
+        } else {
+          // hub 폴백: departmentCode가 ida_id인 경우
+          const hubRows = await this.prisma.$queryRawUnsafe<any[]>(
+            `SELECT university_name, recruitment_unit, major_field
+             FROM hub.susi_jonghap_recruitment WHERE ida_id = $1`,
+            target.departmentCode,
+          );
+          if (hubRows.length > 0) {
+            universityName = hubRows[0].university_name;
+            departmentName = hubRows[0].recruitment_unit;
+            category = hubRows[0].major_field || undefined;
+          }
         }
       }
 
@@ -98,11 +110,29 @@ export class TargetService {
       throw new NotFoundException(`학생 ID ${studentId}를 찾을 수 없습니다.`);
     }
 
-    // 학과 확인
-    const department = await this.prisma.department.findUnique({
+    // 학과 확인 (mg_departments → hub 순으로 폴백)
+    let department: any = await this.prisma.department.findUnique({
       where: { id: departmentId },
       include: { university: true },
     });
+
+    if (!department) {
+      const hubRows = await this.prisma.$queryRawUnsafe<any[]>(
+        `SELECT id, ida_id, university_name, recruitment_unit, major_field
+         FROM hub.susi_jonghap_recruitment WHERE id = $1`,
+        departmentId,
+      );
+      if (hubRows.length > 0) {
+        const h = hubRows[0];
+        department = {
+          id: h.id,
+          code: h.ida_id,
+          name: h.recruitment_unit,
+          category: h.major_field,
+          university: { name: h.university_name },
+        };
+      }
+    }
 
     if (!department) {
       throw new NotFoundException(`학과 ID ${departmentId}를 찾을 수 없습니다.`);
@@ -318,10 +348,28 @@ export class TargetService {
     for (const target of targets) {
       if (!target.departmentCode) continue;
 
-      const dept = await this.prisma.department.findUnique({
+      let dept: any = await this.prisma.department.findUnique({
         where: { code: target.departmentCode },
         include: { university: true, admissionCutoffs: true },
       });
+
+      if (!dept) {
+        // hub 폴백
+        const hubRows = await this.prisma.$queryRawUnsafe<any[]>(
+          `SELECT university_name, recruitment_unit, major_field
+           FROM hub.susi_jonghap_recruitment WHERE ida_id = $1`,
+          target.departmentCode,
+        );
+        if (hubRows.length > 0) {
+          dept = {
+            university: { name: hubRows[0].university_name },
+            name: hubRows[0].recruitment_unit,
+            category: hubRows[0].major_field,
+            admissionCutoffs: [],
+            koreanRatio: null, mathRatio: null, inquiryRatio: null,
+          };
+        }
+      }
 
       if (!dept) continue;
 
