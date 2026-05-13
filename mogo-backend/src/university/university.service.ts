@@ -166,14 +166,15 @@ export class UniversityService {
     if (!query || query.trim().length === 0) return [];
     const q = `%${query.trim()}%`;
     const rows = await this.prisma.$queryRawUnsafe<any[]>(
-      `SELECT r.id, r.ida_id as code, r.recruitment_unit as name,
-              r.major_field as category, r.minor_field as "subCategory",
-              r.admission_type as "admissionType", r.recruitment_count as quota,
-              r.university_name, r.university_code, r.region_major as region
+      `SELECT MIN(r.id) as id, MIN(r.ida_id) as code, r.recruitment_unit as name,
+              MIN(r.major_field) as category, MIN(r.minor_field) as "subCategory",
+              MIN(r.admission_type) as "admissionType", MIN(r.recruitment_count) as quota,
+              r.university_name, r.university_code, MIN(r.region_major) as region
        FROM hub.susi_jonghap_recruitment r
        WHERE r.recruitment_unit ILIKE $1
           OR r.major_field ILIKE $1
           OR r.minor_field ILIKE $1
+       GROUP BY r.university_code, r.university_name, r.recruitment_unit
        ORDER BY r.university_name, r.recruitment_unit
        LIMIT 100`,
       q,
