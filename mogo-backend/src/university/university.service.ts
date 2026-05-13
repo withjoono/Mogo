@@ -198,6 +198,7 @@ export class UniversityService {
       where: {
         name: {
           contains: query.trim(),
+          mode: 'insensitive',
         },
       },
       select: {
@@ -261,9 +262,9 @@ export class UniversityService {
     const departments = await this.prisma.department.findMany({
       where: {
         OR: [
-          { name: { contains: q } },
-          { subCategory: { contains: q } },
-          { category: { contains: q } },
+          { name: { contains: q, mode: 'insensitive' } },
+          { subCategory: { contains: q, mode: 'insensitive' } },
+          { category: { contains: q, mode: 'insensitive' } },
         ],
       },
       include: {
