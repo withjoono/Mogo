@@ -13,6 +13,7 @@ export interface User {
   phone: string;
   member_type: string; // 'student' | 'teacher' | 'parent'
   profile_image_url: string | null;
+  grade?: string;
 }
 
 const HUB_API_URL = process.env.NEXT_PUBLIC_HUB_API_URL || 'https://v2.ingipsy.com';
@@ -61,6 +62,7 @@ export async function getUser(): Promise<User | null> {
         phone: result.data.phone,
         member_type: result.data.member_type,
         profile_image_url: result.data.profile_image_url,
+        grade: result.data.grade || 'H3', // Default to 'H3' if not present
       };
     }
 

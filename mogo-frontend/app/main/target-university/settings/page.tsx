@@ -270,7 +270,7 @@ export default function TargetUniversitySettingsPage() {
                             className={`flex-1 py-3.5 text-sm font-semibold transition-all duration-200 ${activeTab === t ? "text-white" : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"}`}
                             style={activeTab === t ? { backgroundColor: "#00e5e8" } : {}}
                         >
-                            {t === "university" ? "🏫 목표 대학" : "📚 목표 계열/학과"}
+                            {t === "university" ? "🏫 대학 검색" : "📚 계열/학과 검색"}
                         </button>
                     ))}
                 </div>

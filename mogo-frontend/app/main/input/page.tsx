@@ -173,7 +173,7 @@ export default function MockExamInputPage() {
             <span>›</span>
             <span>모의고사</span>
             <span>›</span>
-            <span className="text-[#00b8bb] font-medium">성적 입력</span>
+            <span className="text-[#00b8bb] font-medium">입력</span>
           </div>
         </div>
       </div>
@@ -181,7 +181,7 @@ export default function MockExamInputPage() {
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         {/* 페이지 타이틀 */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">모의고사 성적 입력</h1>
+          <h1 className="text-2xl font-bold text-gray-900">모의고사 입력</h1>
           <p className="text-sm text-gray-500 mt-1">시험을 선택하고 점수 또는 정답을 입력하세요</p>
         </div>
 

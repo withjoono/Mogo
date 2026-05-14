@@ -75,18 +75,59 @@ function MockExamFormPageContent() {
     fetchMockExam()
   }, [year, grade, month])
 
-  // 이미 입력된 과목 조회
+  // 이미 입력된 과목 조회 및 기존 답안 로드
   useEffect(() => {
     async function fetchEnteredSubjects() {
       if (!studentId || !mockExamId) return
       try {
-        const res = await api.get<any>(`/api/wrong-answers/student/${studentId}?mockExamId=${mockExamId}&wrongOnly=false&limit=100`)
+        const res = await api.get<any>(`/api/wrong-answers/student/${studentId}?mockExamId=${mockExamId}&wrongOnly=false&limit=300`)
         if (res && res.items && res.items.length > 0) {
           const subjectSet = new Set<string>()
-          res.items.forEach((item: any) => {
-            subjectSet.add(item.subjectName || item.subjectAreaName)
+          const newAnswers: { [key: string]: number | string } = {}
+          let newKoreanSelection = ""
+          let newMathSelection = ""
+          let newSecondForeignLanguage = ""
+          const inquirySubjectOrder: string[] = []
+
+          // 탐구 과목 순서 파악 (오래된 항목 = 탐구1로 가정)
+          const itemsAsc = [...res.items].reverse()
+          itemsAsc.forEach((item: any) => {
+            const sa = item.subjectAreaName || ""
+            const sn = item.subjectName || ""
+            if ((sa === "사회탐구" || sa === "과학탐구") && sn) {
+              if (!inquirySubjectOrder.includes(sn)) inquirySubjectOrder.push(sn)
+            }
+            if (sa === "국어" && sn) newKoreanSelection = sn
+            if (sa === "수학" && sn) newMathSelection = sn
+            if (sa === "제2외국어" && sn) newSecondForeignLanguage = sn
           })
+
+          // 답안 맵 구성
+          res.items.forEach((item: any) => {
+            const sa = item.subjectAreaName || ""
+            const sn = item.subjectName || ""
+            const qNum = item.questionNumber
+            const ans = item.selectedAnswer
+
+            subjectSet.add(sn || sa)
+            if (ans == null || !qNum) return
+
+            let tabName = sa
+            if (sa === "사회탐구" || sa === "과학탐구") {
+              const idx = inquirySubjectOrder.indexOf(sn)
+              tabName = idx === 0 ? "탐구1" : "탐구2"
+            }
+            newAnswers[`${tabName}-${qNum}`] = ans
+          })
+
+          if (inquirySubjectOrder[0]) setInquiry1Subject(inquirySubjectOrder[0])
+          if (inquirySubjectOrder[1]) setInquiry2Subject(inquirySubjectOrder[1])
+          if (newKoreanSelection) setKoreanSelection(newKoreanSelection)
+          if (newMathSelection) setMathSelection(newMathSelection)
+          if (newSecondForeignLanguage) setSecondForeignLanguage(newSecondForeignLanguage)
+
           setEnteredSubjects(subjectSet)
+          if (Object.keys(newAnswers).length > 0) setAnswers(newAnswers)
         }
       } catch (e) {
         // 답안 없음
@@ -117,7 +158,7 @@ function MockExamFormPageContent() {
 
   const inquirySubjects = {
     사회탐구: ["생활과윤리", "윤리와사상", "한국지리", "세계지리", "동아시아사", "세계사", "경제", "정치와법", "사회문화"],
-    과학탐구: ["물리학 I", "물리학 II", "화학 I", "화학 II", "생명과학 I", "생명과학 II", "지구과학 I", "지구과학 II"],
+    과학탐구: ["물리학I", "물리학II", "화학I", "화학II", "생명과학I", "생명과학II", "지구과학I", "지구과학II"],
   }
 
   const secondForeignLanguageSubjects = [
