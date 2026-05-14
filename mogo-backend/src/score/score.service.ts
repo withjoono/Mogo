@@ -212,10 +212,32 @@ export class ScoreService {
    * 점수 변환표 조회 (표준점수 → 백분위/등급)
    */
   async getScoreConversion(mockExamId: number, subject: string) {
-    return this.prisma.scoreConversion2015.findMany({
+    const results = await this.prisma.scoreConversion2015.findMany({
       where: { mockExamId, subject },
       orderBy: { standardScore: 'desc' },
     });
+    if (results.length > 0) return results;
+
+    // 과탐/사탐 공백 유무 두 가지 형식 모두 시도 (물리학I ↔ 물리학 I)
+    const subjectAlt = subject.endsWith(' I') || subject.endsWith(' II')
+      ? subject.replace(/ (I{1,2})$/, '$1')
+      : subject.replace(/(I{1,2})$/, ' $1');
+    const altResults = await this.prisma.scoreConversion2015.findMany({
+      where: { mockExamId, subject: subjectAlt },
+      orderBy: { standardScore: 'desc' },
+    });
+    if (altResults.length > 0) return altResults;
+
+    // 수학 선택과목 포함 형식 fallback: "수학(확통)" → "수학", "수학(미적)" → "수학" 등
+    const mathBase = subject.match(/^수학\(.+\)$/) ? '수학' : null;
+    if (mathBase) {
+      return this.prisma.scoreConversion2015.findMany({
+        where: { mockExamId, subject: mathBase },
+        orderBy: { standardScore: 'desc' },
+      });
+    }
+
+    return [];
   }
 
   /**
@@ -225,8 +247,20 @@ export class ScoreService {
     const where: any = { mockExamId, subject };
     if (subjectType) where.subjectType = subjectType;
 
-    return this.prisma.scoreConversionRaw2015.findMany({
+    const results = await this.prisma.scoreConversionRaw2015.findMany({
       where,
+      orderBy: { standardScore: 'desc' },
+    });
+    if (results.length > 0) return results;
+
+    // 공백 유무 두 가지 형식 모두 시도
+    const subjectAlt = subject.endsWith(' I') || subject.endsWith(' II')
+      ? subject.replace(/ (I{1,2})$/, '$1')
+      : subject.replace(/(I{1,2})$/, ' $1');
+    const whereAlt: any = { mockExamId, subject: subjectAlt };
+    if (subjectType) whereAlt.subjectType = subjectType;
+    return this.prisma.scoreConversionRaw2015.findMany({
+      where: whereAlt,
       orderBy: { standardScore: 'desc' },
     });
   }

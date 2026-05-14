@@ -636,4 +636,37 @@ export class AdminService {
     this.logger.log(`=== importMockAnswers 완료: ${inserted}/${rows.length} ===`);
     return { success: true, inserted, total: rows.length };
   }
+
+  async importScoreConversion(
+    mockExamId: number,
+    rows: { subject: string; standardScore: number; percentile?: number | null; grade: number }[],
+    clearExisting = true,
+  ) {
+    const exam = await this.prisma.mockExam.findUnique({ where: { id: mockExamId } });
+    if (!exam) throw new NotFoundException(`시험 ID ${mockExamId}를 찾을 수 없습니다.`);
+
+    if (clearExisting) {
+      const deleted = await this.prisma.scoreConversion2015.deleteMany({ where: { mockExamId } });
+      this.logger.log(`Deleted ${deleted.count} existing rows for mockExamId=${mockExamId}`);
+    }
+
+    const BATCH = 200;
+    let inserted = 0;
+    for (let i = 0; i < rows.length; i += BATCH) {
+      const batch = rows.slice(i, i + BATCH);
+      const result = await this.prisma.scoreConversion2015.createMany({
+        data: batch.map((r) => ({
+          mockExamId,
+          subject: r.subject,
+          standardScore: r.standardScore,
+          percentile: r.percentile != null ? r.percentile : undefined,
+          grade: r.grade,
+        })),
+      });
+      inserted += result.count;
+    }
+
+    this.logger.log(`importScoreConversion: ${inserted} rows inserted for mockExamId=${mockExamId}`);
+    return { success: true, inserted, mockExamId };
+  }
 }

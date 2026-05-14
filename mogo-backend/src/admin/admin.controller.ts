@@ -119,4 +119,19 @@ export class AdminController {
   async importMockAnswers(@Body() body: { rows: any[]; truncateFirst?: boolean }) {
     return this.adminService.importMockAnswers(body.rows, body.truncateFirst);
   }
+
+  @Post('import-score-conversion')
+  @ApiOperation({
+    summary: '표준점수 변환표 일괄 임포트',
+    description: '표준점수→백분위/등급 변환표를 mg_2015_score_conversion_standard에 삽입합니다. clearExisting=true(기본값)이면 해당 mockExamId의 기존 데이터를 삭제 후 삽입합니다.',
+  })
+  async importScoreConversion(
+    @Body() body: {
+      mockExamId: number;
+      rows: { subject: string; standardScore: number; percentile?: number | null; grade: number }[];
+      clearExisting?: boolean;
+    },
+  ) {
+    return this.adminService.importScoreConversion(body.mockExamId, body.rows, body.clearExisting ?? true);
+  }
 }

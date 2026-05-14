@@ -1,10 +1,22 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateGroupStudyDto, JoinGroupStudyDto } from './dto/my-class.dto';
+import { toMogoMemberId } from '../common/utils/member-id.util';
 
 @Injectable()
 export class MyClassService {
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * Hub 문자열 memberId → DB 숫자 id 변환
+   * 프론트엔드는 "S26H003141" 형식의 문자열 ID를 전달하므로 변환 필요
+   */
+  async resolveNumericMemberId(hubMemberId: string): Promise<number> {
+    const mogoId = toMogoMemberId(hubMemberId);
+    const member = await this.prisma.member.findUnique({ where: { memberId: mogoId } });
+    if (!member) throw new NotFoundException(`멤버를 찾을 수 없습니다: ${hubMemberId}`);
+    return member.id;
+  }
 
   // ──────────────────────────────────────────────────────────────
   // 목표대학 반 (anonymous ranking for same-target department)

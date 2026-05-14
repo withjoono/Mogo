@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +15,7 @@ function ScoreInputPageContent() {
   const [activeTab, setActiveTab] = useState<"raw" | "standard">("raw")
   const [user, setUser] = useState<User | null>(null)
   const [mockExamId, setMockExamId] = useState<number | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const isLoadingRef = useRef(false)
   const [isStandardReleased, setIsStandardReleased] = useState(false)
 
   const [grade1StandardScores, setGrade1StandardScores] = useState({
@@ -264,8 +264,9 @@ function ScoreInputPageContent() {
       return
     }
 
+    if (isLoadingRef.current) return
     try {
-      setIsLoading(true)
+      isLoadingRef.current = true
       const data = {
         studentId: user.id,
         mockExamId: mockExamId,
@@ -278,7 +279,7 @@ function ScoreInputPageContent() {
       console.error("Score save failed:", e)
       alert("성적 저장에 실패했습니다. " + (e instanceof Error ? e.message : ""))
     } finally {
-      setIsLoading(false)
+      isLoadingRef.current = false
     }
   }
 
@@ -1291,8 +1292,8 @@ function ScoreInputPageContent() {
       math: { standard: "", grade: "", percentile: "" },
       english: { grade: "" },
       koreanHistory: { grade: "" },
-      inquiry1: { subject: "", standard: "", grade: "", percentile: "" },
-      inquiry2: { subject: "", standard: "", grade: "", percentile: "" },
+      inquiry1: { subject: "물리학I", standard: "", grade: "", percentile: "" },
+      inquiry2: { subject: "물리학I", standard: "", grade: "", percentile: "" },
       secondLanguage: {
         category: "",
         subject1: "",
@@ -2363,7 +2364,7 @@ function ScoreInputPageContent() {
                 </div>
               )}
 
-              {activeTab === "raw" ? <Grade2StandardScoreInput /> : <Grade2RawScoreInput />}
+              {activeTab === "raw" ? <Grade2RawScoreInput /> : <Grade2StandardScoreInput />}
             </>
           ) : grade === "고3" ? (
             <div className="min-h-screen bg-gray-50 py-8">
