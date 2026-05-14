@@ -1284,7 +1284,7 @@ function ScoreInputPageContent() {
     const [inquiry2Category, setInquiry2Category] = useState<"사탐" | "과탐">("과탐")
 
     const socialSubjects = ["생활과윤리", "윤리와사상", "한국지리", "세계지리", "동아시아사", "세계사", "경제", "정치와법", "사회·문화"]
-    const scienceSubjects = ["물리학 I", "화학 I", "생명과학 I", "지구과학 I", "물리학 II", "화학 II", "생명과학 II", "지구과학 II"]
+    const scienceSubjects = ["물리학I", "화학I", "생명과학I", "지구과학I", "물리학II", "화학II", "생명과학II", "지구과학II"]
 
     const [standardScores, setStandardScores] = useState({
       korean: { standard: "", grade: "", percentile: "" },
@@ -1306,37 +1306,66 @@ function ScoreInputPageContent() {
           .then(res => {
             if (res && res.data) {
               const s = res.data
+
+              // DB 저장된 과목명 정규화 (사회문화 → 사회·문화 버튼 매핑, 구형 공백 있는 값 → 공백 없는 통일 형식)
+              const normalizeForDisplay = (subj: string) => {
+                if (!subj) return ""
+                if (subj === "사회문화") return "사회·문화"
+                if (subj.endsWith(" II")) return subj.slice(0, -3) + "II"
+                if (subj.endsWith(" I")) return subj.slice(0, -2) + "I"
+                return subj
+              }
+
+              const inq1 = normalizeForDisplay(s.inquiry1Selection || "")
+              const inq2 = normalizeForDisplay(s.inquiry2Selection || "")
+
               setStandardScores({
                 korean: { standard: s.koreanStandard?.toString() || "", grade: s.koreanGrade?.toString() || "", percentile: s.koreanPercentile?.toString() || "" },
                 math: { standard: s.mathStandard?.toString() || "", grade: s.mathGrade?.toString() || "", percentile: s.mathPercentile?.toString() || "" },
                 english: { grade: s.englishGrade?.toString() || "" },
                 koreanHistory: { grade: s.historyGrade?.toString() || "" },
-                inquiry1: { subject: s.inquiry1Selection || "", standard: s.inquiry1Standard?.toString() || "", grade: s.inquiry1Grade?.toString() || "", percentile: s.inquiry1Percentile?.toString() || "" },
-                inquiry2: { subject: s.inquiry2Selection || "", standard: s.inquiry2Standard?.toString() || "", grade: s.inquiry2Grade?.toString() || "", percentile: s.inquiry2Percentile?.toString() || "" },
+                inquiry1: { subject: inq1, standard: s.inquiry1Standard?.toString() || "", grade: s.inquiry1Grade?.toString() || "", percentile: s.inquiry1Percentile?.toString() || "" },
+                inquiry2: { subject: inq2, standard: s.inquiry2Standard?.toString() || "", grade: s.inquiry2Grade?.toString() || "", percentile: s.inquiry2Percentile?.toString() || "" },
                 secondLanguage: { category: s.foreignSelection || "", subject1: s.foreignGrade?.toString() || "" },
               })
+
+              // 로드된 과목으로 사탐/과탐 카테고리 자동 설정
+              if (inq1) {
+                const isSocial = socialSubjects.some(ss => ss === inq1)
+                if (isSocial) setInquiry1Category("사탐")
+                else setInquiry1Category("과탐")
+              }
+              if (inq2) {
+                const isSocial = socialSubjects.some(ss => ss === inq2)
+                if (isSocial) setInquiry2Category("사탐")
+                else setInquiry2Category("과탐")
+              }
             }
           })
           .catch(e => console.log("G3 Std fetch error (ignored)", e))
       }
     }, [user, mockExamId])
 
-    const inquirySubjects = [
-      "물리학I",
-      "화학I",
-      "생명과학I",
-      "지구과학I",
-      "물리학II",
-      "화학II",
-      "생명과학II",
-      "지구과학II",
-      "한국지리",
-      "세계지리",
-      "동아시아사",
-      "세계사",
-      "경제",
-      "정치와법",
-      "사회·문화",
+    const inquirySubjects: { value: string; label: string }[] = [
+      // 과탐
+      { value: "물리학I", label: "물리학I" },
+      { value: "화학I", label: "화학I" },
+      { value: "생명과학I", label: "생명과학I" },
+      { value: "지구과학I", label: "지구과학I" },
+      { value: "물리학II", label: "물리학II" },
+      { value: "화학II", label: "화학II" },
+      { value: "생명과학II", label: "생명과학II" },
+      { value: "지구과학II", label: "지구과학II" },
+      // 사탐
+      { value: "생활과윤리", label: "생활과윤리" },
+      { value: "윤리와사상", label: "윤리와사상" },
+      { value: "한국지리", label: "한국지리" },
+      { value: "세계지리", label: "세계지리" },
+      { value: "동아시아사", label: "동아시아사" },
+      { value: "세계사", label: "세계사" },
+      { value: "경제", label: "경제" },
+      { value: "정치와법", label: "정치와법" },
+      { value: "사회문화", label: "사회·문화" },
     ]
 
     const secondLanguageSubjects = [
@@ -1377,19 +1406,18 @@ function ScoreInputPageContent() {
         const mapSubjectToDB = (frontendName: string) => {
           if (!frontendName) return ""
           let dbSubj = frontendName
-          
-          // 정치와법 → 정치와 법 등 띄어쓰기 교정
-          if (dbSubj === "정치와법") dbSubj = "정치와 법"
-          else if (dbSubj === "생활과윤리") dbSubj = "생활과 윤리"
-          else if (dbSubj === "윤리와사상") dbSubj = "윤리와 사상"
-          
-          // I / II 를 전각 문자 Ⅰ / Ⅱ 로 변경하며 띄어쓰기 추가 (예: 물리학I -> 물리학 Ⅰ)
-          if (dbSubj.endsWith("II")) {
-            dbSubj = dbSubj.substring(0, dbSubj.length - 2) + " Ⅱ"
-          } else if (dbSubj.endsWith("I")) {
-            dbSubj = dbSubj.substring(0, dbSubj.length - 1) + " Ⅰ"
+
+          // 사회·문화 → 사회문화 (DB 저장 형식)
+          if (dbSubj === "사회·문화") dbSubj = "사회문화"
+
+          // I / II → 공백 + ASCII I/II (예: 물리학I -> 물리학 I)
+          // 이미 올바른 형식(" I" / " II")이면 변환 생략
+          if (dbSubj.endsWith("II") && !dbSubj.endsWith(" II")) {
+            dbSubj = dbSubj.substring(0, dbSubj.length - 2) + " II"
+          } else if (dbSubj.endsWith("I") && !dbSubj.endsWith(" I")) {
+            dbSubj = dbSubj.substring(0, dbSubj.length - 1) + " I"
           }
-          
+
           return dbSubj
         }
 
@@ -1822,11 +1850,11 @@ function ScoreInputPageContent() {
                 mathPercentile: Number(standardScores.math.percentile) || undefined,
                 englishGrade: Number(standardScores.english.grade) || undefined,
                 historyGrade: Number(standardScores.koreanHistory.grade) || undefined,
-                inquiry1Selection: standardScores.inquiry1.subject || undefined,
+                inquiry1Selection: (standardScores.inquiry1.subject === "사회·문화" ? "사회문화" : standardScores.inquiry1.subject) || undefined,
                 inquiry1Standard: Number(standardScores.inquiry1.standard) || undefined,
                 inquiry1Grade: Number(standardScores.inquiry1.grade) || undefined,
                 inquiry1Percentile: Number(standardScores.inquiry1.percentile) || undefined,
-                inquiry2Selection: standardScores.inquiry2.subject || undefined,
+                inquiry2Selection: (standardScores.inquiry2.subject === "사회·문화" ? "사회문화" : standardScores.inquiry2.subject) || undefined,
                 inquiry2Standard: Number(standardScores.inquiry2.standard) || undefined,
                 inquiry2Grade: Number(standardScores.inquiry2.grade) || undefined,
                 inquiry2Percentile: Number(standardScores.inquiry2.percentile) || undefined,
@@ -1878,8 +1906,8 @@ function ScoreInputPageContent() {
                 math: { raw: s.mathRaw?.toString() || "", selectedSubject: s.mathSelection || "확률과 통계" },
                 english: { raw: s.englishRaw?.toString() || "" },
                 koreanHistory: { raw: s.historyRaw?.toString() || "" },
-                inquiry1: { subject: s.inquiry1Selection || "", raw: s.inquiry1Raw?.toString() || "" },
-                inquiry2: { subject: s.inquiry2Selection || "", raw: s.inquiry2Raw?.toString() || "" },
+                inquiry1: { subject: normalizeInquiryFromDB(s.inquiry1Selection || ""), raw: s.inquiry1Raw?.toString() || "" },
+                inquiry2: { subject: normalizeInquiryFromDB(s.inquiry2Selection || ""), raw: s.inquiry2Raw?.toString() || "" },
                 secondLanguage: { category: s.foreignSelection || "" },
               })
             }
@@ -1888,22 +1916,26 @@ function ScoreInputPageContent() {
       }
     }, [user, mockExamId])
 
-    const inquirySubjects = [
-      "물리학I",
-      "화학I",
-      "생명과학I",
-      "지구과학I",
-      "물리학II",
-      "화학II",
-      "생명과학II",
-      "지구과학II",
-      "한국지리",
-      "세계지리",
-      "동아시아사",
-      "세계사",
-      "경제",
-      "정치와법",
-      "사회·문화",
+    const inquirySubjects: { value: string; label: string }[] = [
+      // 과탐
+      { value: "물리학I", label: "물리학I" },
+      { value: "화학I", label: "화학I" },
+      { value: "생명과학I", label: "생명과학I" },
+      { value: "지구과학I", label: "지구과학I" },
+      { value: "물리학II", label: "물리학II" },
+      { value: "화학II", label: "화학II" },
+      { value: "생명과학II", label: "생명과학II" },
+      { value: "지구과학II", label: "지구과학II" },
+      // 사탐
+      { value: "생활과윤리", label: "생활과윤리" },
+      { value: "윤리와사상", label: "윤리와사상" },
+      { value: "한국지리", label: "한국지리" },
+      { value: "세계지리", label: "세계지리" },
+      { value: "동아시아사", label: "동아시아사" },
+      { value: "세계사", label: "세계사" },
+      { value: "경제", label: "경제" },
+      { value: "정치와법", label: "정치와법" },
+      { value: "사회문화", label: "사회·문화" },
     ]
 
     const secondLanguageSubjects = [
@@ -1926,6 +1958,15 @@ function ScoreInputPageContent() {
           [field]: value,
         },
       }))
+    }
+
+    // DB 저장된 과목명 → 드롭다운 value 정규화 (구형 공백 있는 값 → 공백 없음, 사회·문화 → 사회문화)
+    const normalizeInquiryFromDB = (subj: string) => {
+      if (!subj) return ""
+      if (subj === "사회·문화") return "사회문화"
+      if (subj.endsWith(" II")) return subj.slice(0, -3) + "II"
+      if (subj.endsWith(" I")) return subj.slice(0, -2) + "I"
+      return subj
     }
 
     return (
@@ -2099,9 +2140,9 @@ function ScoreInputPageContent() {
                   <SelectValue placeholder="과목을 선택하세요" />
                 </SelectTrigger>
                 <SelectContent>
-                  {inquirySubjects.map((subject) => (
-                    <SelectItem key={subject} value={subject}>
-                      {subject}
+                  {inquirySubjects.map(({ value, label }) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -2144,9 +2185,9 @@ function ScoreInputPageContent() {
                   <SelectValue placeholder="과목을 선택하세요" />
                 </SelectTrigger>
                 <SelectContent>
-                  {inquirySubjects.map((subject) => (
-                    <SelectItem key={subject} value={subject}>
-                      {subject}
+                  {inquirySubjects.map(({ value, label }) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
                     </SelectItem>
                   ))}
                 </SelectContent>

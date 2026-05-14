@@ -279,12 +279,19 @@ export class ScoreService {
 
     const updateData: any = {};
 
+    // 탐구 과목명 → 영역명 매핑 (scoreConversionRaw2015.subject 값과 일치해야 함)
+    const SOCIAL_SUBJECTS = new Set(['생활과윤리', '윤리와사상', '한국지리', '세계지리', '동아시아사', '세계사', '경제', '정치와법', '사회문화', '사회·문화']);
+    const getInquiryAreaName = (subjectName: string | null): string | null => {
+      if (!subjectName) return null;
+      return SOCIAL_SUBJECTS.has(subjectName) ? '사회탐구' : '과학탐구';
+    };
+
     // === 과목별 매핑 정의 (국수탐: 표점 변환 대상) ===
     const subjectDefs = [
       { stdField: 'koreanStandard', rawField: 'koreanRaw', pctField: 'koreanPercentile', gradeField: 'koreanGrade', subject: '국어', selectionField: 'koreanSelection', areaName: '국어' },
       { stdField: 'mathStandard', rawField: 'mathRaw', pctField: 'mathPercentile', gradeField: 'mathGrade', subject: '수학', selectionField: 'mathSelection', areaName: '수학' },
-      { stdField: 'inquiry1Standard', rawField: 'inquiry1Raw', pctField: 'inquiry1Percentile', gradeField: 'inquiry1Grade', subject: null, selectionField: 'inquiry1Selection', areaName: null },
-      { stdField: 'inquiry2Standard', rawField: 'inquiry2Raw', pctField: 'inquiry2Percentile', gradeField: 'inquiry2Grade', subject: null, selectionField: 'inquiry2Selection', areaName: null },
+      { stdField: 'inquiry1Standard', rawField: 'inquiry1Raw', pctField: 'inquiry1Percentile', gradeField: 'inquiry1Grade', subject: null, selectionField: 'inquiry1Selection', areaName: null, isInquiry: true },
+      { stdField: 'inquiry2Standard', rawField: 'inquiry2Raw', pctField: 'inquiry2Percentile', gradeField: 'inquiry2Grade', subject: null, selectionField: 'inquiry2Selection', areaName: null, isInquiry: true },
     ];
 
     // === 등급 변환 과목 (표점 없이 원점수→등급만) ===
@@ -311,9 +318,18 @@ export class ScoreService {
         stdScoresForStd.push(standardScore);
 
         if (subjectName) {
-          const conversion = await this.prisma.scoreConversion2015.findFirst({
+          // DB에 "물리학 I" (공백) 또는 "물리학I" (공백 없음) 두 가지 형식이 공존할 수 있으므로 둘 다 시도
+          const subjectNameAlt = subjectName.endsWith('I') || subjectName.endsWith('II')
+            ? (subjectName.includes(' ') ? subjectName.replace(/ (I|II)$/, '$1') : subjectName.replace(/(I{1,2})$/, ' $1'))
+            : null;
+          let conversion = await this.prisma.scoreConversion2015.findFirst({
             where: { mockExamId, subject: subjectName, standardScore },
           });
+          if (!conversion && subjectNameAlt) {
+            conversion = await this.prisma.scoreConversion2015.findFirst({
+              where: { mockExamId, subject: subjectNameAlt, standardScore },
+            });
+          }
           if (conversion) {
             if (conversion.percentile != null) updateData[def.pctField] = Number(conversion.percentile);
             if (conversion.grade != null) updateData[def.gradeField] = conversion.grade;
@@ -322,17 +338,37 @@ export class ScoreService {
       } else if (rawScore != null && subjectName) {
         // === 경로 B: 원점수만 존재 → 표점 변환 + 백분위/등급 조회 ===
         hasAnyRaw = true;
-        const areaName = def.areaName || (score as any)[def.selectionField];
+        // 탐구 과목은 영역명(과학탐구/사회탐구)으로 조회, 나머지는 areaName 사용
+        const areaName = (def as any).isInquiry
+          ? getInquiryAreaName(subjectName)
+          : (def.areaName || (score as any)[def.selectionField]);
+
+        // subjectType은 DB에 공백 없이 저장될 수 있음 (예: "물리학I"), 정규화 시도
+        const subjectNameNoSpace = subjectName.replace(/ (I|II)$/, '$1');
 
         // 원점수 → 표점 변환 조회 (exact match 먼저, 없으면 max 사용)
         let rawConversion = await this.prisma.scoreConversionRaw2015.findFirst({
           where: { mockExamId, subject: areaName, subjectType: subjectName, commonScore: rawScore },
         });
 
+        // 공백 없는 subjectType으로 재시도
+        if (!rawConversion && subjectNameNoSpace !== subjectName) {
+          rawConversion = await this.prisma.scoreConversionRaw2015.findFirst({
+            where: { mockExamId, subject: areaName, subjectType: subjectNameNoSpace, commonScore: rawScore },
+          });
+        }
+
         // 원점수가 테이블 범위를 초과 → 최고 표점 사용
         if (!rawConversion) {
           rawConversion = await this.prisma.scoreConversionRaw2015.findFirst({
             where: { mockExamId, subject: areaName, subjectType: subjectName },
+            orderBy: { standardScore: 'desc' },
+          });
+        }
+
+        if (!rawConversion && subjectNameNoSpace !== subjectName) {
+          rawConversion = await this.prisma.scoreConversionRaw2015.findFirst({
+            where: { mockExamId, subject: areaName, subjectType: subjectNameNoSpace },
             orderBy: { standardScore: 'desc' },
           });
         }
