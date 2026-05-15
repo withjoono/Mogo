@@ -1411,13 +1411,7 @@ function ScoreInputPageContent() {
           // 사회·문화 → 사회문화 (DB 저장 형식)
           if (dbSubj === "사회·문화") dbSubj = "사회문화"
 
-          // I / II → 공백 + ASCII I/II (예: 물리학I -> 물리학 I)
-          // 이미 올바른 형식(" I" / " II")이면 변환 생략
-          if (dbSubj.endsWith("II") && !dbSubj.endsWith(" II")) {
-            dbSubj = dbSubj.substring(0, dbSubj.length - 2) + " II"
-          } else if (dbSubj.endsWith("I") && !dbSubj.endsWith(" I")) {
-            dbSubj = dbSubj.substring(0, dbSubj.length - 1) + " I"
-          }
+          // DB는 무공백 통일 형식 (물리학I, 화학I 등) — 공백 변환 불필요
 
           return dbSubj
         }

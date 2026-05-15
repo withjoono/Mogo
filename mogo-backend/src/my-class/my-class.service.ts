@@ -22,6 +22,11 @@ export class MyClassService {
   // 목표대학 반 (anonymous ranking for same-target department)
   // ──────────────────────────────────────────────────────────────
 
+  private computeGradeSum(grades: (number | null | undefined)[]): number | null {
+    const valid = grades.filter((g): g is number => g != null);
+    return valid.length > 0 ? valid.reduce((a, b) => a + b, 0) : null;
+  }
+
   async getTargetClassRanking(departmentCode: string, myMemberId: number, examId?: number) {
     // 해당 학과를 목표로 한 모든 학생 memberId 수집
     const targets = await this.prisma.studentTarget.findMany({
@@ -53,6 +58,8 @@ export class MyClassService {
       rank: idx + 1,
       isMe: s.memberId === myMemberId,
       totalStandardSum: s.totalStandardSum,
+      totalPercentileSum: s.totalPercentileSum ? Number(s.totalPercentileSum) : null,
+      gradeSum: this.computeGradeSum([s.koreanGrade, s.mathGrade, s.englishGrade, s.inquiry1Grade, s.inquiry2Grade, s.historyGrade]),
       topCumulativeStd: s.topCumulativeStd ? Number(s.topCumulativeStd) : null,
       koreanStandard: s.koreanStandard,
       koreanPercentile: s.koreanPercentile ? Number(s.koreanPercentile) : null,
@@ -275,6 +282,8 @@ export class MyClassService {
         name: mid === memberId ? '나' : maskedName,
         role: info.role,
         totalStandardSum: score?.totalStandardSum ?? null,
+        totalPercentileSum: score?.totalPercentileSum ? Number(score.totalPercentileSum) : null,
+        gradeSum: this.computeGradeSum([score?.koreanGrade, score?.mathGrade, score?.englishGrade, score?.inquiry1Grade, score?.inquiry2Grade, score?.historyGrade]),
         change: score?.totalStandardSum != null && prev != null ? score.totalStandardSum - prev : null,
         koreanStandard: score?.koreanStandard ?? null,
         mathStandard: score?.mathStandard ?? null,

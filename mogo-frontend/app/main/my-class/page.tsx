@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from "react"
 import { api } from "@/lib/api/client"
 import { getUser, type User } from "@/lib/auth/user"
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  LineChart, Line, BarChart, Bar, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts"
 import {
   TrendingUp, TrendingDown, Minus, Plus, Users, LogIn,
@@ -51,6 +52,8 @@ interface RankingEntry {
   rank: number | null
   isMe: boolean
   totalStandardSum: number | null
+  totalPercentileSum?: number | null
+  gradeSum?: number | null
   koreanStandard?: number | null
   mathStandard?: number | null
   inquiry1Standard?: number | null
@@ -101,6 +104,8 @@ interface GroupRankingEntry {
   name: string
   role: string
   totalStandardSum: number | null
+  totalPercentileSum: number | null
+  gradeSum: number | null
   change: number | null
   koreanStandard: number | null
   mathStandard: number | null
@@ -508,6 +513,19 @@ export default function MyClassPage() {
                       </div>
                     )}
 
+                    {/* Comparison Charts */}
+                    {targetRanking && targetRanking.ranking.length > 0 && (
+                      <ScoreComparisonCharts
+                        stdData={(targetRanking.ranking)
+                          .filter(r => r.totalStandardSum != null)
+                          .map((r, i) => ({ label: r.isMe ? "나" : `${i + 1}`, value: r.totalStandardSum!, isMe: r.isMe }))}
+                        gradeData={[...targetRanking.ranking]
+                          .filter(r => r.gradeSum != null)
+                          .sort((a, b) => (a.gradeSum ?? 999) - (b.gradeSum ?? 999))
+                          .map((r, i) => ({ label: r.isMe ? "나" : `${i + 1}`, value: r.gradeSum!, isMe: r.isMe }))}
+                      />
+                    )}
+
                     {/* Ranking Table */}
                     {targetRanking && targetRanking.ranking.length > 0 && (
                       <div className="bg-white rounded-2xl p-5 shadow-sm">
@@ -526,11 +544,10 @@ export default function MyClassPage() {
                           <table className="w-full text-sm">
                             <thead>
                               <tr className="border-b border-gray-100">
-                                <th className="text-left py-2 px-2 text-xs text-gray-400 font-medium">순위</th>
-                                <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">표준점수합</th>
-                                <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">국어</th>
-                                <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">수학</th>
-                                <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">영어</th>
+                                <th className="text-left py-2 px-2 text-xs text-gray-400 font-medium">표점합 등수</th>
+                                <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">표점합</th>
+                                <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">백분위합</th>
+                                <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">등급합</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -550,10 +567,11 @@ export default function MyClassPage() {
                                   <td className={`py-2.5 px-2 text-right font-semibold ${r.isMe ? "text-cyan-700" : "text-gray-700"}`}>
                                     {r.totalStandardSum ?? "-"}
                                   </td>
-                                  <td className="py-2.5 px-2 text-right text-gray-500">{r.koreanStandard ?? "-"}</td>
-                                  <td className="py-2.5 px-2 text-right text-gray-500">{r.mathStandard ?? "-"}</td>
                                   <td className="py-2.5 px-2 text-right text-gray-500">
-                                    {r.englishGrade != null ? `${r.englishGrade}등급` : "-"}
+                                    {r.totalPercentileSum != null ? r.totalPercentileSum.toFixed(1) : "-"}
+                                  </td>
+                                  <td className="py-2.5 px-2 text-right text-gray-500">
+                                    {r.gradeSum ?? "-"}
                                   </td>
                                 </tr>
                               ))}
@@ -704,6 +722,19 @@ export default function MyClassPage() {
                             </div>
                           )}
 
+                          {/* Group comparison charts */}
+                          {groupRanking && groupRanking.ranking.length > 0 && (
+                            <ScoreComparisonCharts
+                              stdData={groupRanking.ranking
+                                .filter(r => r.totalStandardSum != null)
+                                .map(r => ({ label: r.name, value: r.totalStandardSum!, isMe: r.isMe }))}
+                              gradeData={[...groupRanking.ranking]
+                                .filter(r => r.gradeSum != null)
+                                .sort((a, b) => (a.gradeSum ?? 999) - (b.gradeSum ?? 999))
+                                .map(r => ({ label: r.name, value: r.gradeSum!, isMe: r.isMe }))}
+                            />
+                          )}
+
                           {/* Group ranking table */}
                           {groupRanking && groupRanking.ranking.length > 0 && (
                             <div className="bg-white rounded-2xl p-5 shadow-sm">
@@ -721,12 +752,12 @@ export default function MyClassPage() {
                                 <table className="w-full text-sm">
                                   <thead>
                                     <tr className="border-b border-gray-100">
-                                      <th className="text-left py-2 px-2 text-xs text-gray-400 font-medium">순위</th>
+                                      <th className="text-left py-2 px-2 text-xs text-gray-400 font-medium">표점합 등수</th>
                                       <th className="text-left py-2 px-2 text-xs text-gray-400 font-medium">이름</th>
-                                      <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">표준점수합</th>
+                                      <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">표점합</th>
+                                      <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">백분위합</th>
+                                      <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">등급합</th>
                                       <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">변화</th>
-                                      <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">국어</th>
-                                      <th className="text-right py-2 px-2 text-xs text-gray-400 font-medium">수학</th>
                                     </tr>
                                   </thead>
                                   <tbody>
@@ -749,11 +780,15 @@ export default function MyClassPage() {
                                         <td className={`py-2.5 px-2 text-right font-semibold ${r.isMe ? "text-cyan-700" : "text-gray-700"}`}>
                                           {r.totalStandardSum ?? "-"}
                                         </td>
+                                        <td className="py-2.5 px-2 text-right text-gray-500">
+                                          {r.totalPercentileSum != null ? r.totalPercentileSum.toFixed(1) : "-"}
+                                        </td>
+                                        <td className="py-2.5 px-2 text-right text-gray-500">
+                                          {r.gradeSum ?? "-"}
+                                        </td>
                                         <td className="py-2.5 px-2 text-right">
                                           <ChangeChip value={r.change} />
                                         </td>
-                                        <td className="py-2.5 px-2 text-right text-gray-500">{r.koreanStandard ?? "-"}</td>
-                                        <td className="py-2.5 px-2 text-right text-gray-500">{r.mathStandard ?? "-"}</td>
                                       </tr>
                                     ))}
                                   </tbody>
@@ -864,6 +899,84 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
         </div>
         {children}
       </div>
+    </div>
+  )
+}
+
+interface ChartBarEntry { label: string; value: number; isMe: boolean }
+
+function ScoreComparisonCharts({
+  stdData,
+  gradeData,
+}: {
+  stdData: ChartBarEntry[]
+  gradeData: ChartBarEntry[]
+}) {
+  if (stdData.length === 0 && gradeData.length === 0) return null
+
+  const barSize = Math.max(16, Math.min(36, Math.floor(280 / Math.max(stdData.length, gradeData.length, 1))))
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {stdData.length > 0 && (
+        <div className="bg-white rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-700">표점합 비교</h2>
+            <span className="text-[11px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">높을수록 우수 ↑</span>
+          </div>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={stdData} margin={{ top: 4, right: 4, left: -18, bottom: 4 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={0} />
+              <YAxis tick={{ fontSize: 10 }} domain={["auto", "auto"]} />
+              <Tooltip
+                contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                formatter={(value: any) => [value, "표점합"]}
+              />
+              <Bar dataKey="value" name="표점합" radius={[3, 3, 0, 0]} maxBarSize={barSize}>
+                {stdData.map((d, i) => (
+                  <Cell key={i} fill={d.isMe ? "#00e5e8" : "#cbd5e1"} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+          <p className="text-center text-[10px] text-gray-300 mt-1">
+            <span className="inline-block w-2.5 h-2.5 rounded-sm bg-[#00e5e8] align-middle mr-1" />나
+            <span className="inline-block w-2.5 h-2.5 rounded-sm bg-[#cbd5e1] align-middle ml-3 mr-1" />타인
+          </p>
+        </div>
+      )}
+
+      {gradeData.length > 0 && (
+        <div className="bg-white rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-700">등급합 비교</h2>
+            <span className="text-[11px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">낮을수록 우수 ↓</span>
+          </div>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={gradeData} margin={{ top: 4, right: 4, left: -18, bottom: 4 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={0} />
+              <YAxis tick={{ fontSize: 10 }} domain={[0, "auto"]} />
+              <Tooltip
+                contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                formatter={(value: any) => [value, "등급합"]}
+              />
+              <Bar dataKey="value" name="등급합" radius={[3, 3, 0, 0]} maxBarSize={barSize}>
+                {gradeData.map((d, i) => (
+                  <Cell key={i} fill={d.isMe ? "#00e5e8" : "#94a3b8"} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+          <p className="text-center text-[10px] text-gray-300 mt-1">
+            <span className="inline-block w-2.5 h-2.5 rounded-sm bg-[#00e5e8] align-middle mr-1" />나
+            <span className="inline-block w-2.5 h-2.5 rounded-sm bg-[#94a3b8] align-middle ml-3 mr-1" />타인
+          </p>
+        </div>
+      )}
     </div>
   )
 }
