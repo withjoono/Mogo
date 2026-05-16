@@ -53,7 +53,8 @@ export class HubHttpService {
 
         if (res.ok) {
           if (res.status === 204) return undefined as T;
-          return (await res.json()) as T;
+          const body = await res.json();
+          return this.unwrapEnvelope<T>(body, res.status);
         }
 
         // 5xx → 재시도 대상
@@ -103,5 +104,24 @@ export class HubHttpService {
 
   private async safeJson(res: Response): Promise<any> {
     try { return await res.json(); } catch { return null; }
+  }
+
+  /**
+   * Hub 응답 envelope `{ success, data, message }` 처리.
+   * - success: true → data 반환
+   * - success: false → HttpException(메시지, 상태코드 추정)
+   * - envelope 아님(이미 raw payload) → 그대로 반환
+   */
+  private unwrapEnvelope<T>(body: any, status: number): T {
+    if (body && typeof body === 'object' && 'success' in body) {
+      if (body.success === false) {
+        const msg = body.message || body.error?.message || 'Hub call rejected';
+        // 200 OK + success:false는 권한/도메인 오류 — 403으로 매핑
+        const errStatus = status === 200 ? HttpStatus.FORBIDDEN : (status as HttpStatus);
+        throw new HttpException({ statusCode: errStatus, message: msg, hub: true }, errStatus);
+      }
+      return (body.data ?? body) as T;
+    }
+    return body as T;
   }
 }

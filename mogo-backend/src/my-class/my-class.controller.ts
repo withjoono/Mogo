@@ -109,7 +109,7 @@ export class MyClassController {
     const group = await this.hub.createGroup(authHeader, {
       groupType: 'student_study',
       name: dto.name,
-      // grade는 DTO에 없으면 Hub 측 기본값 사용
+      grade: dto.grade,
     });
     return { success: true, data: mapHubGroupToLegacy(group) };
   }
