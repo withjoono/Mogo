@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { toMogoMemberId } from '../common/utils/member-id.util';
-import { HubInternalService, HubGroupMember } from '../hub-client';
+import { HubInternalService } from '../hub-client';
 
 @Injectable()
 export class MyClassService {
@@ -11,29 +11,52 @@ export class MyClassService {
   ) {}
 
   /**
-   * Hub 그룹 멤버(hubUserId[]) → 로컬 Member 매핑.
-   * 점수 SELECT를 위해 numeric id가 필요하고, name/role 표시를 위해 매핑 보존.
+   * Hub 그룹 멤버 응답 정규화 — camelCase/snake_case 양쪽 수용.
+   * Hub이 nickname/displayName/display_name 중 어느 키로 주든 추출.
    */
-  private async resolveHubMembers(hubMembers: HubGroupMember[]): Promise<{
+  private normalizeHubMember(m: any): {
+    hubUserId: string;
+    role: string;
+    displayName?: string;
+  } | null {
+    const hubUserId = m.hubUserId ?? m.hub_user_id ?? m.userId ?? m.user_id;
+    if (!hubUserId) return null;
+    return {
+      hubUserId,
+      role: m.role ?? 'member',
+      displayName: m.displayName ?? m.display_name ?? m.nickname ?? m.nick_name,
+    };
+  }
+
+  /**
+   * Hub 그룹 멤버(hubUserId[]) → 로컬 Member 매핑.
+   * 점수 SELECT를 위해 numeric id가 필요하고, nickname/role 표시를 위해 매핑 보존.
+   */
+  private async resolveHubMembers(rawMembers: any[]): Promise<{
     numericIds: number[];
-    info: Map<number, { hubUserId: string; name: string; role: string }>;
+    info: Map<number, { hubUserId: string; nickname: string | null; role: string }>;
   }> {
-    const mogoIds = hubMembers.map((m) => toMogoMemberId(m.hubUserId));
+    const normalized = rawMembers
+      .map((m) => this.normalizeHubMember(m))
+      .filter((m): m is NonNullable<ReturnType<typeof this.normalizeHubMember>> => m !== null);
+
+    const mogoIds = normalized.map((m) => toMogoMemberId(m.hubUserId));
     const rows = await this.prisma.member.findMany({
       where: { memberId: { in: mogoIds } },
       select: { id: true, memberId: true, name: true },
     });
     const byMogoId = new Map(rows.map((r) => [r.memberId, r]));
 
-    const info = new Map<number, { hubUserId: string; name: string; role: string }>();
+    const info = new Map<number, { hubUserId: string; nickname: string | null; role: string }>();
     const numericIds: number[] = [];
-    for (const m of hubMembers) {
+    for (const m of normalized) {
       const row = byMogoId.get(toMogoMemberId(m.hubUserId));
-      if (!row) continue; // Mogo에 아직 sync 안된 사용자는 점수 없음 → 스킵
+      if (!row) continue;
       numericIds.push(row.id);
       info.set(row.id, {
         hubUserId: m.hubUserId,
-        name: m.displayName || row.name,
+        // 우선순위: Hub displayName(=닉네임) > 로컬 member.name > null
+        nickname: m.displayName || row.name || null,
         role: m.role,
       });
     }
@@ -188,10 +211,17 @@ export class MyClassService {
   // ──────────────────────────────────────────────────────────────
 
   async getGroupStudyRanking(requesterHubUserId: string, classId: number) {
-    const hubMembers = await this.hubInternal.getGroupMembers(classId);
-    // 빈 응답 = Hub 서비스 토큰 미주입 또는 그룹 비어있음 → 빈 ranking으로 부드럽게 종료
-    if (hubMembers.length === 0) return { classId, examId: null, examName: null, ranking: [] };
-    if (!hubMembers.some((m) => m.hubUserId === requesterHubUserId)) {
+    const rawMembers = await this.hubInternal.getGroupMembers(classId);
+    // Hub 멤버 가져올 수 없으면(서비스 토큰 미주입 등) 본인만 단독 멤버 취급해
+    // 최소한 자기 성적은 표시되도록 함. 토큰 주입되면 자동으로 정상 동작.
+    const hubMembers = rawMembers.length === 0
+      ? [{ hubUserId: requesterHubUserId, role: 'member', joinedAt: '' }]
+      : rawMembers;
+
+    const normalized = hubMembers
+      .map((m) => this.normalizeHubMember(m))
+      .filter((m): m is NonNullable<ReturnType<typeof this.normalizeHubMember>> => m !== null);
+    if (!normalized.some((m) => m.hubUserId === requesterHubUserId)) {
       throw new ForbiddenException('클래스 멤버만 조회할 수 있습니다.');
     }
 
@@ -242,15 +272,16 @@ export class MyClassService {
       const score = scoreMap.get(mid);
       const prev = prevScoreMap.get(mid);
       const meta = info.get(mid);
-      const name = meta?.name ?? '';
-      const maskedName = name.length > 1 ? name[0] + '*'.repeat(name.length - 1) : name;
       const isMe = mid === myNumericId;
+      // 그룹스터디는 명시적 가입자라 마스킹 없음. nickname 그대로 노출.
+      const nickname = meta?.nickname ?? '익명';
       return {
         rank: score ? idx + 1 : null,
         isMe,
         memberId: mid,
         hubUserId: meta?.hubUserId,
-        name: isMe ? '나' : maskedName,
+        nickname,
+        name: nickname, // 하위호환 (FE가 기존 r.name 참조)
         role: meta?.role ?? 'member',
         totalStandardSum: score?.totalStandardSum ?? null,
         totalPercentileSum: score?.totalPercentileSum ? Number(score.totalPercentileSum) : null,
@@ -272,9 +303,15 @@ export class MyClassService {
   }
 
   async getGroupStudyTrend(requesterHubUserId: string, classId: number) {
-    const hubMembers = await this.hubInternal.getGroupMembers(classId);
-    if (hubMembers.length === 0) return { exams: [], trendsByMember: [] };
-    if (!hubMembers.some((m) => m.hubUserId === requesterHubUserId)) {
+    const rawMembers = await this.hubInternal.getGroupMembers(classId);
+    const hubMembers = rawMembers.length === 0
+      ? [{ hubUserId: requesterHubUserId, role: 'member', joinedAt: '' }]
+      : rawMembers;
+
+    const normalized = hubMembers
+      .map((m) => this.normalizeHubMember(m))
+      .filter((m): m is NonNullable<ReturnType<typeof this.normalizeHubMember>> => m !== null);
+    if (!normalized.some((m) => m.hubUserId === requesterHubUserId)) {
       throw new ForbiddenException('클래스 멤버만 조회할 수 있습니다.');
     }
 
@@ -301,15 +338,15 @@ export class MyClassService {
     // 멤버별 추이
     const trendsByMember = memberIds.map((mid) => {
       const meta = info.get(mid);
-      const name = meta?.name ?? '';
-      const maskedName = name.length > 1 ? name[0] + '*'.repeat(name.length - 1) : name;
       const isMe = mid === myNumericId;
+      const nickname = meta?.nickname ?? '익명';
       const myScores = allScores.filter((s) => s.memberId === mid);
       return {
         memberId: mid,
         hubUserId: meta?.hubUserId,
         isMe,
-        name: isMe ? '나' : maskedName,
+        nickname,
+        name: nickname,
         role: meta?.role ?? 'member',
         data: myScores.map((s) => ({
           examId: s.mockExamId,

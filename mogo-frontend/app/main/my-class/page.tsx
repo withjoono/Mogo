@@ -346,6 +346,9 @@ export default function MyClassPage() {
     } catch { /* ignore */ }
   }
 
+  // 사용자 닉네임 (Hub 회원가입 시 지정한 값). 없으면 fallback "나".
+  const myLabel = user?.nickname?.trim() || "나"
+
   // ── Build chart data for target trend ──
   function buildTargetChartData() {
     if (!targetTrend) return []
@@ -355,7 +358,7 @@ export default function MyClassPage() {
       const b = bandMap.get(e.id)
       return {
         label: shortExamLabel(e),
-        내점수: myMap.get(e.id) ?? null,
+        [myLabel]: myMap.get(e.id) ?? null,
         평균: b?.avg ?? null,
         상위10: b?.top10 ?? null,
         하위10: b?.bot10 ?? null,
@@ -502,7 +505,7 @@ export default function MyClassPage() {
                       <div className="bg-white rounded-2xl p-5 shadow-sm">
                         <h2 className="text-sm font-semibold text-gray-700 mb-4">성적 추이 비교</h2>
                         <div className="flex items-center gap-4 mb-3 flex-wrap">
-                          <LegendDot color="#00e5e8" label="내 점수" thick />
+                          <LegendDot color="#00e5e8" label={myLabel} thick />
                           <LegendDot color="#22c55e" label="상위 10%" dashed />
                           <LegendDot color="#94a3b8" label="평균" dashed />
                           <LegendDot color="#f97316" label="하위 10%" dashed />
@@ -522,7 +525,7 @@ export default function MyClassPage() {
                             <Line dataKey="상위10" stroke="#22c55e" strokeDasharray="4 4" dot={false} strokeWidth={1.5} />
                             <Line dataKey="평균" stroke="#94a3b8" strokeDasharray="4 4" dot={false} strokeWidth={1.5} />
                             <Line dataKey="하위10" stroke="#f97316" strokeDasharray="4 4" dot={false} strokeWidth={1.5} />
-                            <Line dataKey="내점수" stroke="#00e5e8" strokeWidth={2.5} dot={{ r: 4, fill: "#00e5e8" }} activeDot={{ r: 6 }} connectNulls />
+                            <Line dataKey={myLabel} stroke="#00e5e8" strokeWidth={2.5} dot={{ r: 4, fill: "#00e5e8" }} activeDot={{ r: 6 }} connectNulls />
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
@@ -824,6 +827,9 @@ export default function MyClassPage() {
                                             <span className={`font-medium ${r.isMe ? "text-cyan-700" : "text-gray-700"}`}>
                                               {r.name}
                                             </span>
+                                            {r.isMe && (
+                                              <span className="text-[10px] font-semibold text-cyan-600 bg-cyan-100 px-1.5 py-0.5 rounded-full">나</span>
+                                            )}
                                           </div>
                                         </td>
                                         <td className={`py-2.5 px-2 text-right font-semibold ${r.isMe ? "text-cyan-700" : "text-gray-700"}`}>
