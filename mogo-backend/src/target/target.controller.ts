@@ -8,7 +8,9 @@ import {
   Query,
   Body,
   ParseIntPipe,
+  Req,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { TargetService } from './target.service';
 import {
@@ -45,8 +47,10 @@ export class TargetController {
     description: '추가된 목표 대학',
     type: TargetUniversityDto,
   })
-  async create(@Body() createDto: CreateTargetDto) {
-    const data = await this.targetService.create(createDto);
+  async create(@Body() createDto: CreateTargetDto, @Req() req: Request) {
+    // Hub target-univ 매칭을 위해 Authorization 헤더를 그대로 전달 (있을 때만 동작).
+    const authHeader = req.headers?.authorization;
+    const data = await this.targetService.create(createDto, authHeader);
     return { success: true, data };
   }
 
@@ -60,16 +64,19 @@ export class TargetController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateTargetDto,
+    @Req() req: Request,
   ) {
-    const data = await this.targetService.update(id, updateDto);
+    const authHeader = req.headers?.authorization;
+    const data = await this.targetService.update(id, updateDto, authHeader);
     return { success: true, data };
   }
 
   @Delete(':id')
   @ApiOperation({ summary: '목표 대학 삭제' })
   @ApiResponse({ status: 200, description: '삭제 완료' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    await this.targetService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    const authHeader = req.headers?.authorization;
+    await this.targetService.remove(id, authHeader);
     return { success: true, message: '목표 대학이 삭제되었습니다.' };
   }
 

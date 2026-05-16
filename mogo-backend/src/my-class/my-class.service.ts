@@ -1,11 +1,44 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateGroupStudyDto, JoinGroupStudyDto } from './dto/my-class.dto';
 import { toMogoMemberId } from '../common/utils/member-id.util';
+import { HubInternalService, HubGroupMember } from '../hub-client';
 
 @Injectable()
 export class MyClassService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly hubInternal: HubInternalService,
+  ) {}
+
+  /**
+   * Hub 그룹 멤버(hubUserId[]) → 로컬 Member 매핑.
+   * 점수 SELECT를 위해 numeric id가 필요하고, name/role 표시를 위해 매핑 보존.
+   */
+  private async resolveHubMembers(hubMembers: HubGroupMember[]): Promise<{
+    numericIds: number[];
+    info: Map<number, { hubUserId: string; name: string; role: string }>;
+  }> {
+    const mogoIds = hubMembers.map((m) => toMogoMemberId(m.hubUserId));
+    const rows = await this.prisma.member.findMany({
+      where: { memberId: { in: mogoIds } },
+      select: { id: true, memberId: true, name: true },
+    });
+    const byMogoId = new Map(rows.map((r) => [r.memberId, r]));
+
+    const info = new Map<number, { hubUserId: string; name: string; role: string }>();
+    const numericIds: number[] = [];
+    for (const m of hubMembers) {
+      const row = byMogoId.get(toMogoMemberId(m.hubUserId));
+      if (!row) continue; // Mogo에 아직 sync 안된 사용자는 점수 없음 → 스킵
+      numericIds.push(row.id);
+      info.set(row.id, {
+        hubUserId: m.hubUserId,
+        name: m.displayName || row.name,
+        role: m.role,
+      });
+    }
+    return { numericIds, info };
+  }
 
   /**
    * Hub 문자열 memberId → DB 숫자 id 변환
@@ -142,96 +175,32 @@ export class MyClassService {
   }
 
   // ──────────────────────────────────────────────────────────────
-  // 그룹 스터디 CRUD
+  // 그룹 스터디 CRUD는 Hub /api/groups/*로 위임됨 (controller가 HubClientService 호출).
+  // 로컬 mg_my_classes / mg_class_members 테이블은 cutover 검증 1주 후 폐기 예정.
   // ──────────────────────────────────────────────────────────────
 
-  private generateCode(): string {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  }
+  // ──────────────────────────────────────────────────────────────
+  // 그룹 스터디 랭킹/추이 (Hub 멤버 + 로컬 점수 합성)
+  //
+  // 흐름: classId(= Hub group id) → HubInternalService.getGroupMembers
+  //       → hubUserIds → toMogoMemberId() → Member 매핑 → studentScore SELECT
+  // 멤버십 검증: 요청자(requesterHubUserId)가 Hub 멤버 목록에 포함돼야 함.
+  // ──────────────────────────────────────────────────────────────
 
-  async createGroupStudy(memberId: number, dto: CreateGroupStudyDto) {
-    let classCode: string;
-    // 중복 없는 코드 생성
-    do { classCode = this.generateCode(); }
-    while (await this.prisma.myClass.findUnique({ where: { classCode } }));
-
-    const myClass = await this.prisma.myClass.create({
-      data: {
-        classCode,
-        name: dto.name,
-        description: dto.description,
-        maxMembers: dto.maxMembers ?? 20,
-        creatorId: memberId,
-        members: { create: { memberId, role: 'leader' } },
-      },
-    });
-    return myClass;
-  }
-
-  async getMyGroupStudies(memberId: number) {
-    const memberships = await this.prisma.classMember.findMany({
-      where: { memberId },
-      include: {
-        myClass: {
-          include: { _count: { select: { members: true } } },
-        },
-      },
-      orderBy: { joinedAt: 'desc' },
-    });
-    return memberships.map((m) => ({
-      ...m.myClass,
-      memberCount: m.myClass._count.members,
-      myRole: m.role,
-      _count: undefined,
-    }));
-  }
-
-  async joinGroupStudy(memberId: number, dto: JoinGroupStudyDto) {
-    const myClass = await this.prisma.myClass.findUnique({ where: { classCode: dto.classCode } });
-    if (!myClass) throw new NotFoundException('클래스 코드를 찾을 수 없습니다.');
-
-    const existing = await this.prisma.classMember.findUnique({
-      where: { classId_memberId: { classId: myClass.id, memberId } },
-    });
-    if (existing) throw new BadRequestException('이미 참여 중인 클래스입니다.');
-
-    const count = await this.prisma.classMember.count({ where: { classId: myClass.id } });
-    if (count >= myClass.maxMembers) throw new BadRequestException('클래스 정원이 가득 찼습니다.');
-
-    await this.prisma.classMember.create({ data: { classId: myClass.id, memberId, role: 'member' } });
-    return myClass;
-  }
-
-  async leaveGroupStudy(memberId: number, classId: number) {
-    const myClass = await this.prisma.myClass.findUnique({ where: { id: classId } });
-    if (!myClass) throw new NotFoundException('클래스를 찾을 수 없습니다.');
-
-    const membership = await this.prisma.classMember.findUnique({
-      where: { classId_memberId: { classId, memberId } },
-    });
-    if (!membership) throw new NotFoundException('해당 클래스의 멤버가 아닙니다.');
-
-    // 개설자가 나가면 클래스 삭제
-    if (myClass.creatorId === memberId) {
-      await this.prisma.myClass.delete({ where: { id: classId } });
-      return { deleted: true };
+  async getGroupStudyRanking(requesterHubUserId: string, classId: number) {
+    const hubMembers = await this.hubInternal.getGroupMembers(classId);
+    if (!hubMembers.some((m) => m.hubUserId === requesterHubUserId)) {
+      throw new ForbiddenException('클래스 멤버만 조회할 수 있습니다.');
     }
-    await this.prisma.classMember.delete({ where: { classId_memberId: { classId, memberId } } });
-    return { deleted: false };
-  }
 
-  async getGroupStudyRanking(memberId: number, classId: number) {
-    const membership = await this.prisma.classMember.findUnique({
-      where: { classId_memberId: { classId, memberId } },
-    });
-    if (!membership) throw new ForbiddenException('클래스 멤버만 조회할 수 있습니다.');
+    const { numericIds: memberIds, info } = await this.resolveHubMembers(hubMembers);
+    if (memberIds.length === 0) return { classId, examId: null, examName: null, ranking: [] };
 
-    const members = await this.prisma.classMember.findMany({
-      where: { classId },
-      include: { member: { select: { id: true, name: true } } },
+    const myMember = await this.prisma.member.findUnique({
+      where: { memberId: toMogoMemberId(requesterHubUserId) },
+      select: { id: true },
     });
-    const memberIds = members.map((m) => m.memberId);
+    const myNumericId = myMember?.id ?? -1;
 
     // 최신 시험 기준
     const latest = await this.prisma.studentScore.findFirst({
@@ -267,20 +236,20 @@ export class MyClassService {
     const rankedMembers = [...memberIds]
       .sort((a, b) => (scoreMap.get(b)?.totalStandardSum ?? -1) - (scoreMap.get(a)?.totalStandardSum ?? -1));
 
-    const memberInfo = new Map(members.map((m) => [m.memberId, m]));
-
     const ranking = rankedMembers.map((mid, idx) => {
       const score = scoreMap.get(mid);
       const prev = prevScoreMap.get(mid);
-      const info = memberInfo.get(mid)!;
-      const name = info.member.name;
+      const meta = info.get(mid);
+      const name = meta?.name ?? '';
       const maskedName = name.length > 1 ? name[0] + '*'.repeat(name.length - 1) : name;
+      const isMe = mid === myNumericId;
       return {
         rank: score ? idx + 1 : null,
-        isMe: mid === memberId,
+        isMe,
         memberId: mid,
-        name: mid === memberId ? '나' : maskedName,
-        role: info.role,
+        hubUserId: meta?.hubUserId,
+        name: isMe ? '나' : maskedName,
+        role: meta?.role ?? 'member',
         totalStandardSum: score?.totalStandardSum ?? null,
         totalPercentileSum: score?.totalPercentileSum ? Number(score.totalPercentileSum) : null,
         gradeSum: this.computeGradeSum([score?.koreanGrade, score?.mathGrade, score?.englishGrade, score?.inquiry1Grade, score?.inquiry2Grade, score?.historyGrade]),
@@ -300,17 +269,20 @@ export class MyClassService {
     };
   }
 
-  async getGroupStudyTrend(memberId: number, classId: number) {
-    const membership = await this.prisma.classMember.findUnique({
-      where: { classId_memberId: { classId, memberId } },
-    });
-    if (!membership) throw new ForbiddenException('클래스 멤버만 조회할 수 있습니다.');
+  async getGroupStudyTrend(requesterHubUserId: string, classId: number) {
+    const hubMembers = await this.hubInternal.getGroupMembers(classId);
+    if (!hubMembers.some((m) => m.hubUserId === requesterHubUserId)) {
+      throw new ForbiddenException('클래스 멤버만 조회할 수 있습니다.');
+    }
 
-    const members = await this.prisma.classMember.findMany({
-      where: { classId },
-      include: { member: { select: { id: true, name: true } } },
+    const { numericIds: memberIds, info } = await this.resolveHubMembers(hubMembers);
+    if (memberIds.length === 0) return { exams: [], trendsByMember: [] };
+
+    const myMember = await this.prisma.member.findUnique({
+      where: { memberId: toMogoMemberId(requesterHubUserId) },
+      select: { id: true },
     });
-    const memberIds = members.map((m) => m.memberId);
+    const myNumericId = myMember?.id ?? -1;
 
     const allScores = await this.prisma.studentScore.findMany({
       where: { memberId: { in: memberIds } },
@@ -324,17 +296,18 @@ export class MyClassService {
     const exams = [...examMap.values()];
 
     // 멤버별 추이
-    const memberInfo = new Map(members.map((m) => [m.memberId, m]));
     const trendsByMember = memberIds.map((mid) => {
-      const info = memberInfo.get(mid)!;
-      const name = info.member.name;
+      const meta = info.get(mid);
+      const name = meta?.name ?? '';
       const maskedName = name.length > 1 ? name[0] + '*'.repeat(name.length - 1) : name;
+      const isMe = mid === myNumericId;
       const myScores = allScores.filter((s) => s.memberId === mid);
       return {
         memberId: mid,
-        isMe: mid === memberId,
-        name: mid === memberId ? '나' : maskedName,
-        role: info.role,
+        hubUserId: meta?.hubUserId,
+        isMe,
+        name: isMe ? '나' : maskedName,
+        role: meta?.role ?? 'member',
         data: myScores.map((s) => ({
           examId: s.mockExamId,
           totalStandardSum: s.totalStandardSum,

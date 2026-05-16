@@ -1,10 +1,12 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { toMogoMemberId } from '../common/utils/member-id.util';
+import { HubClientService } from '../hub-client';
 import {
   CreateTargetDto,
   UpdateTargetDto,
@@ -22,7 +24,12 @@ const MAX_TARGETS = 5;
 
 @Injectable()
 export class TargetService {
-  constructor(private readonly prisma: PrismaService) { }
+  private readonly logger = new Logger(TargetService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly hub: HubClientService,
+  ) { }
 
   /**
    * 목표 대학 목록 조회
@@ -98,7 +105,7 @@ export class TargetService {
   /**
    * 목표 대학 추가
    */
-  async create(createDto: CreateTargetDto): Promise<TargetUniversityDto> {
+  async create(createDto: CreateTargetDto, authHeader?: string): Promise<TargetUniversityDto> {
     const { studentId, departmentId, priority = 1 } = createDto;
 
     // 학생 확인 (memberId로 조회)
@@ -170,6 +177,11 @@ export class TargetService {
       },
     });
 
+    // Hub target_univ 그룹 자동 편입 (best-effort, 실패 시 로컬 create는 유지)
+    if (authHeader) {
+      this.safeMatchTargetUniv(authHeader, department.code, member.name);
+    }
+
     return {
       id: target.id,
       studentId: target.memberId,
@@ -188,6 +200,7 @@ export class TargetService {
   async update(
     targetId: number,
     updateDto: UpdateTargetDto,
+    authHeader?: string,
   ): Promise<TargetUniversityDto> {
     const target = await this.prisma.studentTarget.findUnique({
       where: { id: targetId },
@@ -203,6 +216,7 @@ export class TargetService {
       updateData.priority = updateDto.priority;
     }
 
+    let prevDepartmentCode: string | null = null;
     if (updateDto.departmentId !== undefined) {
       const department = await this.prisma.department.findUnique({
         where: { id: updateDto.departmentId },
@@ -214,6 +228,10 @@ export class TargetService {
         );
       }
 
+      // departmentCode가 실제로 바뀔 때만 Hub 멤버십 갱신
+      if (target.departmentCode && target.departmentCode !== department.code) {
+        prevDepartmentCode = target.departmentCode;
+      }
       updateData.departmentCode = department.code;
     }
 
@@ -221,6 +239,16 @@ export class TargetService {
       where: { id: targetId },
       data: updateData,
     });
+
+    // Hub target_univ 그룹 갱신: 기존 반 탈퇴 → 새 반 매칭 (best-effort)
+    if (authHeader && updated.departmentCode) {
+      if (prevDepartmentCode) {
+        this.safeLeaveTargetUniv(authHeader, prevDepartmentCode);
+      }
+      if (prevDepartmentCode || target.departmentCode !== updated.departmentCode) {
+        this.safeMatchTargetUniv(authHeader, updated.departmentCode);
+      }
+    }
 
     // 학과 정보 조회
     let universityName: string | undefined;
@@ -255,7 +283,7 @@ export class TargetService {
   /**
    * 목표 대학 삭제
    */
-  async remove(targetId: number): Promise<void> {
+  async remove(targetId: number, authHeader?: string): Promise<void> {
     const target = await this.prisma.studentTarget.findUnique({
       where: { id: targetId },
     });
@@ -267,6 +295,34 @@ export class TargetService {
     await this.prisma.studentTarget.delete({
       where: { id: targetId },
     });
+
+    // Hub target_univ 그룹 탈퇴 (best-effort, 404 무시)
+    if (authHeader && target.departmentCode) {
+      this.safeLeaveTargetUniv(authHeader, target.departmentCode);
+    }
+  }
+
+  /**
+   * Hub 비동기 호출 — 실패 로깅만, 흐름 차단 X.
+   * 404(미가입)는 멱등성 차원에서 정상 처리로 간주.
+   */
+  private safeLeaveTargetUniv(authHeader: string, targetUnivCode: string) {
+    this.hub.leaveTargetUniv(authHeader, targetUnivCode).catch((err: any) => {
+      if (err?.getStatus?.() === 404 || err?.status === 404) return;
+      this.logger.warn(
+        `Hub target-univ leave 실패 (code=${targetUnivCode}): ${(err as Error).message}`,
+      );
+    });
+  }
+
+  private safeMatchTargetUniv(authHeader: string, targetUnivCode: string, displayName?: string) {
+    this.hub
+      .matchTargetUniv(authHeader, { targetUnivCode, displayName })
+      .catch((err) => {
+        this.logger.warn(
+          `Hub target-univ match 실패 (code=${targetUnivCode}): ${(err as Error).message}`,
+        );
+      });
   }
 
   /**

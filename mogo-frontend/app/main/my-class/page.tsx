@@ -76,12 +76,19 @@ interface TargetRankingData {
 
 interface GroupStudy {
   id: number
-  classCode: string
+  classCode: string // Hub inviteCode 매핑 (백엔드에서 변환됨)
   name: string
   description?: string
-  maxMembers: number
+  maxMembers?: number // Hub 응답에 없을 수 있음 (그룹 타입에 따라)
   memberCount: number
   myRole: string
+}
+
+// "H3" → 3, "H2" → 2; 매핑 안 되면 undefined
+function parseGradeNumber(grade?: string): number | undefined {
+  if (!grade) return undefined
+  const m = grade.match(/(\d+)/)
+  return m ? parseInt(m[1], 10) : undefined
 }
 
 interface GroupMemberTrend {
@@ -179,7 +186,7 @@ export default function MyClassPage() {
   // ── Modal state ──
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showJoinModal, setShowJoinModal] = useState(false)
-  const [createForm, setCreateForm] = useState({ name: "", description: "", maxMembers: 20 })
+  const [createForm, setCreateForm] = useState({ name: "" })
   const [joinCode, setJoinCode] = useState("")
   const [modalLoading, setModalLoading] = useState(false)
   const [modalError, setModalError] = useState("")
@@ -232,7 +239,8 @@ export default function MyClassPage() {
   const loadMyGroups = useCallback(async () => {
     if (!user) return
     try {
-      const groups = await api.get<GroupStudy[]>(`/api/my-class/group-study`, { memberId: user.id })
+      // 인증은 Authorization Bearer 헤더로 (api client 자동 주입)
+      const groups = await api.get<GroupStudy[]>(`/api/my-class/group-study`)
       if (groups) {
         setMyGroups(groups)
         if (!selectedGroup && groups.length > 0) setSelectedGroup(groups[0])
@@ -250,14 +258,8 @@ export default function MyClassPage() {
     setGroupLoading(true)
     try {
       const [trend, ranking] = await Promise.all([
-        api.get<GroupTrendData>(
-          `/api/my-class/group-study/${selectedGroup.id}/trend`,
-          { memberId: user.id }
-        ),
-        api.get<GroupRankingData>(
-          `/api/my-class/group-study/${selectedGroup.id}/ranking`,
-          { memberId: user.id }
-        ),
+        api.get<GroupTrendData>(`/api/my-class/group-study/${selectedGroup.id}/trend`),
+        api.get<GroupRankingData>(`/api/my-class/group-study/${selectedGroup.id}/ranking`),
       ])
       setGroupTrend(trend)
       setGroupRanking(ranking)
@@ -275,13 +277,15 @@ export default function MyClassPage() {
     setModalLoading(true)
     setModalError("")
     try {
-      const g = await api.post<GroupStudy>(
-        `/api/my-class/group-study?memberId=${user.id}`,
-        { name: createForm.name.trim(), description: createForm.description.trim() || undefined, maxMembers: createForm.maxMembers }
-      )
+      // Hub /api/groups 계약: { groupType, name, grade? }
+      // description/maxMembers는 Hub에서 받지 않음 (백엔드에서 자동 무시)
+      const g = await api.post<GroupStudy>(`/api/my-class/group-study`, {
+        name: createForm.name.trim(),
+        grade: parseGradeNumber(user.grade),
+      })
       if (g) {
         setShowCreateModal(false)
-        setCreateForm({ name: "", description: "", maxMembers: 20 })
+        setCreateForm({ name: "" })
         await loadMyGroups()
         setSelectedGroup(g)
       }
@@ -297,10 +301,10 @@ export default function MyClassPage() {
     setModalLoading(true)
     setModalError("")
     try {
-      const g = await api.post<GroupStudy>(
-        `/api/my-class/group-study/join?memberId=${user.id}`,
-        { classCode: joinCode.trim().toUpperCase() }
-      )
+      // 백엔드가 classCode → Hub inviteCode로 매핑
+      const g = await api.post<GroupStudy>(`/api/my-class/group-study/join`, {
+        classCode: joinCode.trim().toUpperCase(),
+      })
       if (g) {
         setShowJoinModal(false)
         setJoinCode("")
@@ -319,7 +323,7 @@ export default function MyClassPage() {
     if (!user || !selectedGroup) return
     if (!confirm(selectedGroup.myRole === "leader" ? "그룹 스터디를 삭제하시겠습니까? 모든 멤버가 탈퇴됩니다." : "그룹 스터디를 나가시겠습니까?")) return
     try {
-      await api.delete(`/api/my-class/group-study/${selectedGroup.id}/leave?memberId=${user.id}`)
+      await api.delete(`/api/my-class/group-study/${selectedGroup.id}/leave`)
       setSelectedGroup(null)
       setGroupTrend(null)
       setGroupRanking(null)
@@ -634,8 +638,10 @@ export default function MyClassPage() {
                       </div>
                       <div className="flex items-center gap-2 text-xs text-gray-400">
                         <Users className="w-3 h-3" />
-                        <span>{g.memberCount}/{g.maxMembers}명</span>
-                        <span className="font-mono tracking-wider text-[10px]">{g.classCode}</span>
+                        <span>{g.memberCount}{g.maxMembers ? `/${g.maxMembers}` : ""}명</span>
+                        {g.classCode && (
+                          <span className="font-mono tracking-wider text-[10px]">{g.classCode}</span>
+                        )}
                       </div>
                     </button>
                   ))}
@@ -651,9 +657,11 @@ export default function MyClassPage() {
                           <div className="flex items-center gap-2">
                             {selectedGroup.myRole === "leader" && <Crown className="w-4 h-4 text-amber-500" />}
                             <span className="font-semibold text-gray-800">{selectedGroup.name}</span>
-                            <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                              {selectedGroup.classCode}
-                            </span>
+                            {selectedGroup.classCode && (
+                              <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                                {selectedGroup.classCode}
+                              </span>
+                            )}
                           </div>
                           {selectedGroup.description && (
                             <p className="text-xs text-gray-400 mt-0.5">{selectedGroup.description}</p>
@@ -817,32 +825,13 @@ export default function MyClassPage() {
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 placeholder="예) 서울대 의대 목표반"
                 value={createForm.name}
-                onChange={(e) => setCreateForm((f) => ({ ...f, name: e.target.value }))}
+                onChange={(e) => setCreateForm({ name: e.target.value })}
                 maxLength={50}
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">설명 (선택)</label>
-              <input
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
-                placeholder="그룹 소개를 입력하세요"
-                value={createForm.description}
-                onChange={(e) => setCreateForm((f) => ({ ...f, description: e.target.value }))}
-                maxLength={200}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">최대 인원 ({createForm.maxMembers}명)</label>
-              <input
-                type="range" min={2} max={50}
-                value={createForm.maxMembers}
-                onChange={(e) => setCreateForm((f) => ({ ...f, maxMembers: parseInt(e.target.value) }))}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-gray-400 mt-0.5">
-                <span>2명</span><span>50명</span>
-              </div>
-            </div>
+            <p className="text-[11px] text-gray-400">
+              학년은 프로필 정보({user.grade ?? "—"})를 기준으로 자동 설정됩니다.
+            </p>
             {modalError && <p className="text-xs text-red-500">{modalError}</p>}
             <button
               onClick={handleCreate}
