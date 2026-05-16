@@ -25,9 +25,9 @@ import { JwtPayloadType } from '../auth/types/jwt-payload.type';
 /**
  * 그룹 스터디는 Hub `/api/groups/*`로 위임됨.
  * 응답 shape은 프론트엔드 호환을 위해 기존 GroupStudy 형식으로 매핑.
- * (classCode ← inviteCode, myRole ← role from Hub)
+ * Hub 응답이 camelCase / snake_case 어느 쪽이든 받아들임.
  */
-function mapHubGroupToLegacy(g: HubGroup): {
+function mapHubGroupToLegacy(g: any): {
   id: number;
   classCode: string;
   name: string;
@@ -38,12 +38,12 @@ function mapHubGroupToLegacy(g: HubGroup): {
 } {
   return {
     id: g.id,
-    classCode: g.inviteCode ?? '',
+    classCode: g.inviteCode ?? g.invite_code ?? g.classCode ?? '',
     name: g.name,
-    description: undefined,
-    maxMembers: g.maxMembers ?? 0,
-    memberCount: g.memberCount,
-    myRole: g.myRole ?? 'member',
+    description: g.description ?? undefined,
+    maxMembers: g.maxMembers ?? g.max_members ?? 0,
+    memberCount: g.memberCount ?? g.member_count ?? 0,
+    myRole: g.myRole ?? g.my_role ?? g.role ?? 'member',
   };
 }
 

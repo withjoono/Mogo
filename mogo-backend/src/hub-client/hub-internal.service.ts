@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { HubHttpService } from './hub-http.service';
 import { HubGroup, HubGroupMember } from './types/hub-group.types';
 
@@ -10,17 +10,27 @@ import { HubGroup, HubGroupMember } from './types/hub-group.types';
  *   - X-Service-Id: mogo
  *   - Hub의 ServiceAuthGuard가 검증 (화이트리스트 mogo|studyplanner)
  *
- * 용도: 리더보드 fan-out — Hub은 점수를 보관하지 않으므로,
- *   Mogo가 멤버 ID 목록만 Hub에서 받아와 자기 DB에서 점수 SELECT 후 정렬.
+ * 토큰 미주입 정책: 빈 배열 반환 + 1회 warn 로깅 (graceful degrade).
+ *   리더보드 등 부가 기능이 토큰 설정 전까진 빈 데이터만 보여줌, 핵심 흐름은 동작.
  */
 @Injectable()
 export class HubInternalService {
+  private readonly logger = new Logger(HubInternalService.name);
+  private warnedMissingToken = false;
+
   constructor(private readonly http: HubHttpService) {}
 
-  private get serviceHeaders(): Record<string, string> {
+  private serviceHeadersOrNull(): Record<string, string> | null {
     const token = process.env.HUB_SERVICE_TOKEN;
     if (!token) {
-      throw new InternalServerErrorException('HUB_SERVICE_TOKEN not configured');
+      if (!this.warnedMissingToken) {
+        this.logger.warn(
+          'HUB_SERVICE_TOKEN not configured — internal Hub calls will return empty results. ' +
+          'Configure via GCP Secret Manager / App Engine env to enable leaderboard fan-out.',
+        );
+        this.warnedMissingToken = true;
+      }
+      return null;
     }
     return {
       Authorization: `Bearer ${token}`,
@@ -28,28 +38,23 @@ export class HubInternalService {
     };
   }
 
-  /**
-   * 특정 사용자가 속한 그룹 목록 (모든 type 포함).
-   * TODO(hub-contract): 가이드의 경로는 `/api/internal/users/<me>/groups`였는데
-   * service token엔 "me"가 없으므로 hubUserId를 path param으로 받는다고 가정.
-   */
   async getUserGroups(hubUserId: string): Promise<HubGroup[]> {
+    const headers = this.serviceHeadersOrNull();
+    if (!headers) return [];
     return this.http.request<HubGroup[]>({
       method: 'GET',
       path: `/api/internal/users/${encodeURIComponent(hubUserId)}/groups`,
-      headers: this.serviceHeaders,
+      headers,
     });
   }
 
-  /**
-   * 특정 그룹의 멤버 hubUserId 목록.
-   * Mogo는 이 ID들을 mogo memberId로 변환(toMogoMemberId)해서 점수 SELECT.
-   */
   async getGroupMembers(groupId: number): Promise<HubGroupMember[]> {
+    const headers = this.serviceHeadersOrNull();
+    if (!headers) return [];
     return this.http.request<HubGroupMember[]>({
       method: 'GET',
       path: `/api/internal/groups/${groupId}/members`,
-      headers: this.serviceHeaders,
+      headers,
     });
   }
 }

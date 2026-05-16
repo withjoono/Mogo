@@ -9,7 +9,7 @@ import {
 } from "recharts"
 import {
   TrendingUp, TrendingDown, Minus, Plus, Users, LogIn,
-  Trophy, X, Crown, RefreshCw,
+  Trophy, X, Crown, RefreshCw, Copy, Check,
 } from "lucide-react"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -185,6 +185,26 @@ export default function MyClassPage() {
   const [joinCode, setJoinCode] = useState("")
   const [modalLoading, setModalLoading] = useState(false)
   const [modalError, setModalError] = useState("")
+  const [copiedCode, setCopiedCode] = useState(false)
+
+  // ── Copy invite code ──
+  const copyInviteCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code)
+      setCopiedCode(true)
+      setTimeout(() => setCopiedCode(false), 1500)
+    } catch {
+      // fallback for older browsers
+      const ta = document.createElement("textarea")
+      ta.value = code
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand("copy")
+      document.body.removeChild(ta)
+      setCopiedCode(true)
+      setTimeout(() => setCopiedCode(false), 1500)
+    }
+  }
 
   // ── Init user ──
   useEffect(() => {
@@ -652,11 +672,6 @@ export default function MyClassPage() {
                           <div className="flex items-center gap-2">
                             {selectedGroup.myRole === "leader" && <Crown className="w-4 h-4 text-amber-500" />}
                             <span className="font-semibold text-gray-800">{selectedGroup.name}</span>
-                            {selectedGroup.classCode && (
-                              <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                                {selectedGroup.classCode}
-                              </span>
-                            )}
                           </div>
                           {selectedGroup.description && (
                             <p className="text-xs text-gray-400 mt-0.5">{selectedGroup.description}</p>
@@ -677,6 +692,37 @@ export default function MyClassPage() {
                           </button>
                         </div>
                       </div>
+
+                      {/* Invite code share card */}
+                      {selectedGroup.classCode && (
+                        <div className="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-100 rounded-2xl p-4">
+                          <div className="flex items-center justify-between gap-3 flex-wrap">
+                            <div className="min-w-0">
+                              <p className="text-xs text-cyan-700 font-medium mb-1">초대 코드</p>
+                              <p className="text-2xl font-bold font-mono tracking-widest text-gray-800 break-all">
+                                {selectedGroup.classCode}
+                              </p>
+                              <p className="text-[11px] text-gray-500 mt-1">
+                                이 코드를 친구에게 공유하면 「코드로 참여」로 함께할 수 있어요
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => copyInviteCode(selectedGroup.classCode)}
+                              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors shrink-0 ${
+                                copiedCode
+                                  ? "bg-emerald-500 text-white"
+                                  : "bg-white text-cyan-700 border border-cyan-300 hover:bg-cyan-50"
+                              }`}
+                            >
+                              {copiedCode ? (
+                                <><Check className="w-4 h-4" />복사됨</>
+                              ) : (
+                                <><Copy className="w-4 h-4" />코드 복사</>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      )}
 
                       {groupLoading ? (
                         <div className="bg-white rounded-2xl p-12 text-center shadow-sm">

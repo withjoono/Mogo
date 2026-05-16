@@ -189,6 +189,8 @@ export class MyClassService {
 
   async getGroupStudyRanking(requesterHubUserId: string, classId: number) {
     const hubMembers = await this.hubInternal.getGroupMembers(classId);
+    // 빈 응답 = Hub 서비스 토큰 미주입 또는 그룹 비어있음 → 빈 ranking으로 부드럽게 종료
+    if (hubMembers.length === 0) return { classId, examId: null, examName: null, ranking: [] };
     if (!hubMembers.some((m) => m.hubUserId === requesterHubUserId)) {
       throw new ForbiddenException('클래스 멤버만 조회할 수 있습니다.');
     }
@@ -271,6 +273,7 @@ export class MyClassService {
 
   async getGroupStudyTrend(requesterHubUserId: string, classId: number) {
     const hubMembers = await this.hubInternal.getGroupMembers(classId);
+    if (hubMembers.length === 0) return { exams: [], trendsByMember: [] };
     if (!hubMembers.some((m) => m.hubUserId === requesterHubUserId)) {
       throw new ForbiddenException('클래스 멤버만 조회할 수 있습니다.');
     }
