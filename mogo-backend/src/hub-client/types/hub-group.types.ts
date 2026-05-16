@@ -34,7 +34,7 @@ export interface HubGroupMember {
 export interface CreateHubGroupRequest {
   groupType: Exclude<HubGroupType, 'target_univ'>;
   name: string;
-  grade?: number;
+  grade?: string;
 }
 
 export interface JoinHubGroupRequest {
@@ -43,6 +43,6 @@ export interface JoinHubGroupRequest {
 
 export interface MatchTargetUnivRequest {
   targetUnivCode: string;
-  grade?: number;
+  grade?: string;
   displayName?: string;
 }

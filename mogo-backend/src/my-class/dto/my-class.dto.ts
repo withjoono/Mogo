@@ -16,12 +16,11 @@ export class CreateGroupStudyDto {
   @Max(50)
   maxMembers?: number;
 
-  /** Hub /api/groups가 받는 학년 정보 (선택) */
+  /** Hub /api/groups가 받는 학년 정보 (선택) — 문자열 (예: "H3", "3", "고3"), 최대 10자 */
   @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Max(3)
-  grade?: number;
+  @IsString()
+  @MaxLength(10)
+  grade?: string;
 }
 
 export class JoinGroupStudyDto {

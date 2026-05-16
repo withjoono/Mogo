@@ -84,12 +84,7 @@ interface GroupStudy {
   myRole: string
 }
 
-// "H3" → 3, "H2" → 2; 매핑 안 되면 undefined
-function parseGradeNumber(grade?: string): number | undefined {
-  if (!grade) return undefined
-  const m = grade.match(/(\d+)/)
-  return m ? parseInt(m[1], 10) : undefined
-}
+// Hub의 grade 필드는 string (≤10자). user.grade("H3" 등)를 그대로 전송.
 
 interface GroupMemberTrend {
   memberId: number
@@ -277,11 +272,11 @@ export default function MyClassPage() {
     setModalLoading(true)
     setModalError("")
     try {
-      // Hub /api/groups 계약: { groupType, name, grade? }
+      // Hub /api/groups 계약: { groupType, name, grade? (string, ≤10자) }
       // description/maxMembers는 Hub에서 받지 않음 (백엔드에서 자동 무시)
       const g = await api.post<GroupStudy>(`/api/my-class/group-study`, {
         name: createForm.name.trim(),
-        grade: parseGradeNumber(user.grade),
+        grade: user.grade,
       })
       if (g) {
         setShowCreateModal(false)
