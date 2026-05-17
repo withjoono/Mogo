@@ -1,15 +1,17 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { api } from "@/lib/api/client"
 import { getUser, type User } from "@/lib/auth/user"
+import { getHubLoginUrl, getHubRegisterUrl } from "@/lib/auth/hub-login"
 import {
   LineChart, Line, BarChart, Bar, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts"
 import {
   TrendingUp, TrendingDown, Minus, Plus, Users, LogIn,
-  Trophy, X, Crown, RefreshCw, Copy, Check,
+  Trophy, X, Crown, RefreshCw, Copy, Check, Link as LinkIcon,
 } from "lucide-react"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -160,7 +162,10 @@ function RankBadge({ rank }: { rank: number | null }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
-export default function MyClassPage() {
+function MyClassPage() {
+  const searchParams = useSearchParams()
+  const inviteParam = searchParams.get("invite")?.toUpperCase() ?? null
+
   const [user, setUser] = useState<User | null>(null)
   const [tab, setTab] = useState<"target" | "group">("target")
 
@@ -186,30 +191,52 @@ export default function MyClassPage() {
   const [modalLoading, setModalLoading] = useState(false)
   const [modalError, setModalError] = useState("")
   const [copiedCode, setCopiedCode] = useState(false)
+  const [copiedLink, setCopiedLink] = useState(false)
 
-  // ── Copy invite code ──
-  const copyInviteCode = async (code: string) => {
+  // ── Copy helpers ──
+  const copyText = async (text: string) => {
     try {
-      await navigator.clipboard.writeText(code)
-      setCopiedCode(true)
-      setTimeout(() => setCopiedCode(false), 1500)
+      await navigator.clipboard.writeText(text)
     } catch {
-      // fallback for older browsers
       const ta = document.createElement("textarea")
-      ta.value = code
+      ta.value = text
       document.body.appendChild(ta)
       ta.select()
       document.execCommand("copy")
       document.body.removeChild(ta)
-      setCopiedCode(true)
-      setTimeout(() => setCopiedCode(false), 1500)
     }
+  }
+
+  const copyInviteCode = async (code: string) => {
+    await copyText(code)
+    setCopiedCode(true)
+    setTimeout(() => setCopiedCode(false), 1500)
+  }
+
+  const copyInviteLink = async (code: string) => {
+    const url = `${window.location.origin}/main/my-class?invite=${code}`
+    await copyText(url)
+    setCopiedLink(true)
+    setTimeout(() => setCopiedLink(false), 1500)
   }
 
   // ── Init user ──
   useEffect(() => {
     getUser().then(setUser)
   }, [])
+
+  // ── Auto-open join modal when invite param is present ──
+  useEffect(() => {
+    if (!user || !inviteParam) return
+    setTab("group")
+    setJoinCode(inviteParam)
+    setShowJoinModal(true)
+    setModalError("")
+    // URL에서 invite 파라미터 제거 (새로고침 시 재진입 방지)
+    const url = new URL(window.location.href)
+    url.searchParams.delete("invite")
+    window.history.replaceState({}, "", url.toString())
+  }, [user, inviteParam])
 
   // ── Load targets on user ready ──
   useEffect(() => {
@@ -383,17 +410,51 @@ export default function MyClassPage() {
 
   // ── Loading / unauth guard ──
   if (!user) {
+    const returnPath = inviteParam
+      ? `/main/my-class?invite=${inviteParam}`
+      : "/main/my-class"
+
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 mb-4">로그인이 필요한 페이지입니다.</p>
-          <button
-            onClick={() => window.location.href = "/"}
-            className="px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm hover:bg-cyan-700"
-          >
-            홈으로
-          </button>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="text-center max-w-xs w-full">
+          {inviteParam ? (
+            <>
+              <div className="w-14 h-14 bg-cyan-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Users className="w-7 h-7 text-cyan-600" />
+              </div>
+              <p className="text-gray-800 font-semibold text-base mb-1">스터디 그룹 초대</p>
+              <p className="text-sm text-gray-500 mb-1">
+                초대 코드:{" "}
+                <span className="font-mono font-bold text-gray-800 tracking-widest">{inviteParam}</span>
+              </p>
+              <p className="text-sm text-gray-400 mb-6">참여하려면 먼저 로그인이 필요해요.</p>
+              <div className="flex flex-col gap-2">
+                <a
+                  href={getHubLoginUrl(returnPath)}
+                  className="block px-4 py-2.5 bg-cyan-600 text-white rounded-xl text-sm font-medium hover:bg-cyan-700 transition-colors"
+                >
+                  로그인하고 참여하기
+                </a>
+                <a
+                  href={getHubRegisterUrl(returnPath)}
+                  className="block px-4 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
+                >
+                  회원가입 후 참여하기
+                </a>
+              </div>
+            </>
+          ) : (
+            <>
+              <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500 mb-4">로그인이 필요한 페이지입니다.</p>
+              <button
+                onClick={() => window.location.href = "/"}
+                className="px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm hover:bg-cyan-700"
+              >
+                홈으로
+              </button>
+            </>
+          )}
         </div>
       </div>
     )
@@ -696,33 +757,54 @@ export default function MyClassPage() {
                         </div>
                       </div>
 
-                      {/* Invite code share card */}
+                      {/* Invite share card */}
                       {selectedGroup.classCode && (
                         <div className="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-100 rounded-2xl p-4">
-                          <div className="flex items-center justify-between gap-3 flex-wrap">
-                            <div className="min-w-0">
-                              <p className="text-xs text-cyan-700 font-medium mb-1">초대 코드</p>
-                              <p className="text-2xl font-bold font-mono tracking-widest text-gray-800 break-all">
+                          <p className="text-xs text-cyan-700 font-medium mb-2">친구 초대</p>
+                          <div className="flex items-start justify-between gap-3 flex-wrap">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-2xl font-bold font-mono tracking-widest text-gray-800">
                                 {selectedGroup.classCode}
                               </p>
-                              <p className="text-[11px] text-gray-500 mt-1">
-                                이 코드를 친구에게 공유하면 「코드로 참여」로 함께할 수 있어요
+                              <p className="text-[11px] text-gray-400 mt-0.5 break-all">
+                                {typeof window !== "undefined"
+                                  ? `${window.location.origin}/main/my-class?invite=${selectedGroup.classCode}`
+                                  : ""}
+                              </p>
+                              <p className="text-[11px] text-gray-500 mt-1.5">
+                                링크를 공유하면 친구가 바로 참여 페이지로 이동해요
                               </p>
                             </div>
-                            <button
-                              onClick={() => copyInviteCode(selectedGroup.classCode)}
-                              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors shrink-0 ${
-                                copiedCode
-                                  ? "bg-emerald-500 text-white"
-                                  : "bg-white text-cyan-700 border border-cyan-300 hover:bg-cyan-50"
-                              }`}
-                            >
-                              {copiedCode ? (
-                                <><Check className="w-4 h-4" />복사됨</>
-                              ) : (
-                                <><Copy className="w-4 h-4" />코드 복사</>
-                              )}
-                            </button>
+                            <div className="flex flex-col gap-1.5 shrink-0">
+                              <button
+                                onClick={() => copyInviteLink(selectedGroup.classCode)}
+                                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                  copiedLink
+                                    ? "bg-emerald-500 text-white"
+                                    : "bg-cyan-600 text-white hover:bg-cyan-700"
+                                }`}
+                              >
+                                {copiedLink ? (
+                                  <><Check className="w-4 h-4" />복사됨</>
+                                ) : (
+                                  <><LinkIcon className="w-4 h-4" />링크 복사</>
+                                )}
+                              </button>
+                              <button
+                                onClick={() => copyInviteCode(selectedGroup.classCode)}
+                                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                  copiedCode
+                                    ? "bg-emerald-500 text-white"
+                                    : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50"
+                                }`}
+                              >
+                                {copiedCode ? (
+                                  <><Check className="w-4 h-4" />복사됨</>
+                                ) : (
+                                  <><Copy className="w-4 h-4" />코드만</>
+                                )}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -1030,5 +1112,17 @@ function LegendDot({ color, label, thick, dashed }: { color: string; label: stri
       </svg>
       <span className="text-xs text-gray-500">{label}</span>
     </div>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin w-7 h-7 border-2 border-cyan-500 border-t-transparent rounded-full" />
+      </div>
+    }>
+      <MyClassPage />
+    </Suspense>
   )
 }
