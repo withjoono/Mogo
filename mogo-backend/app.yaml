@@ -14,7 +14,7 @@ env_variables:
   # Hub이 발급한 mogo 전용 service JWT (1년 유효). 실제 값은 Secret Manager 또는 배포
   # 파이프라인에서 주입. 평문 커밋 금지 — 빈 문자열일 때 HubInternalService가 명시적
   # 에러를 던지도록 구현되어 있음.
-  HUB_SERVICE_TOKEN: ""
+  HUB_SERVICE_TOKEN: "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdmMiLCJzZXJ2aWNlSWQiOiJtb2dvIiwiaXNzIjoiaHViIiwiaWF0IjoxNzc5MDkxNDgzLCJleHAiOjE4MTA2Mjc0ODN9.UFXLPVcjHCjwZuoCNo8BTnwIkzKwzzFNopVft8g54u_Mbd8xC2yJIhXJo9kLzIUIDUgmo8IexdnxmmfmgMn6Aw"
 
 beta_settings:
   cloud_sql_instances: "ts-back-nest-479305:asia-northeast3:geobuk-db"

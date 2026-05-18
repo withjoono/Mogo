@@ -51,10 +51,15 @@ export class HubInternalService {
   async getGroupMembers(groupId: number): Promise<HubGroupMember[]> {
     const headers = this.serviceHeadersOrNull();
     if (!headers) return [];
-    return this.http.request<HubGroupMember[]>({
+    const result = await this.http.request<any>({
       method: 'GET',
       path: `/api/internal/groups/${groupId}/members`,
       headers,
     });
+    // Hub returns { requestedBy, groupId, groupName, groupType, ownerHubUserId, members: [...] }
+    if (result && !Array.isArray(result) && Array.isArray(result.members)) {
+      return result.members as HubGroupMember[];
+    }
+    return Array.isArray(result) ? result : [];
   }
 }
