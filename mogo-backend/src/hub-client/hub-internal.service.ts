@@ -48,18 +48,50 @@ export class HubInternalService {
     });
   }
 
-  async getGroupMembers(groupId: number): Promise<HubGroupMember[]> {
+  async getGroupMembers(
+    groupId: string | number,
+    groupType: 'teacher' | 'study' | 'aim_univ' | 'aim-univ' = 'study',
+  ): Promise<HubGroupMember[]> {
     const headers = this.serviceHeadersOrNull();
     if (!headers) return [];
+    const typeSegment = groupType === 'aim_univ' ? 'aim-univ' : groupType;
     const result = await this.http.request<any>({
       method: 'GET',
-      path: `/api/internal/groups/${groupId}/members`,
+      path: `/api/internal/groups/${typeSegment}/${groupId}/members`,
       headers,
     });
-    // Hub returns { requestedBy, groupId, groupName, groupType, ownerHubUserId, members: [...] }
+    // Hub returns { requestedBy, groupId, groupName, groupType, members: [...] }
     if (result && !Array.isArray(result) && Array.isArray(result.members)) {
       return result.members as HubGroupMember[];
     }
     return Array.isArray(result) ? result : [];
+  }
+
+  /**
+   * Hub 대시보드 알림 적재 (fire-and-forget).
+   *
+   * 채점 완료 등 이벤트 시 사용자의 Hub 대시보드 "나의 앱" 카드에 표시될 알림을 보낸다.
+   * 알림 전송 실패가 핵심 흐름(채점 저장 등)을 막으면 안 되므로 에러는 삼키고 로깅만 한다.
+   * 토큰 미설정 시에도 graceful skip.
+   */
+  async sendNotification(payload: {
+    hubUserId: string;
+    type: string;
+    title: string;
+    body?: string;
+    linkPath?: string;
+  }): Promise<void> {
+    const headers = this.serviceHeadersOrNull();
+    if (!headers) return;
+    try {
+      await this.http.request({
+        method: 'POST',
+        path: '/api/internal/notifications',
+        headers,
+        body: payload,
+      });
+    } catch (err) {
+      this.logger.warn(`Hub 알림 전송 실패 (무시됨): ${(err as Error).message}`);
+    }
   }
 }

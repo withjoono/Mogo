@@ -3,10 +3,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateScoreDto } from './dto/create-score.dto';
 import { UpdateScoreDto } from './dto/update-score.dto';
 import { toMogoMemberId } from '../common/utils/member-id.util';
+import { HubInternalService } from '../hub-client/hub-internal.service';
 
 @Injectable()
 export class ScoreService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly hubInternal: HubInternalService,
+  ) { }
 
   /**
    * 점수 저장 (upsert)
@@ -35,7 +39,7 @@ export class ScoreService {
     const calculatedData = this.calculateTotals(scoreData);
 
     // Upsert 처리
-    return this.prisma.studentScore.upsert({
+    const saved = await this.prisma.studentScore.upsert({
       where: {
         memberId_mockExamId: {
           memberId: member.id,
@@ -57,6 +61,16 @@ export class ScoreService {
         mockExam: true,
       },
     });
+
+    // Hub 대시보드 알림 (fire-and-forget — 실패해도 채점 저장에 영향 없음)
+    // hubUserId 는 변환 전 원본 studentId (= Hub auth_member.id)
+    void this.hubInternal.sendNotification({
+      hubUserId: studentId,
+      type: 'scoring',
+      title: '새 모의고사 채점 결과가 도착했어요',
+    });
+
+    return saved;
   }
 
   /**
