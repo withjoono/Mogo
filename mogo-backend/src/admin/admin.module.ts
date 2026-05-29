@@ -4,8 +4,10 @@ import { AdminService } from './admin.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { MockExamService } from '../mock-exam/mock-exam.service';
 import { ScoreService } from '../score/score.service';
+import { HubClientModule } from '../hub-client/hub-client.module';
 
 @Module({
+  imports: [HubClientModule],
   controllers: [AdminController],
   providers: [AdminService, PrismaService, MockExamService, ScoreService],
 })
