@@ -25,6 +25,7 @@
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node prisma/seed.ts",
     "prisma:import": "ts-node prisma/import-excel.ts",
+    "prisma:import-sakwan": "ts-node prisma/import-sakwan-kichul.ts",
     "db:reset": "prisma migrate reset --force"
   },
   "prisma": {

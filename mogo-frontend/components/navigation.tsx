@@ -79,7 +79,7 @@ export function Navigation() {
     { name: "누적분석", href: "/main/statistics" },
     { name: "취약분석", href: "/main/weakness-analysis" },
     { name: "오답노트", href: "/main/wrong-answers" },
-    { name: "마이클래스", href: "/main/my-class" },
+    { name: "마이그룹", href: "/main/my-group" },
   ]
 
   return (

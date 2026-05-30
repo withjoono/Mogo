@@ -31,7 +31,7 @@ export async function getUser(): Promise<User | null> {
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000);
+    const timeout = setTimeout(() => controller.abort(), 10000);
     let response: Response;
     try {
       response = await fetch(`${HUB_API_URL}/auth/me`, {

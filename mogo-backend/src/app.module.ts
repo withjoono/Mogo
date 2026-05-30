@@ -15,7 +15,7 @@ import { AdminModule } from './admin/admin.module';
 import { WrongAnswerModule } from './wrong-answer/wrong-answer.module';
 import { WeaknessAnalysisModule } from './weakness-analysis/weakness-analysis.module';
 import { ExploreModule } from './explore/explore.module';
-import { MyClassModule } from './my-class/my-class.module';
+import { MyGroupModule } from './my-group/my-group.module';
 
 @Module({
   imports: [
@@ -35,7 +35,7 @@ import { MyClassModule } from './my-class/my-class.module';
     WrongAnswerModule,
     WeaknessAnalysisModule,
     ExploreModule,
-    MyClassModule,
+    MyGroupModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

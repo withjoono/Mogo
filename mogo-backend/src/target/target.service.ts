@@ -307,20 +307,20 @@ export class TargetService {
    * 404(미가입)는 멱등성 차원에서 정상 처리로 간주.
    */
   private safeLeaveTargetUniv(authHeader: string, targetUnivCode: string) {
-    this.hub.leaveTargetUniv(authHeader, targetUnivCode).catch((err: any) => {
+    this.hub.leaveAimUniv(authHeader, targetUnivCode).catch((err: any) => {
       if (err?.getStatus?.() === 404 || err?.status === 404) return;
       this.logger.warn(
-        `Hub target-univ leave 실패 (code=${targetUnivCode}): ${(err as Error).message}`,
+        `Hub aim-univ leave 실패 (code=${targetUnivCode}): ${(err as Error).message}`,
       );
     });
   }
 
   private safeMatchTargetUniv(authHeader: string, targetUnivCode: string, displayName?: string) {
     this.hub
-      .matchTargetUniv(authHeader, { targetUnivCode, displayName })
+      .matchAimUniv(authHeader, { targetUnivCode, displayName })
       .catch((err) => {
         this.logger.warn(
-          `Hub target-univ match 실패 (code=${targetUnivCode}): ${(err as Error).message}`,
+          `Hub aim-univ match 실패 (code=${targetUnivCode}): ${(err as Error).message}`,
         );
       });
   }

@@ -490,6 +490,59 @@ model QuestionCategory2022 {
   @@map("mg_2022_question_category")
 }
 
+// === 문제유형 분석 (수능/9월모평 2022~) ===
+
+model QuestionType {
+  id            Int     @id @default(autoincrement())
+  examCode      String  @map("exam_code") @db.VarChar(20)
+  subjectCode   String  @map("subject_code") @db.VarChar(10)
+  year          Int
+  examType      String  @map("exam_type") @db.VarChar(10)
+  subject       String  @db.VarChar(30)
+  questionNo    Int     @map("question_no")
+  area          String? @db.VarChar(50)
+  subArea       String? @map("sub_area") @db.VarChar(50)
+  passage       String? @db.VarChar(200)
+  era           String? @db.VarChar(50)
+  topic         String? @db.VarChar(200)
+  chapter       String? @db.VarChar(100)
+  subChapter    String? @map("sub_chapter") @db.VarChar(100)
+  majorChapter  String? @map("major_chapter") @db.VarChar(100)
+  midChapter    String? @map("mid_chapter") @db.VarChar(100)
+  keyConcept    String? @map("key_concept") @db.VarChar(200)
+  passageType   String? @map("passage_type") @db.VarChar(50)
+  passageField  String? @map("passage_field") @db.VarChar(50)
+  questionType  String  @map("question_type") @db.VarChar(50)
+  subType       String? @map("sub_type") @db.VarChar(50)
+  score         Int?
+  difficulty    String? @db.VarChar(10)
+  summary       String? @db.VarChar(200)
+
+  @@unique([examCode, subject, questionNo])
+  @@index([examCode])
+  @@index([year, examType, subject])
+  @@index([questionType])
+  @@map("mg_question_type")
+}
+
+// === 사관학교 기출 답지 ===
+
+model SakwanKichul {
+  id           Int      @id @default(autoincrement())
+  year         Int
+  subject      String   @db.VarChar(10)
+  section      String   @db.VarChar(20)
+  questionType String   @map("question_type") @db.VarChar(10)
+  questionNo   Int      @map("question_no")
+  answer       Int
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@unique([year, subject, section, questionNo])
+  @@index([year, subject])
+  @@index([subject, section])
+  @@map("sakwan_kichul")
+}
+
 // === 마이클래스 ===
 
 model MyClass {

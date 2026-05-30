@@ -1,47 +1,51 @@
 /**
- * Hub Groups 도메인 타입
+ * Hub Groups 도메인 타입 (hub_group 3분리 체계 기준)
  *
- * TODO(hub-contract): Hub 측 실제 응답 필드명(camel vs snake), id 타입(int|uuid),
- * group_type/role enum 값 확인 후 정합 보정. 현재는 가이드와 Hub 검증 로그(invite_code,
- * owner_hub_user_id, target_univ_code 컬럼 신설)에 근거한 추정.
+ * groupType 변경:
+ *   student_study → study
+ *   target_univ   → aim_univ
+ *   teacher       → teacher (유지)
  */
 
-export type HubGroupType = 'student_study' | 'teacher' | 'target_univ';
+export type HubGroupType = 'study' | 'teacher' | 'aim_univ';
 
-export type HubGroupRole = 'leader' | 'member' | 'mentor' | 'student';
+export type HubGroupRole = 'owner' | 'member';
 
 export interface HubGroup {
-  id: number;
+  id: string;            // BigInt → string 직렬화
   name: string;
   groupType: HubGroupType;
   inviteCode: string | null;
-  ownerHubUserId: string | null;
-  targetUnivCode: string | null;
+  teacherHubId?: string | null;   // teacher 타입
+  ownerHubId?: string | null;     // study 타입
+  targetUnivCode?: string | null; // aim_univ 타입
   memberCount: number;
-  maxMembers: number | null;
-  myRole?: HubGroupRole;
+  maxMembers: number;
+  isActive: boolean;
+  joinedAt: string;
 }
 
 export interface HubGroupMember {
   hubUserId: string;
+  nickname: string | null;
+  profileImageUrl: string | null;
   role: HubGroupRole;
   joinedAt: string;
-  displayName?: string;
 }
 
 // === 요청 바디 ===
 
-export interface CreateHubGroupRequest {
-  groupType: Exclude<HubGroupType, 'target_univ'>;
+export interface CreateStudyGroupRequest {
   name: string;
-  grade?: string;
+  description?: string;
+  maxMembers?: number;
 }
 
 export interface JoinHubGroupRequest {
   inviteCode: string;
 }
 
-export interface MatchTargetUnivRequest {
+export interface MatchAimUnivRequest {
   targetUnivCode: string;
   grade?: string;
   displayName?: string;
